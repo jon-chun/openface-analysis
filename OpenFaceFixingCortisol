@@ -45,7 +45,7 @@ cortisol_original <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudi
 ## Rename the id variable in cortisol
 
 ```{r}
-names(cortisol_original)[names(cortisol_original) == "ï..ID"] <- "id"
+names(cortisol_original)[names(cortisol_original) == "Ã¯..ID"] <- "id"
 ```
 
 
@@ -90,18 +90,18 @@ The formula used in Lopez-Duran 2014:
 X' = ((X^0.26) - 1))/0.26
 
 ```{r BoxCox Power Transformations}
-cort1bc <- (((cortisol$Cortisol_Win.1)^.26)- 1)/0.26
-cort2bc <- (((cortisol$Cortisol_Win.2)^.26)- 1)/0.26
-cort3bc <- (((cortisol$Cortisol_Win.3)^.26)- 1)/0.26
-cort4bc <- (((cortisol$Cortisol_Win.4)^.26)- 1)/0.26
-cort5bc <- (((cortisol$Cortisol_Win.5)^.26)- 1)/0.26
-cort6bc <- (((cortisol$Cortisol_Win.6)^.26)- 1)/0.26
-cort7bc <- (((cortisol$Cortisol_Win.7)^.26)- 1)/0.26
-cort8bc <- (((cortisol$Cortisol_Win.8)^.26)- 1)/0.26
-cort9bc <- (((cortisol$Cortisol_Win.9)^.26)- 1)/0.26
-cort10bc <- (((cortisol$Cortisol_Win.10)^.26)- 1)/0.26
-cort11bc <- (((cortisol$Cortisol_Win.11)^.26)- 1)/0.26
-cort12bc <- (((cortisol$Cortisol_Win.12)^.26)- 1)/0.26
+cort1bc <- (((cortisol$Cortisol_Win.1)^-.26)- 1)/-0.26
+cort2bc <- (((cortisol$Cortisol_Win.2)^-.26)- 1)/-0.26
+cort3bc <- (((cortisol$Cortisol_Win.3)^-.26)- 1)/-0.26
+cort4bc <- (((cortisol$Cortisol_Win.4)^-.26)- 1)/-0.26
+cort5bc <- (((cortisol$Cortisol_Win.5)^-.26)- 1)/-0.26
+cort6bc <- (((cortisol$Cortisol_Win.6)^-.26)- 1)/-0.26
+cort7bc <- (((cortisol$Cortisol_Win.7)^-.26)- 1)/-0.26
+cort8bc <- (((cortisol$Cortisol_Win.8)^-.26)- 1)/-0.26
+cort9bc <- (((cortisol$Cortisol_Win.9)^-.26)- 1)/-0.26
+cort10bc <- (((cortisol$Cortisol_Win.10)^-.26)- 1)/-0.26
+cort11bc <- (((cortisol$Cortisol_Win.11)^-.26)- 1)/-0.26
+cort12bc <- (((cortisol$Cortisol_Win.12)^-.26)- 1)/-0.26
 ```
 
 ```{r }
@@ -132,7 +132,12 @@ cortisol["cort12bc"] <- cort12bc
 
 ### Growth Curve Modeling (GCM)
 
-All GCM stuff will be done in OpenFaceAnalysis_Ver2, because it involves the CTQ and AU variables to build a model. 
+This will done in a totally different .rmd file, but it'll look something like this:
+mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
+
+## Landmark Registration
+
+Ask someone who knows where the cortisol data with landmark registration is.
 
 ## Writing it back out
 
