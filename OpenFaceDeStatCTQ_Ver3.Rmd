@@ -1,0 +1,588 @@
+---
+title: "Descriptive Statistics: CTQ"
+author: "Julianna Calabrese"
+date: "12/7/2018"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#install.packages("mosaic")
+#install.packages("ggplot2")
+#install.packages("tidyr")
+#install.packages("dplyr")
+#install.packages("psych")
+#install.packages("nlme")
+#install.packages("apaTables")
+#install.packages("plyr")
+#install.packages("Hmisc")
+#install.packages(corrplot)
+#install.packages(corrr)
+#install.packages(pastecs)
+#install.packages(reshape2)
+#install.packages(devtools)
+#install.packages(ggpubr)
+#install.packages(ICC)
+#install.packages(irr)
+#install.packages(tinytex)
+#install.packages(latexpdf)
+#install.packages(rmarkdown)
+#install.packages(Cairo)
+#install.packages(lemon)
+#install.packages(kableExtra)
+#install.packages(knitr)
+#install.packages(stargazer)
+#install.packages(yaml)
+#install.packages(expss)
+#install.packages(prettydoc)
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(apaTables)
+library(plyr)
+library(Hmisc)
+library(corrplot)
+library(corrr)
+library(pastecs)
+library(reshape2)
+library(devtools)
+library(ggpubr)
+library(ICC)
+library(irr)
+library(tinytex)
+library(latexpdf)
+library(rmarkdown)
+library(Cairo)
+library(lemon)
+library(kableExtra)
+library(knitr)
+library(stargazer)
+library(pastecs)
+library(yaml)
+library(expss)
+```
+
+```{r, include=FALSE}
+#cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.csv", header=TRUE, sep=",")
+
+cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
+
+cp_joined$X <- NULL
+```
+
+```{r, include=FALSE}
+#ctq <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/ctq.csv", header=TRUE, sep=",")
+
+ctq <- read.csv(file="/Users/Julianna/Desktop/data/ctq.csv", header=TRUE, sep=",")
+
+#names(ctq)[names(ctq) == "?..id"] <- "id"
+```
+
+```{r, include=FALSE}
+which( colnames(cp_joined)=="ctq1_1") #42
+which( colnames(cp_joined)=="ctq4_28_R") #69
+
+which( colnames(ctq)=="ctq1_1") #2
+which( colnames(ctq)=="ctq4_28_R") #37
+```
+
+## Intensity Histograms
+
+#### CTQ Total Histograms
+
+```{r CTQ Total Histograms}
+colfunc <- colorRampPalette(c("cyan", "violetred4"))
+hist(cp_joined$CTQ_Total_Mean, main = "CTQ Total Mean", xlab = "Score",col=colfunc(8))
+hist(cp_joined$CTQ_Total_Sum, main = "CTQ Total Sum", xlab = "Score",col=colfunc(8))
+```
+
+#### Emotional Abuse Histograms
+
+```{r Emotional Abuse Histograms}
+colfunc2 <- colorRampPalette(c("darkgreen", "violet"))
+colfunc <- colorRampPalette(c("cyan", "violetred4"))
+hist(cp_joined$CTQ_EmoAbuse_Mean, main = "CTQ Emotional Abuse Mean Histogram", xlab = "Score",col=colfunc2(8))
+hist(cp_joined$CTQ_EmoAbuse_Sum, main = "CTQ Emotional Abuse Sum Histogram", xlab = "Score",col=colfunc2(8))
+```
+
+#### Physical Abuse Histograms
+
+```{r Physical Abuse Histograms}
+colfunc3 <- colorRampPalette(c("hotpink", "turquoise"))
+hist(cp_joined$CTQ_PhyAbuse_Mean, main = "CTQ Physical Abuse Mean Histogram", xlab = "Score",col=colfunc3(8))
+hist(cp_joined$CTQ_PhyAbuse_Sum, main = "CTQ Physical Abuse Sum Histogram", xlab = "Score",col=colfunc3(8))
+```
+
+#### Sexual Abuse Histograms
+
+```{r Sexual Abuse Histograms}
+colfunc4 <- colorRampPalette(c("forestgreen", "plum"))
+hist(cp_joined$CTQ_SexAbuse_Mean,main = "CTQ Sexual Abuse Mean Histogram", xlab = "Score",col=colfunc4(8))
+hist(cp_joined$CTQ_SexAbuse_Sum, main = "CTQ Sexual Abuse Sum Histogram", xlab = "Score",col=colfunc4(8))
+```
+
+
+## Correlation Matrices
+
+#### CTQ Total Correlation Matrix
+
+```{r Making ctqtotal}
+ctqtotal <- data.frame(cp_joined$ctq1_1, cp_joined$ctq1_2_R, cp_joined$ctq1_3, cp_joined$ctq1_4, cp_joined$ctq1_5_R, cp_joined$ctq1_6, cp_joined$ctq1_7_R, cp_joined$ctq2_8, cp_joined$ctq2_9, cp_joined$ctq2_10, cp_joined$ctq2_11, cp_joined$ctq2_12, cp_joined$ctq2_13_R, cp_joined$ctq2_14, cp_joined$ctq3_15, cp_joined$ctq3_16, cp_joined$ctq3_17, cp_joined$ctq3_18, cp_joined$ctq3_19_R, cp_joined$ctq3_20, cp_joined$ctq3_21, cp_joined$ctq4_22, cp_joined$ctq4_23, cp_joined$ctq4_24, cp_joined$ctq4_25, cp_joined$ctq4_26_R, cp_joined$ctq4_27, cp_joined$ctq4_28_R)
+```
+
+```{r, include=FALSE}
+#write.csv(ctqtotalcor, "C:/Users/jrcala/Documents/My Research/RStudio/ctqtotalcor.csv")
+
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_1"] <- "1"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_2_R"] <- "2"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_3"] <- "3"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_4"] <- "4"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_5_R"] <- "5"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_6"] <- "6"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq1_7_R"] <- "7"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_8"] <- "8"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_9"] <- "9"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_10"] <- "10"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_11"] <- "11"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_12"] <- "12"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_13_R"] <- "13"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq2_14"] <- "14"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_15"] <- "15"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_16"] <- "16"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_17"] <- "17"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_18"] <- "18"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_19_R"] <- "19"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_20"] <- "20"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq3_21"] <- "21"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_22"] <- "22"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_23"] <- "23"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_24"] <- "24"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_25"] <- "25"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_26_R"] <- "26"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_27"] <- "27"
+names(ctqtotal)[names(ctqtotal) == "cp_joined.ctq4_28_R"] <- "28"
+```
+
+```{r CTQ Total Correlation Matrix}
+ctqtotalcor <- stats::cor(ctqtotal, use = "complete.obs")
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+
+ctqcorrplot <- corrplot(ctqtotalcor,method="square", type = "upper", title = "CTQ Total Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+```
+
+#### Emotional Abuse Correlation Matrix
+
+```{r Making emoabuse}
+emoabuse <- data.frame(cp_joined$ctq1_3, cp_joined$ctq2_8, cp_joined$ctq2_14,cp_joined$ctq3_18, cp_joined$ctq4_25)
+```
+
+```{r, include=FALSE}
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_1"] <- "1"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_2_R"] <- "2"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_3"] <- "3"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_4"] <- "4"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_5_R"] <- "5"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_6"] <- "6"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq1_7_R"] <- "7"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_8"] <- "8"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_9"] <- "9"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_10"] <- "10"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_11"] <- "11"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_12"] <- "12"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_13_R"] <- "13"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq2_14"] <- "14"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_15"] <- "15"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_16"] <- "16"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_17"] <- "17"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_18"] <- "18"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_19_R"] <- "19"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_20"] <- "20"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq3_21"] <- "21"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_22"] <- "22"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_23"] <- "23"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_24"] <- "24"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_25"] <- "25"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_26_R"] <- "26"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_27"] <- "27"
+names(emoabuse)[names(emoabuse) == "cp_joined.ctq4_28_R"] <- "28"
+```
+
+```{r Emotional Abuse Correlation Matrix}
+emoabusecor <- stats::cor(emoabuse, use = "complete.obs")
+
+emoabusecorrplot <- corrplot(emoabusecor,method="square", type = "upper", title = "CTQ Emotional Abuse Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+```
+
+#### Physical Abuse Correlation Matrix
+
+```{r Making phyabuse}
+phyabuse <- data.frame(cp_joined$ctq2_9, cp_joined$ctq2_11, cp_joined$ctq2_12, cp_joined$ctq3_15, cp_joined$ctq3_17)
+```
+
+```{r, include=FALSE}
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_1"] <- "1"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_2_R"] <- "2"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_3"] <- "3"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_4"] <- "4"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_5_R"] <- "5"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_6"] <- "6"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq1_7_R"] <- "7"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_8"] <- "8"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_9"] <- "9"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_10"] <- "10"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_11"] <- "11"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_12"] <- "12"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_13_R"] <- "13"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq2_14"] <- "14"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_15"] <- "15"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_16"] <- "16"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_17"] <- "17"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_18"] <- "18"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_19_R"] <- "19"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_20"] <- "20"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq3_21"] <- "21"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_22"] <- "22"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_23"] <- "23"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_24"] <- "24"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_25"] <- "25"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_26_R"] <- "26"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_27"] <- "27"
+names(phyabuse)[names(phyabuse) == "cp_joined.ctq4_28_R"] <- "28"
+```
+
+```{r Physical Abuse Correlation Matrix}
+phyabusecor <- stats::cor(phyabuse, use = "complete.obs")
+
+phyabusecorrplot <- corrplot(phyabusecor,method="square", type = "upper", title = "CTQ Physical Abuse Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+```
+
+#### Sexual Abuse Correlation Matrix
+
+```{r Making sexabuse}
+sexabuse <- data.frame(cp_joined$ctq3_20, cp_joined$ctq3_21, cp_joined$ctq4_23, cp_joined$ctq4_24, cp_joined$ctq4_27)
+```
+
+```{r, include=FALSE}
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_1"] <- "1"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_2_R"] <- "2"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_3"] <- "3"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_4"] <- "4"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_5_R"] <- "5"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_6"] <- "6"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq1_7_R"] <- "7"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_8"] <- "8"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_9"] <- "9"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_10"] <- "10"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_11"] <- "11"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_12"] <- "12"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_13_R"] <- "13"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq2_14"] <- "14"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_15"] <- "15"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_16"] <- "16"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_17"] <- "17"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_18"] <- "18"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_19_R"] <- "19"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_20"] <- "20"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq3_21"] <- "21"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_22"] <- "22"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_23"] <- "23"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_24"] <- "24"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_25"] <- "25"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_26_R"] <- "26"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_27"] <- "27"
+names(sexabuse)[names(sexabuse) == "cp_joined.ctq4_28_R"] <- "28"
+```
+
+```{r Sexual Abuse Correlation Matrix}
+sexabusecor <- stats::cor(sexabuse, use = "complete.obs")
+
+sexabusecorrplot <- corrplot(sexabusecor,method="square", type = "upper", title = "CTQ Sexual Abuse Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+```
+
+
+## Inter-Item Correlations
+
+Inter-item correlations examine the extent to which scores on one item are related to scores on all other items in a scale; it allows us to test for redunancy. Ideally we'd get something between .2 and .4. 
+
+```{r CTQ Total}
+#Average Inter-Item Correlation for CTQ Total
+ctqtotal %>% correlate()
+ctqtotal_iic <- ctqtotal%>% correlate() %>% dplyr::select(-rowname) %>% colMeans(na.rm = TRUE)
+ctqtotal_iic
+mean(ctqtotal_iic)
+
+#write.csv(ctqtotal_iic, "C:/Users/jrcala/Documents/My Research/RStudio/inter_item_aur.csv")
+
+data.frame(ctqtotal_iic) %>% 
+  ggplot(aes(x = ctqtotal_iic)) +
+    geom_histogram(bins = 10, alpha = .5) +
+    geom_vline(xintercept = mean(ctqtotal_iic), color = "red") +
+    xlab("Mean inter-item correlation for CTQ Total") +
+    theme_bw()
+```
+
+```{r Emotional Abuse Subscale, include=FALSE}
+#Average Inter-Item Correlation for CTQ Emotional Abuse
+emoabuse %>% correlate()
+emoabuse_iic <- emoabuse %>% correlate() %>% dplyr::select(-rowname) %>% colMeans(na.rm = TRUE)
+emoabuse_iic
+mean(emoabuse_iic)
+
+#write.csv(emoabuse_iic, "C:/Users/jrcala/Documents/My Research/RStudio/inter_item_aur.csv")
+
+data.frame(emoabuse_iic) %>% 
+  ggplot(aes(x = emoabuse_iic)) +
+    geom_histogram(bins = 10, alpha = .5) +
+    geom_vline(xintercept = mean(emoabuse_iic), color = "red") +
+    xlab("Mean inter-item correlation for CTQ Emotional Abuse") +
+    theme_bw()
+```
+
+```{r Physical Abuse Subscale, include=FALSE}
+#Average Inter-Item Correlation for CTQ Physical Abuse
+phyabuse %>% correlate()
+phyabuse_iic <- phyabuse %>% correlate() %>% dplyr::select(-rowname) %>% colMeans(na.rm = TRUE)
+phyabuse_iic
+mean(phyabuse_iic)
+
+#write.csv(phyabuse_iic, "C:/Users/jrcala/Documents/My Research/RStudio/inter_item_aur.csv")
+
+data.frame(phyabuse_iic) %>% 
+  ggplot(aes(x = phyabuse_iic)) +
+    geom_histogram(bins = 10, alpha = .5) +
+    geom_vline(xintercept = mean(phyabuse_iic), color = "red") +
+    xlab("Mean inter-item correlation for CTQ Physical Abuse") +
+    theme_bw() 
+```
+
+```{r Sexual Abuse Subscale, include=FALSE}
+#Average Inter-Item Correlation for CTQ Sexual Abuse
+sexabuse %>% correlate()
+sexabuse_iic <- sexabuse %>% correlate() %>% dplyr::select(-rowname) %>% colMeans(na.rm = TRUE)
+sexabuse_iic
+mean(sexabuse_iic)
+
+#write.csv(sexabuse_iic, "C:/Users/jrcala/Documents/My Research/RStudio/inter_item_aur.csv")
+
+data.frame(sexabuse_iic) %>% 
+  ggplot(aes(x = sexabuse_iic)) +
+    geom_histogram(bins = 10, alpha = .5) +
+    geom_vline(xintercept = mean(sexabuse_iic), color = "red") +
+    xlab("Mean inter-item correlation for CTQ Sexual Abuse") +
+    theme_bw()
+```
+
+
+## Cronbach's Alpha
+
+Cronbach's alpha provides a measure of the internal consistency of a test or scale; it is expressed as a number between 0 and 1. Internal consistency describes the extent to which all the items in a test measure the same concept or construct and hence it is connected to the inter-relatedness of the items within the test.
+
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/
+
+```{r CTQ Total Alpha}
+#psych::alpha(ctqtotal)
+psych::alpha(ctqtotal)$total$std.alpha #0.7542886
+```
+
+```{r Emotional Abuse Alpha}
+#psych::alpha(emoabuse)
+psych::alpha(emoabuse)$total$std.alpha #0.734323
+```
+
+```{r Physical Abuse Alpha}
+#psych::alpha(phyabuse)
+psych::alpha(phyabuse)$total$std.alpha #0.8107279
+```
+
+```{r Sexual Abuse Alpha}
+#psych::alpha(sexabuse)
+psych::alpha(sexabuse)$total$std.alpha #0.8471149
+```
+
+
+## Intraclass Correlation Coefficients
+
+The Intraclass correlation is used as a measure of association when studying the reliability of raters. Shrout and Fleiss (1979) outline 6 different estimates, that depend upon the particular experimental design. All are implemented and given confidence limits.
+
+```{r Intraclass Correlation Coefficients}
+ctqtotal.icc <- ICC(ctqtotal, missing=FALSE)
+ctqtotal.icc
+
+emoabuse.icc <- ICC(emoabuse, missing=FALSE)
+emoabuse.icc
+
+phyabuse.icc <- ICC(phyabuse, missing=FALSE)
+phyabuse.icc
+
+sexabuse.icc <- ICC(sexabuse, missing=FALSE)
+sexabuse.icc
+```
+
+## Boxplots
+
+```{r CTQ Total and Means Boxplot}
+col
+par(family = 'serif', font.lab=2, font.axis=2, ps=10)
+boxplot(cp_joined$CTQ_Total_Mean, cp_joined$CTQ_EmoAbuse_Mean, cp_joined$CTQ_PhyAbuse_Mean, cp_joined$CTQ_SexAbuse_Mean, main = "CTQ Total and Subscales", names=c('CTQ Total', 'EmoAbuse', 'PhyAbuse', 'SexAbuse'), font.lab=2, cex.lab=1.6, cex.axis=1.5, family= 'serif', frame.plot=FALSE, outline=FALSE,col=colfunc(3))
+```
+
+```{r Emotional Abuse Boxplot, include=FALSE}
+par(family = 'serif', font.lab=2, font.axis=2, ps=10)
+boxplot(cp_joined$ctq1_3, cp_joined$ctq2_8, cp_joined$ctq2_14,cp_joined$ctq3_18, cp_joined$ctq4_25, main="Emotional Abuse Items", names=c('CTQ 3', 'CTQ 8', 'CTQ 14', 'CTQ 18', 'CTQ 25'), font.lab=2, cex.lab=1.6, cex.axis=1.5, family= 'serif', frame.plot=FALSE, outline=FALSE,col=colfunc2(3))
+```
+
+```{r Physical Abuse Boxplot, include=FALSE}
+par(family = 'serif', font.lab=2, font.axis=2, ps=10)
+boxplot(cp_joined$ctq2_9, cp_joined$ctq2_11, cp_joined$ctq2_12, cp_joined$ctq3_15, cp_joined$ctq3_17, main = "Physical Abuse Items", names=c('CTQ 9', 'CTQ 11', 'CTQ 12', 'CTQ 15', 'CTQ 17'), font.lab=2, cex.lab=1.6, cex.axis=1.5, family= 'serif', frame.plot=FALSE, outline=FALSE,col=colfunc3(3))
+```
+
+```{r Sexual Abuse Boxplot, include=FALSE}
+par(family = 'serif', font.lab=2, font.axis=2, ps=10)
+boxplot(cp_joined$ctq3_20, cp_joined$ctq3_21, cp_joined$ctq4_23, cp_joined$ctq4_24, cp_joined$ctq4_27, main = "Sexual Abuse Items", names=c('CTQ 20', 'CTQ 21', 'CTQ 23', 'CTQ 24', 'CTQ 27'), font.lab=2, cex.lab=1.6, cex.axis=1.5, family= 'serif', frame.plot=FALSE, outline=FALSE,col=colfunc4(2))
+```
+
+
+## Descriptive Statistics
+
+```{r CTQ Total Destats}
+#describe(ctqtotal)
+ctqtotalds <- stat.desc(ctqtotal, basic=F)
+stat.desc(ctqtotalds, basic=F)
+
+#write.csv(ctqtotalds, "C:/Users/jrcala/Documents/My Research/RStudio/ctqtotalds")
+```
+
+```{r Emotional Abuse Destats}
+#describe(emoabuse)
+emoabuseds <- stat.desc(emoabuse, basic=F)
+stat.desc(emoabuseds, basic=F)
+
+#write.csv(emoabuseds, "C:/Users/jrcala/Documents/My Research/RStudio/emoabuseds")
+```
+
+```{r Physical Abuse Destats}
+#describe(phyabuse)
+phyabuseds <- stat.desc(phyabuse, basic=F)
+stat.desc(phyabuseds, basic=F)
+
+#write.csv(phyabuseds, "C:/Users/jrcala/Documents/My Research/RStudio/phyabuseds")
+```
+
+```{r Sexual Abuse Destats}
+#describe(sexabuse)
+sexabuseds <- stat.desc(sexabuse, basic=F)
+stat.desc(sexabuseds, basic=F)
+
+#write.csv(sexabuseds, "C:/Users/jrcala/Documents/My Research/RStudio/sexabuseds")
+```
+
+# Making a Binary Trauma Variable
+
+Big question: what should be our defining characteristic that allows us to create the low trauma/high trauma or no trauma/trauma variable? We need to split the 185 participants into two groups in order to fulfill Aim 1. 
+
+### CTQ Total
+
+```{r CTQ Total Sum Median}
+median(cp_joined$CTQ_Total_Sum) #44
+count(cp_joined$CTQ_Total_Sum > 44) #75 are above the median
+count(cp_joined$CTQ_Total_Sum < 44) #92 are below the median
+count(cp_joined$CTQ_Total_Sum == 44) #18 are at the median
+```
+
+### Emotional Abuse
+
+```{r Emotion Abuse Median}
+median(cp_joined$CTQ_EmoAbuse_Sum) #6
+count(cp_joined$CTQ_EmoAbuse_Sum > 6) #76 are above the median
+count(cp_joined$CTQ_EmoAbuse_Sum < 6) #75 are below the median
+count(cp_joined$CTQ_EmoAbuse_Sum == 6) #34 are at the median
+```
+
+```{r Emotional Abuse Clinical Severity}
+emoabuse_na <- between(cp_joined$CTQ_EmoAbuse_Sum, 0, 4.9, incbounds=TRUE)
+count(emoabuse_na) #1
+
+emoabuse_none <- between(cp_joined$CTQ_EmoAbuse_Sum, 5, 8, incbounds=TRUE)
+count(emoabuse_none) #144
+
+emoabuse_slight <- between(cp_joined$CTQ_EmoAbuse_Sum, 9, 12, incbounds=TRUE)
+count(emoabuse_slight) #28
+
+emoabuse_moderate <- between(cp_joined$CTQ_EmoAbuse_Sum, 13, 15, incbounds=TRUE)
+count(emoabuse_moderate) #7
+
+emoabuse_severe <- between(cp_joined$CTQ_EmoAbuse_Sum, 16, 25, incbounds=TRUE)
+count(emoabuse_severe) #5
+```
+
+### Physical Abuse
+
+```{r Physical Abuse Median}
+median(cp_joined$CTQ_PhyAbuse_Sum) #5
+count(cp_joined$CTQ_PhyAbuse_Sum > 5) #81 are above the median
+count(cp_joined$CTQ_PhyAbuse_Sum < 5) #0 are below the median
+count(cp_joined$CTQ_PhyAbuse_Sum == 5) #104 are at the median
+```
+
+```{r Physical Abuse Clinical Severity}
+phyabuse_na <- between(cp_joined$CTQ_PhyAbuse_Sum, 0, 4.9, incbounds=TRUE)
+count(phyabuse_na) #0
+
+phyabuse_none <- between(cp_joined$CTQ_PhyAbuse_Sum, 5, 7, incbounds=TRUE)
+count(phyabuse_none) #156
+
+phyabuse_slight <- between(cp_joined$CTQ_PhyAbuse_Sum, 8, 9, incbounds=TRUE)
+count(phyabuse_slight) #18
+
+phyabuse_moderate <- between(cp_joined$CTQ_PhyAbuse_Sum, 10, 12, incbounds=TRUE)
+count(phyabuse_moderate) #6
+
+phyabuse_severe <- between(cp_joined$CTQ_PhyAbuse_Sum, 13, 25, incbounds=TRUE)
+count(phyabuse_severe) #5
+```
+
+### Sexual Abuse
+
+```{r Sexual Abuse Median}
+median(cp_joined$CTQ_SexAbuse_Sum) #5
+count(cp_joined$CTQ_SexAbuse_Sum > 5) #17 are above the median
+count(cp_joined$CTQ_SexAbuse_Sum < 5) #1 is below the median
+count(cp_joined$CTQ_SexAbuse_Sum == 5) #167 are at the median
+```
+
+```{r Sexual Abuse Clinical Severity}
+sexabuse_na <- between(cp_joined$CTQ_SexAbuse_Sum, 0, 4.9, incbounds=TRUE)
+count(sexabuse_na) #1
+
+sexabuse_none <- between(cp_joined$CTQ_SexAbuse_Sum, 5, 5, incbounds=TRUE)
+count(sexabuse_none) #167
+
+sexabuse_slight <- between(cp_joined$CTQ_SexAbuse_Sum, 6, 7, incbounds=TRUE)
+count(sexabuse_slight) #6
+
+sexabuse_moderate <- between(cp_joined$CTQ_SexAbuse_Sum, 8, 12, incbounds=TRUE)
+count(sexabuse_moderate) #6
+
+sexabuse_severe <- between(cp_joined$CTQ_SexAbuse_Sum, 13, 25, incbounds=TRUE)
+count(sexabuse_severe) #5
+```
+
+## Some Demographic Data
+
+```{r Making onlyf and onlym}
+#newdata <- mydata[ which(mydata$gender=='F' & mydata$age > 65), ]
+onlyf <- cp_joined[ which(cp_joined$gender_cat=='F'), ]
+onlym <- cp_joined[ which(cp_joined$gender_cat == 'M'), ]
+count(onlyf$CTQ_EmoAbuse_Sum > 6) #42 are female
+count(onlym$CTQ_EmoAbuse_Sum > 6) #34 are female
+```
+

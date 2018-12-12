@@ -1,0 +1,310 @@
+---
+title: "OpenFace Project: Aim 2b, T-Tests, and Barplots"
+author: "Julianna Calabrese"
+date: "11/14/2018"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+#install.packages("mosaic") #Computation and modeling
+#install.packages("ggplot2") #Graphic creation
+#install.packages("tidyr") #Data tidying
+#install.packages("dplyr") #Working with objects and dataframes
+#install.packages("psych") #Basic analysis packages
+#install.packages("plyr") #Tidyr's cousin
+#install.packages("devtools") #Needed for other packages
+#install.packages("nlme") #Non/linear mixed effects models
+#install.packages("Hmisc") #Misc
+#install.packages("pastecs) #Regularisation, decomposition and analysis of space-time series
+#install.packages("reshape2") #Tidyr's tougher older brother
+#install.packages("ggpubr") #ggplot2's visualization package
+#install.packages("tinytex") #Needed to knit pdfs
+#install.packages("latexpdf") #Needed to knit pdfs
+#install.packages("rmarkdown") #Needed to knit pdfs
+#install.packages("stargazer") #Makes nice tables
+#install.packafes("mediation") #Mediation package
+#install.packages("rockchalk") #Graphing simple slopes; moderation
+#install.packages("multilevel") #Sobel Test
+#install.packages("bda") #Sobel Test
+#install.packages("gvlma") #Testing model assumptions
+#install.packages("DescTools") #Misc basic functions to describe data
+#install.packages("pROC") #Displays and analyzes ROC curves
+#install.packages("lattice") #???
+#install.packages("growthcurver") #Summarizes growth curves
+#install.packages("lme4") #???
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(devtools)
+library(pastecs)
+library(reshape2)
+library(ggpubr)
+library(tinytex)
+library(latexpdf)
+library(rmarkdown)
+library(knitr)
+library(stargazer)
+library(mediation)
+library(rockchalk)
+library(multilevel)
+library(bda)
+library(gvlma)
+library(DescTools)
+library(pROC)
+library(lattice)
+library(growthcurver)
+library(lme4)
+```
+
+```{r include=FALSE}
+#cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.csv", header=TRUE, sep=",")
+
+cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
+cp_joined$X <- NULL
+
+cleandf <- read.csv(file="/Users/Julianna/Desktop/data/cleandf.csv", header=TRUE, sep=",")
+cleandf$X <- NULL
+
+#cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
+#cp_master$X <- NULL
+```
+
+```{r Centering Example, include=FALSE}
+# Mean center the cortisol, survey, and video data
+
+#https://ademos.people.uic.edu/Chapter14.html#3_moderation_analyses
+
+#I have decided that I will just grand mean center the variable before I use it in a model, instead of default grand mean centering everything.
+
+#Xc <- c(scale(X, center=TRUE, scale=FALSE)) #Centering IV; hours of sleep
+#Zc <- c(scale(Z,  center=TRUE, scale=FALSE)) #Centering moderator; coffee consumption
+```
+
+# Aim 2b: Group Differences & T-Tests
+
+## Using 'traumamedian'
+
+If someone has a 1 for 'traumamedian', then they were above the median value for CTQ_Total_Sum.
+
+```{r Making emosig and noemosig datasets}
+#trauma <- data.frame(data$trauma)
+#notrauma <- data.frame(data$notrauma)
+
+trauma <- cp_joined[ which(cp_joined$traumamedian==1), ]
+notrauma <- cp_joined[ which(cp_joined$traumamedian==0), ]
+```
+
+### Are cortisol scores different from zero? Between groups?
+
+```{r Are cortisol scores different from zero for traumamedian?}
+#Are they significantly different from zero?
+#t.test(trauma$cortisol)
+#t.test(notrauma$cortisol)
+
+t.test(trauma$cortavg) #sig
+t.test(notrauma$cortavg) #sig
+```
+
+```{r Are the cortisol scores different between groups for traumamedian?}
+#t.test(trauma$cortisol,notrauma$cortisol)
+#t.test(notrauma$cortisol,trauma$cortisol)
+
+t.test(trauma$cort4bc,notrauma$cort4bc) #not sig
+t.test(trauma$cort8bc,notrauma$cort8bc) #not sig
+t.test(trauma$cort12bc,notrauma$cort12bc) #not sig
+t.test(trauma$cortavg,notrauma$cortavg) #not sig
+```
+
+### Are facial expression scores different from zero? Between groups?
+
+```{r Are facial expression scores different from zero for traumamedian?}
+#Are they significantly different from zero?
+#t.test(trauma$face)
+#t.test(notrauma$face)
+
+t.test(trauma$AU14_c) #sig
+t.test(trauma$AU14_r) #sig
+t.test(trauma$auravg) #sig
+t.test(trauma$aucavg) #sig
+
+t.test(notrauma$AU14_c) #sig
+t.test(notrauma$AU14_r) #sig
+t.test(notrauma$auravg) #sig
+t.test(notrauma$aucavg) #sig
+```
+
+```{r Are facial expression scores different between groups for traumamedian?}
+#t.test(trauma$face,notrauma$face)
+#t.test(notrauma$face,trauma$face)
+
+t.test(trauma$AU14_c, notrauma$AU14_c) #not sig
+t.test(trauma$AU14_r, notrauma$AU14_r) #not sig
+t.test(trauma$auravg, notrauma$auravg) #not sig
+t.test(trauma$aucavg, notrauma$aucavg) #not sig
+```
+
+## Barplots for 'traumamedian'
+
+```{r}
+count(cp_joined$traumamedian == 1) #93
+count(cp_joined$traumamedian == 0) #92
+counts <- table(cp_joined$traumamedian)
+barplot(counts, main = "Counting 'traumamedian'",col=c("red","blue"))
+```
+
+
+## Using 'emosig'
+
+If someone has a 1 for 'emosig', then they had a score of 9 or greater for CTQ_EmoAbuse_Sum.
+
+```{r }
+#emosig <- data.frame(data$emosig)
+#noemosig <- data.frame(data$noemosig)
+
+emosig <- cp_joined[ which(cp_joined$emosig==1), ]
+noemosig <- cp_joined[ which(cp_joined$emosig==0), ]
+```
+
+### Are cortisol scores different from zero? Between groups?
+
+```{r Are cortisol scores different from zero for emosig?}
+#Are they significantly different from zero?
+#t.test(emosig$cortisol)
+#t.test(noemosig$cortisol)
+
+t.test(emosig$cortavg) #sig
+t.test(noemosig$cortavg) #sig
+```
+
+```{r Are the cortisol scores different between groups for emosig?}
+#t.test(emosig$cortisol,noemosig$cortisol)
+#t.test(noemosig$cortisol,emosig$cortisol)
+
+t.test(emosig$cort4bc,noemosig$cort4bc) #not sig
+t.test(emosig$cort8bc,noemosig$cort8bc) #not sig
+t.test(emosig$cort12bc,noemosig$cort12bc) #not sig
+t.test(emosig$cortavg,noemosig$cortavg) #not sig
+```
+
+### Are facial expression scores different from zero? Between groups?
+
+```{r Are facial expression scores different from zero for emosig?}
+#Are they significantly different from zero?
+#t.test(emosig$face)
+#t.test(noemosig$face)
+
+t.test(emosig$AU14_c) #sig
+t.test(emosig$AU14_r) #sig
+t.test(emosig$auravg) #sig
+t.test(emosig$aucavg) #sig
+
+t.test(noemosig$AU14_c) #sig
+t.test(noemosig$AU14_r) #sig
+t.test(noemosig$auravg) #sig
+t.test(noemosig$aucavg) #sig
+```
+
+```{r Are facial expression scores different between groups for emosig?}
+#t.test(emosig$face,noemosig$face)
+#t.test(noemosig$face,emosig$face)
+
+t.test(emosig$AU14_c, noemosig$AU14_c) #not sig
+t.test(emosig$AU14_r, noemosig$AU14_r) #not sig
+t.test(emosig$auravg, noemosig$auravg) #not sig
+t.test(emosig$aucavg, noemosig$aucavg) #not sig
+```
+
+## Barplots for 'emosig'
+
+```{r Barplots for emosig}
+count(cp_joined$emosig == 1) #28
+count(cp_joined$emosig == 0) #157
+counts1 <- table(cp_joined$emosig)
+barplot(counts1, main = "Counting 'emosig'",col=c("pink","green"))
+```
+
+
+## Using 'physig'
+
+If someone has a 1 for 'physig', then they had an 8 or greater for CTQ_PhyAbuse_Sum.
+
+```{r Making physig and nophysig datasets}
+#physig <- data.frame(data$physig)
+#nophysig <- data.frame(data$nophysig)
+
+physig <- cp_joined[ which(cp_joined$physig==1), ]
+nophysig <- cp_joined[ which(cp_joined$physig==0), ]
+```
+
+### Are cortisol scores different from zero? Between groups?
+
+```{r Significantly different from zero for physig?}
+#Are they significantly different from zero?
+#t.test(physig$cortisol)
+#t.test(nophysig$cortisol)
+
+t.test(physig$cortavg) #sig
+t.test(nophysig$cortavg) #sig
+```
+
+```{r Are the cortisol scores different between groups for physig?}
+#t.test(physig$cortisol,nophysig$cortisol)
+#t.test(nophysig$cortisol,physig$cortisol)
+
+t.test(physig$cort4bc,nophysig$cort4bc) #not sig
+t.test(physig$cort8bc,nophysig$cort8bc) #sig
+t.test(physig$cort12bc,nophysig$cort12bc) #sig
+t.test(physig$cortavg,nophysig$cortavg) #sig
+```
+
+### Are facial expression scores different from zero? Between groups?
+
+```{r Are facial expression scores different from zero for physig?}
+#Are they significantly different from zero?
+#t.test(physig$face)
+#t.test(nophysig$face)
+
+t.test(physig$AU14_c) #sig
+t.test(physig$AU14_r) #sig
+t.test(physig$auravg) #sig
+t.test(physig$aucavg) #sig
+
+t.test(nophysig$AU14_c) #sig
+t.test(nophysig$AU14_r) #sig
+t.test(nophysig$auravg) #sig
+t.test(nophysig$aucavg) #sig
+```
+
+```{r Are facial expression scores different between groups for physig?}
+#The below results should be numerically identical, with the only difference being whether its positive or negative.
+#t.test(physig$face,nophysig$face)
+#t.test(nophysig$face,physig$face)
+
+t.test(physig$AU14_c, nophysig$AU14_c) #not sig
+t.test(physig$AU14_r, nophysig$AU14_r) #not sig
+t.test(physig$auravg, nophysig$auravg) #not sig
+t.test(physig$aucavg, nophysig$aucavg) #not sig
+```
+
+## Barplot for 'physig'
+
+```{r}
+count(cp_joined$physig == 1) #18
+count(cp_joined$physig == 0) #167
+counts2 <- table(cp_joined$physig)
+barplot(counts2, main = "Counting 'physig'",col=c("purple","orange"))
+```
+
+```{r, include=FALSE}
+write.csv(cp_joined, file = "/Users/Julianna/Desktop/data/cp_joined_Aim2b.csv")
+```
+

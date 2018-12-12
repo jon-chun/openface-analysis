@@ -1,0 +1,422 @@
+---
+title: "Descriptive Statistics: Facial Expressivity"
+author: "Julianna Calabrese"
+date: "12/7/2018"
+output: 
+  html_document: default
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#install.packages("mosaic")
+#install.packages("ggplot2")
+#install.packages("tidyr")
+#install.packages("dplyr")
+#install.packages("psych")
+#install.packages("nlme")
+#install.packages("apaTables")
+#install.packages("plyr")
+#install.packages("Hmisc")
+#install.packages(corrplot)
+#install.packages(corrr)
+#install.packages(pastecs)
+#install.packages(reshape2)
+#install.packages(devtools)
+#install.packages(ggpubr)
+#install.packages(ICC)
+#install.packages(irr)
+#install.packages(tinytex)
+#install.packages(latexpdf)
+#install.packages(rmarkdown)
+#install.packages(Cairo)
+#install.packages(lemon)
+#install.packages(kableExtra)
+#install.packages(knitr)
+#install.packages(stargazer)
+#install.packages(yaml)
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(apaTables)
+library(plyr)
+library(Hmisc)
+library(corrplot)
+library(corrr)
+library(pastecs)
+library(reshape2)
+library(devtools)
+library(ggpubr)
+library(ICC)
+library(irr)
+library(tinytex)
+library(latexpdf)
+library(rmarkdown)
+library(Cairo)
+#library(lemon)
+#library(kableExtra)
+library(knitr)
+library(stargazer)
+library(pastecs)
+library(yaml)
+```
+
+```{r, include=FALSE}
+cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.csv", header=TRUE, sep=",")
+#cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
+cp_joined$X <- NULL
+
+cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
+```
+
+```{r, include=FALSE}
+#cp_full <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_full.csv", header=TRUE, sep=",")
+cp_full <- read.csv(file="/Users/Julianna/Desktop/data/cp_full.csv", header=TRUE, sep=",")
+names(cp_full)[names(cp_full) == "FF_ID"] <- "id"
+cp_full$X <- NULL
+```
+
+```{r, include=FALSE}
+names(cp_joined)[names(cp_joined) == "FF_ID"] <- "id"
+
+actionr <- data.frame(cp_joined$id, cp_joined$AU01_r, cp_joined$AU02_r, cp_joined$AU04_r, cp_joined$AU05_r, cp_joined$AU06_r, cp_joined$AU07_r, cp_joined$AU09_r, cp_joined$AU10_r, cp_joined$AU12_r, cp_joined$AU14_r, cp_joined$AU15_r, cp_joined$AU17_r, cp_joined$AU20_r, cp_joined$AU23_r, cp_joined$AU25_r, cp_joined$AU26_r, cp_joined$AU45_r)
+
+actionc <- data.frame(cp_joined$id, cp_joined$AU01_c, cp_joined$AU02_c, cp_joined$AU04_c, cp_joined$AU05_c, cp_joined$AU06_c, cp_joined$AU07_c, cp_joined$AU09_c, cp_joined$AU10_c, cp_joined$AU12_c, cp_joined$AU14_c, cp_joined$AU15_c, cp_joined$AU17_c, cp_joined$AU20_c, cp_joined$AU23_c, cp_joined$AU25_c, cp_joined$AU26_c, cp_joined$AU45_c)
+
+## Renaming actionr
+names(actionr)[names(actionr) == "cp_joined.id"] <- "id"
+names(actionr)[names(actionr) == "cp_joined.AU01_r"] <- "AU01_r"
+names(actionr)[names(actionr) == "cp_joined.AU02_r"] <- "AU02_r"
+names(actionr)[names(actionr) == "cp_joined.AU04_r"] <- "AU04_r"
+names(actionr)[names(actionr) == "cp_joined.AU05_r"] <- "AU05_r"
+names(actionr)[names(actionr) == "cp_joined.AU06_r"] <- "AU06_r"
+names(actionr)[names(actionr) == "cp_joined.AU07_r"] <- "AU07_r"
+names(actionr)[names(actionr) == "cp_joined.AU09_r"] <- "AU09_r"
+names(actionr)[names(actionr) == "cp_joined.AU10_r"] <- "AU10_r"
+names(actionr)[names(actionr) == "cp_joined.AU12_r"] <- "AU12_r"
+names(actionr)[names(actionr) == "cp_joined.AU14_r"] <- "AU14_r"
+names(actionr)[names(actionr) == "cp_joined.AU15_r"] <- "AU15_r"
+names(actionr)[names(actionr) == "cp_joined.AU17_r"] <- "AU17_r"
+names(actionr)[names(actionr) == "cp_joined.AU20_r"] <- "AU20_r"
+names(actionr)[names(actionr) == "cp_joined.AU23_r"] <- "AU23_r"
+names(actionr)[names(actionr) == "cp_joined.AU25_r"] <- "AU25_r"
+names(actionr)[names(actionr) == "cp_joined.AU26_r"] <- "AU26_r"
+names(actionr)[names(actionr) == "cp_joined.AU45_r"] <- "AU45_r"
+
+## Renaming actionc
+names(actionc)[names(actionc) == "cp_joined.id"] <- "id"
+names(actionc)[names(actionc) == "cp_joined.AU01_c"] <- "AU01_c"
+names(actionc)[names(actionc) == "cp_joined.AU02_c"] <- "AU02_c"
+names(actionc)[names(actionc) == "cp_joined.AU04_c"] <- "AU04_c"
+names(actionc)[names(actionc) == "cp_joined.AU05_c"] <- "AU05_c"
+names(actionc)[names(actionc) == "cp_joined.AU06_c"] <- "AU06_c"
+names(actionc)[names(actionc) == "cp_joined.AU07_c"] <- "AU07_c"
+names(actionc)[names(actionc) == "cp_joined.AU09_c"] <- "AU09_c"
+names(actionc)[names(actionc) == "cp_joined.AU10_c"] <- "AU10_c"
+names(actionc)[names(actionc) == "cp_joined.AU12_c"] <- "AU12_c"
+names(actionc)[names(actionc) == "cp_joined.AU14_c"] <- "AU14_c"
+names(actionc)[names(actionc) == "cp_joined.AU15_c"] <- "AU15_c"
+names(actionc)[names(actionc) == "cp_joined.AU17_c"] <- "AU17_c"
+names(actionc)[names(actionc) == "cp_joined.AU20_c"] <- "AU20_c"
+names(actionc)[names(actionc) == "cp_joined.AU23_c"] <- "AU23_c"
+names(actionc)[names(actionc) == "cp_joined.AU25_c"] <- "AU25_c"
+names(actionc)[names(actionc) == "cp_joined.AU26_c"] <- "AU26_c"
+names(actionc)[names(actionc) == "cp_joined.AU28_c"] <- "AU28_c"
+names(actionc)[names(actionc) == "cp_joined.AU45_c"] <- "AU45_c"
+
+#write.csv(actionr, "C:/Users/jrcala/Documents/My Research/RStudio/actionr.csv")
+
+#write.csv(actionc, "C:/Users/jrcala/Documents/My Research/RStudio/actionc.csv")
+
+actionr2 <- actionr[c(2:18)]
+actionc2 <- actionc[c(2:18)]
+```
+
+
+## Intensity Histograms
+
+```{r }
+colfunc <- colorRampPalette(c("cyan", "violetred4"))
+hist(cp_joined$AU01_r, main = "Histogram of AU1 Intensity: Inner Brow Raise", xlab = "AU1 Intensity",col=colfunc(8))
+hist(cp_joined$AU02_r, main = "Histogram of AU2 Intensity: Outer Brow Raise", xlab = "AU2 Intensity", col=colfunc(8))
+hist(cp_joined$AU04_r, main = "Histogram of AU4 Intensity: Brow Lowerer", xlab = "AU4 Intensity", col=colfunc(8))
+hist(cp_joined$AU05_r, main = "Histogram of AU5 Intensity: Upper Lid Raiser", xlab = "AU5 Intensity", col=colfunc(8))
+hist(cp_joined$AU06_r, main = "Histogram of AU6 Intensity: Cheek Raiser", xlab = "AU6 Intensity", col=colfunc(8))
+hist(cp_joined$AU07_r, main = "Histogram of AU7 Intensity: Lid Tightener", xlab = "AU7 Intensity", col=colfunc(8))
+hist(cp_joined$AU09_r, main = "Histogram of AU9 Intensity: Nose Wrinkler", xlab = "AU9 Intensity", col=colfunc(8))
+hist(cp_joined$AU10_r, main = "Histogram of AU10 Intensity: Upper Lid Raiser", xlab = "AU10 Intensity", col=colfunc(8))
+hist(cp_joined$AU12_r, main = "Histogram of AU12 Intensity: Lip Corner Puller", xlab = "AU12 Intensity", col=colfunc(8))
+hist(cp_joined$AU14_r, main = "Histogram of AU14 Intensity: Dimpler", xlab = "AU14 Intensity", col=colfunc(8))
+hist(cp_joined$AU15_r, main = "Histogram of AU15 Intensity: Lip Corner Depressor", xlab = "AU15 Intensity", col=colfunc(8))
+hist(cp_joined$AU17_r, main = "Histogram of AU17 Intensity: Chin Raiser", xlab = "AU17 Intensity", col=colfunc(8))
+hist(cp_joined$AU20_r, main = "Histogram of AU20 Intensity: Lip Stretcher", xlab = "AU20 Intensity", col=colfunc(8))
+hist(cp_joined$AU23_r, main = "Histogram of AU23 Intensity: Lip Tightener", xlab = "AU23 Intensity", col=colfunc(8))
+hist(cp_joined$AU25_r, main = "Histogram of AU25 Intensity: Lips Part", xlab = "AU25 Intensity", col=colfunc(8))
+hist(cp_joined$AU26_r, main = "Histogram of AU26 Intensity: Jaw Drop", xlab = "AU26 Intensity", col=colfunc(8))
+hist(cp_joined$AU45_r, main = "Histogram of AU45 Intensity: Blink", xlab = "AU45 Intensity", col=colfunc(8))
+```
+
+## Presence Histograms
+
+```{r}
+colfunc2 <- colorRampPalette(c("hotpink", "forestgreen"))
+hist(cp_joined$AU01_c, main = "Histogram of AU1 Presence: Inner Brow Raise", xlab = "AU1 Presence", col=colfunc2(8))
+hist(cp_joined$AU02_c, main = "Histogram of AU2 Presence: Outer Brow Raise", xlab = "AU2 Presence", col=colfunc2(8))
+hist(cp_joined$AU04_c, main = "Histogram of AU4 Presence: Brow Lowerer", xlab = "AU4 Presence", col=colfunc2(8))
+hist(cp_joined$AU05_c, main = "Histogram of AU5 Presence: Upper Lid Raiser", xlab = "AU5 Presence", col=colfunc2(8))
+hist(cp_joined$AU06_c, main = "Histogram of AU6 Presence: Cheek Raiser", xlab = "AU6 Presence", col=colfunc2(8))
+hist(cp_joined$AU07_c, main = "Histogram of AU7 Presence: Lid Tightener", xlab = "AU7 Presence", col=colfunc2(8))
+hist(cp_joined$AU09_c, main = "Histogram of AU9 Presence: Nose Wrinkler", xlab = "AU9 Presence", col=colfunc2(8))
+hist(cp_joined$AU10_c, main = "Histogram of AU10 Presence: Upper Lid Raiser", xlab = "AU10 Presence", col=colfunc2(8))
+hist(cp_joined$AU12_c, main = "Histogram of AU12 Presence: Lip Corner Puller", xlab = "AU12 Presence", col=colfunc2(8))
+hist(cp_joined$AU14_c, main = "Histogram of AU14 Presence: Dimpler", xlab = "AU14 Presence", col=colfunc2(8))
+hist(cp_joined$AU15_c, main = "Histogram of AU15 Presence: Lip Corner Depressor", xlab = "AU15 Presence", col=colfunc2(8))
+hist(cp_joined$AU17_c, main = "Histogram of AU17 Presence: Chin Raiser", xlab = "AU17 Presence", col=colfunc2(8))
+hist(cp_joined$AU20_c, main = "Histogram of AU20 Presence: Lip Stretcher", xlab = "AU20 Presence", col=colfunc2(8))
+hist(cp_joined$AU23_c, main = "Histogram of AU23 Presence: Lip Tightener", xlab = "AU23 Presence", col=colfunc2(8))
+hist(cp_joined$AU25_c, main = "Histogram of AU25 Presence: Lips Part", xlab = "AU25 Presence", col=colfunc2(8))
+hist(cp_joined$AU26_c, main = "Histogram of AU26 Presence: Jaw Drop", xlab = "AU26 Presence", col=colfunc2(8))
+hist(cp_joined$AU45_c, main = "Histogram of AU45 Presence: Blink", xlab = "AU45 Presence", col=colfunc2(8))
+```
+
+
+## Correlation Matrices
+
+```{r, include=FALSE}
+actionr3 <- actionr2
+actionc3 <- actionc2
+
+## Renaming actionr3 variables
+names(actionr3)[names(actionr3) == "AU01_r"] <- "1"
+names(actionr3)[names(actionr3) == "AU02_r"] <- "2"
+names(actionr3)[names(actionr3) == "AU04_r"] <- "4"
+names(actionr3)[names(actionr3) == "AU05_r"] <- "5"
+names(actionr3)[names(actionr3) == "AU06_r"] <- "6"
+names(actionr3)[names(actionr3) == "AU07_r"] <- "7"
+names(actionr3)[names(actionr3) == "AU09_r"] <- "9"
+names(actionr3)[names(actionr3) == "AU10_r"] <- "10"
+names(actionr3)[names(actionr3) == "AU12_r"] <- "12"
+names(actionr3)[names(actionr3) == "AU14_r"] <- "14"
+names(actionr3)[names(actionr3) == "AU15_r"] <- "15"
+names(actionr3)[names(actionr3) == "AU17_r"] <- "17"
+names(actionr3)[names(actionr3) == "AU20_r"] <- "20"
+names(actionr3)[names(actionr3) == "AU23_r"] <- "23"
+names(actionr3)[names(actionr3) == "AU25_r"] <- "25"
+names(actionr3)[names(actionr3) == "AU26_r"] <- "26"
+names(actionr3)[names(actionr3) == "AU45_r"] <- "45"
+
+## Renaming actionc3 variables
+names(actionc3)[names(actionc3) == "AU01_c"] <- "1"
+names(actionc3)[names(actionc3) == "AU02_c"] <- "2"
+names(actionc3)[names(actionc3) == "AU04_c"] <- "4"
+names(actionc3)[names(actionc3) == "AU05_c"] <- "5"
+names(actionc3)[names(actionc3) == "AU06_c"] <- "6"
+names(actionc3)[names(actionc3) == "AU07_c"] <- "7"
+names(actionc3)[names(actionc3) == "AU09_c"] <- "9"
+names(actionc3)[names(actionc3) == "AU10_c"] <- "10"
+names(actionc3)[names(actionc3) == "AU12_c"] <- "12"
+names(actionc3)[names(actionc3) == "AU14_c"] <- "14"
+names(actionc3)[names(actionc3) == "AU15_c"] <- "15"
+names(actionc3)[names(actionc3) == "AU17_c"] <- "17"
+names(actionc3)[names(actionc3) == "AU20_c"] <- "20"
+names(actionc3)[names(actionc3) == "AU23_c"] <- "23"
+names(actionc3)[names(actionc3) == "AU25_c"] <- "25"
+names(actionc3)[names(actionc3) == "AU26_c"] <- "26"
+names(actionc3)[names(actionc3) == "AU45_c"] <- "45"
+```
+
+```{r}
+corrtabler <- cor(actionr3)
+corrtablec <- cor(actionc3)
+
+#write.csv(corrtabler, "C:/Users/jrcala/Documents/My Research/RStudio/corrtabler.csv")
+
+#write.csv(corrtablec, "C:/Users/jrcala/Documents/My Research/RStudio/corrtablec.csv")
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+
+#corrplot(corrtabler,method="square", type = "upper", title = "AU Intensity Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+
+aurcorrplot <- corrplot(corrtabler,method="square", type = "upper", title = "AU Intensity Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+
+#corrplot(corrtablec,method="square", type = "upper", title = "AU Presence Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+
+auccorrplot <- corrplot(corrtablec,method="square", type = "upper", title = "AU Presence Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+```
+
+
+## Inter-Item Correlations
+
+```{r}
+# I am not sure if it is appropriate to conduct inter-item correlations on this kind of data. It's not like each AU is a different item on a scale predicting something like depression. Inter-item correlations examine the extent to which scores on one item are related to scores on all other items in a scale; it allows us to test for redunancy. Ideally we'd get something between .2 and .4. 
+
+#Average Inter-Item Correlation for actionr
+actionr %>% correlate()
+inter_item_aur <- actionr %>% correlate() %>% select(-rowname) %>% colMeans(na.rm = TRUE)
+inter_item_aur
+mean(inter_item_aur)
+
+#write.csv(inter_item_aur, "C:/Users/jrcala/Documents/My Research/RStudio/inter_item_aur.csv")
+
+data.frame(inter_item_aur) %>% 
+  ggplot(aes(x = inter_item_aur)) +
+    geom_histogram(bins = 10, alpha = .5) +
+    geom_vline(xintercept = mean(inter_item_aur), color = "red") +
+    xlab("Mean inter-item correlation for AUR") +
+    theme_bw()
+
+#Average Inter-Item Correlation for actionc
+actionc %>% correlate()
+inter_item_auc <- actionc %>% correlate() %>% select(-rowname) %>% colMeans(na.rm = TRUE)
+inter_item_auc
+mean(inter_item_auc)
+
+#write.csv(inter_item_auc, "C:/Users/jrcala/Documents/My Research/RStudio/inter_item_auc.csv")
+
+data.frame(inter_item_auc) %>% 
+  ggplot(aes(x = inter_item_auc)) +
+    geom_histogram(bins = 10, alpha = .5) +
+    geom_vline(xintercept = mean(inter_item_auc), color = "red") +
+    xlab("Mean inter-item correlation for AUC") +
+    theme_bw()
+```
+
+
+## Cronbach's Alpha
+
+```{r}
+#Cronbach's alpha provides a measure of the internal consistency of a test or scale; it is expressed as a number between 0 and 1. Internal consistency describes the extent to which all the items in a test measure the same concept or construct and hence it is connected to the inter-relatedness of the items within the test.
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/
+
+#I don't know how appropriate this is because the AUs are exactly trying to measure the same thing, e.g. depression. 
+
+#Cronbach's Alpha for AUR
+psych::alpha(actionr)
+psych::alpha(actionr)$total$std.alpha #.8037721
+
+#Cronbach's Alpha for AUC
+psych::alpha(actionc)
+psych::alpha(actionc)$total$std.alpha #.6379061
+```
+
+```{r, include=FALSE}
+## Intraclass Correlation Coefficients
+
+#I think this may have to be modified a bit
+#actionr.icc <- ICC(actionr)
+#actionr.icc
+
+
+#actionc.icc <- ICC(actionc)
+#actionc.icc
+```
+
+
+## Descriptive Statistics
+
+```{r }
+#AUR
+#describe(actionr2)
+aurdestat <- stat.desc(actionr2, basic=F)
+stat.desc(actionr2, basic=F)
+
+#write.csv(aurdestat, "C:/Users/jrcala/Documents/My Research/RStudio/aurdestat.csv")
+
+#AUC
+#describe(actionc2)
+aucdestat <- stat.desc(actionc2, basic=F)
+stat.desc(actionc2, basic=F)
+
+#write.csv(aucdestat, "C:/Users/jrcala/Documents/My Research/RStudio/aucdestat.csv")
+```
+
+## Barplot: AU Intensity
+
+```{r}
+a <- mean(cp_joined$AU01_r, na.rm=TRUE)
+b <- mean(cp_joined$AU02_r, na.rm=TRUE)
+c <- mean(cp_joined$AU04_r, na.rm=TRUE)
+d <- mean(cp_joined$AU05_r, na.rm=TRUE)
+e <- mean(cp_joined$AU06_r, na.rm=TRUE)
+f <- mean(cp_joined$AU07_r, na.rm=TRUE)
+g <- mean(cp_joined$AU09_r, na.rm=TRUE)
+h <- mean(cp_joined$AU10_r, na.rm=TRUE)
+i <- mean(cp_joined$AU12_r, na.rm=TRUE)
+j <- mean(cp_joined$AU14_r, na.rm=TRUE)
+k <- mean(cp_joined$AU15_r, na.rm=TRUE)
+l <- mean(cp_joined$AU17_r, na.rm=TRUE)
+m <- mean(cp_joined$AU20_r, na.rm=TRUE)
+n <- mean(cp_joined$AU23_r, na.rm=TRUE)
+o <- mean(cp_joined$AU25_r, na.rm=TRUE)
+p <- mean(cp_joined$AU26_r, na.rm=TRUE)
+q <- mean(cp_joined$AU45_r, na.rm=TRUE)
+
+dataset <- data.frame(Main = c("AU01_r", "AU02_r", "AU04_r", "AU05_r", "AU06_r", "AU07_r", "AU09_r", "AU10_r", "AU12_r", "AU14_r", "AU15_r", "AU17_r", "AU20_r", "AU23_r", "AU25_r", "AU26_r", "AU45_r"), Detail = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q"), value = runif(17, min = 0.5, max = 1)) 
+
+ggplot(dataset, aes(x = Main, y = value)) + geom_bar(stat = "identity",colour="black",fill=rainbow(17)) + scale_fill_manual(breaks = c("AU01_r", "AU02_r", "AU04_r", "AU05_r", "AU06_r", "AU07_r", "AU09_r", "AU10_r", "AU12_r", "AU14_r", "AU15_r", "AU17_r", "AU20_r", "AU23_r", "AU25_r", "AU26_r", "AU45_r"))  + ggtitle("Action Unit Intensity Barplot") + xlab("Action Units") + ylab("Average Intensity")
+```
+
+## Barplot: AU Presence
+
+```{r}
+a <- mean(cp_joined$AU01_c, na.rm=TRUE)
+b <- mean(cp_joined$AU02_c, na.rm=TRUE)
+c <- mean(cp_joined$AU04_c, na.rm=TRUE)
+d <- mean(cp_joined$AU05_c, na.rm=TRUE)
+e <- mean(cp_joined$AU06_c, na.rm=TRUE)
+f <- mean(cp_joined$AU07_c, na.rm=TRUE)
+g <- mean(cp_joined$AU09_c, na.rm=TRUE)
+h <- mean(cp_joined$AU10_c, na.rm=TRUE)
+i <- mean(cp_joined$AU12_c, na.rm=TRUE)
+j <- mean(cp_joined$AU14_c, na.rm=TRUE)
+k <- mean(cp_joined$AU15_c, na.rm=TRUE)
+l <- mean(cp_joined$AU17_c, na.rm=TRUE)
+m <- mean(cp_joined$AU20_c, na.rm=TRUE)
+n <- mean(cp_joined$AU23_c, na.rm=TRUE)
+o <- mean(cp_joined$AU25_c, na.rm=TRUE)
+p <- mean(cp_joined$AU26_c, na.rm=TRUE)
+q <- mean(cp_joined$AU45_c, na.rm=TRUE)
+
+dataset <- data.frame(Main = c("AU01_c", "AU02_c", "AU04_c", "AU05_c", "AU06_c", "AU07_c", "AU09_c", "AU10_c", "AU12_c", "AU14_c", "AU15_c", "AU17_c", "AU20_c", "AU23_c", "AU25_c", "AU26_c", "AU45_c"), Detail = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q"), value = runif(17, min = 0.5, max = 1)) 
+
+ggplot(dataset, aes(x = Main, y = value)) + geom_bar(stat = "identity",colour="black",fill=rainbow(17)) + scale_fill_manual(breaks = c("AU01_c", "AU02_c", "AU04_c", "AU05_c", "AU06_c", "AU07_c", "AU09_c", "AU10_c", "AU12_c", "AU14_c", "AU15_c", "AU17_c", "AU20_c", "AU23_c", "AU25_c", "AU26_c", "AU45_c"))  + ggtitle("Action Unit Presence Barplot") + xlab("Action Units") + ylab("Average Presence")
+```
+
+
+## oh shit
+
+```{r}
+a <- mean(cp_master$AU01_r, na.rm=TRUE)
+b <- mean(cp_master$AU02_r, na.rm=TRUE)
+c <- mean(cp_master$AU04_r, na.rm=TRUE)
+d <- mean(cp_master$AU05_r, na.rm=TRUE)
+e <- mean(cp_master$AU06_r, na.rm=TRUE)
+f <- mean(cp_master$AU07_r, na.rm=TRUE)
+g <- mean(cp_master$AU09_r, na.rm=TRUE)
+h <- mean(cp_master$AU10_r, na.rm=TRUE)
+i <- mean(cp_master$AU12_r, na.rm=TRUE)
+j <- mean(cp_master$AU14_r, na.rm=TRUE)
+k <- mean(cp_master$AU15_r, na.rm=TRUE)
+l <- mean(cp_master$AU17_r, na.rm=TRUE)
+m <- mean(cp_master$AU20_r, na.rm=TRUE)
+n <- mean(cp_master$AU23_r, na.rm=TRUE)
+o <- mean(cp_master$AU25_r, na.rm=TRUE)
+p <- mean(cp_master$AU26_r, na.rm=TRUE)
+q <- mean(cp_master$AU45_r, na.rm=TRUE)
+
+dataset <- data.frame(Main = c("AU01_r", "AU02_r", "AU04_r", "AU05_r", "AU06_r", "AU07_r", "AU09_r", "AU10_r", "AU12_r", "AU14_r", "AU15_r", "AU17_r", "AU20_r", "AU23_r", "AU25_r", "AU26_r", "AU45_r"), Detail = c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q"), value = runif(17, min = 0.5, max = 1)) 
+
+d <- melt(dataset, id.vars="id")
+ggplot(d, aes(x=variable,y=value, col=variable,fill=variable)) +
+  geom_boxplot(notch = FALSE) + theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) + scale_color_manual(values=c("black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black"))+ ggtitle("Master Boxplot")
+```
+

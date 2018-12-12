@@ -1,0 +1,244 @@
+---
+title: "Descriptive Statistics: Cortisol"
+author: "Julianna Calabrese"
+date: "12/7//2018"
+output:
+  html_document:
+    theme: united
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("mosaic")
+#install.packages("ggplot2")
+#install.packages("tidyr")
+#install.packages("dplyr")
+#install.packages("psych")
+#install.packages("nlme")
+#install.packages("apaTables")
+#install.packages("plyr")
+#install.packages("Hmisc")
+#install.packages(corrplot)
+#install.packages(corrr)
+#install.packages(pastecs)
+#install.packages(reshape2)
+#install.packages(devtools)
+#install.packages(ggpubr)
+#install.packages(ICC)
+#install.packages(irr)
+#install.packages(tinytex)
+#install.packages(latexpdf)
+#install.packages(rmarkdown)
+#install.packages(Cairo)
+#install.packages(lemon)
+#install.packages(kableExtra)
+#install.packages(knitr)
+#install.packages(stargazer)
+#install.packages(yaml)
+#install.packages(expss)
+#install.packages(prettydoc)
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(apaTables)
+library(plyr)
+library(Hmisc)
+library(corrplot)
+library(corrr)
+library(pastecs)
+library(reshape2)
+library(devtools)
+library(ggpubr)
+library(ICC)
+library(irr)
+library(tinytex)
+library(latexpdf)
+library(rmarkdown)
+library(Cairo)
+library(lemon)
+library(kableExtra)
+library(knitr)
+library(stargazer)
+library(pastecs)
+library(yaml)
+library(expss)
+```
+
+## Read in data
+
+```{r, include=FALSE}
+cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.csv", header=TRUE, sep=",")
+#cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
+cp_joined$X <- NULL
+```
+
+```{r, include=FALSE}
+cortisol <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cortisol.csv", header=TRUE, sep=",")
+#cortisol <- read.csv(file="/Users/Julianna/Desktop/data/cortisol.csv", header=TRUE, sep=",")
+cortisol$X <- NULL
+```
+
+
+## Histograms
+
+```{r Raw Cortisol Value Histograms}
+colfunc <- colorRampPalette(c("cyan", "violetred4"))
+hist(cp_joined$cortisol.4,main = "Cortisol 4 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.5,main = "Cortisol 5 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.6,main = "Cortisol 6 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.7,main = "Cortisol 7 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.8,main = "Cortisol 8 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.9,main = "Cortisol 9 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.10,main = "Cortisol 10 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.11,main = "Cortisol 11 Histogram",col=colfunc(8))
+hist(cp_joined$cortisol.12,main = "Cortisol 12 Histogram",col=colfunc(8))
+```
+
+```{r Winsorized Cortisol Histograms}
+colfunc2 <- colorRampPalette(c("violet", "darkgreen"))
+hist(cp_joined$Cortisol_Win.4,main = "Cortisol 4 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.5,main = "Cortisol 5 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.6,main = "Cortisol 6 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.7,main = "Cortisol 7 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.8,main = "Cortisol 8 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.9,main = "Cortisol 9 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.10,main = "Cortisol 10 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.11,main = "Cortisol 11 Histogram",col=colfunc2(8))
+hist(cp_joined$Cortisol_Win.12,main = "Cortisol 12 Histogram",col=colfunc2(8))
+```
+
+```{r Box-Cox Histograms}
+colfunc3 <- colorRampPalette(c("hotpink", "turquoise"))
+hist(cp_joined$cort4bc,main = "Cortisol 4 Histogram",col=colfunc3(8))
+hist(cp_joined$cort5bc,main = "Cortisol 5 Histogram",col=colfunc3(8))
+hist(cp_joined$cort6bc,main = "Cortisol 6 Histogram",col=colfunc3(8))
+hist(cp_joined$cort7bc,main = "Cortisol 7 Histogram",col=colfunc3(8))
+hist(cp_joined$cort8bc,main = "Cortisol 8 Histogram",col=colfunc3(8))
+hist(cp_joined$cort9bc,main = "Cortisol 9 Histogram",col=colfunc3(8))
+hist(cp_joined$cort10bc,main = "Cortisol 10 Histogram",col=colfunc3(8))
+hist(cp_joined$cort11bc,main = "Cortisol 11 Histogram",col=colfunc3(8))
+hist(cp_joined$cort12bc,main = "Cortisol 12 Histogram",col=colfunc3(8))
+```
+
+## Means, Medians, and SDs
+
+```{r Means}
+mean(cp_joined$cort4bc, na.rm=TRUE)
+mean(cp_joined$cort5bc, na.rm=TRUE)
+mean(cp_joined$cort6bc, na.rm=TRUE)
+mean(cp_joined$cort7bc, na.rm=TRUE)
+mean(cp_joined$cort8bc, na.rm=TRUE)
+mean(cp_joined$cort9bc, na.rm=TRUE)
+mean(cp_joined$cort10bc, na.rm=TRUE)
+mean(cp_joined$cort11bc, na.rm=TRUE)
+mean(cp_joined$cort12bc, na.rm=TRUE)
+```
+
+```{r Medians}
+median(cp_joined$cort4bc, na.rm=TRUE)
+median(cp_joined$cort5bc, na.rm=TRUE)
+median(cp_joined$cort6bc, na.rm=TRUE)
+median(cp_joined$cort7bc, na.rm=TRUE)
+median(cp_joined$cort8bc, na.rm=TRUE)
+median(cp_joined$cort9bc, na.rm=TRUE)
+median(cp_joined$cort10bc, na.rm=TRUE)
+median(cp_joined$cort11bc, na.rm=TRUE)
+median(cp_joined$cort12bc, na.rm=TRUE)
+```
+
+```{r SDs}
+sd(cp_joined$cort4bc, na.rm=TRUE)
+sd(cp_joined$cort5bc, na.rm=TRUE)
+sd(cp_joined$cort6bc, na.rm=TRUE)
+sd(cp_joined$cort7bc, na.rm=TRUE)
+sd(cp_joined$cort8bc, na.rm=TRUE)
+sd(cp_joined$cort9bc, na.rm=TRUE)
+sd(cp_joined$cort10bc, na.rm=TRUE)
+sd(cp_joined$cort11bc, na.rm=TRUE)
+sd(cp_joined$cort12bc, na.rm=TRUE)
+```
+
+
+## Demographics and Cortiol
+
+```{r How many responded?}
+count(cp_joined$Responder == 0) #88 did not respond
+count(cp_joined$Responder == 1) #97 did not respond
+```
+
+```{r Gender Breakdown}
+count(cp_joined$gender == 1) #83 are male
+count(cp_joined$gender == 2) #102 are female
+```
+
+
+## Plots
+
+```{r Cortisol Barplot}
+cp_joined$a <- mean(cp_joined$cort4bc, na.rm=TRUE)
+cp_joined$b <- mean(cp_joined$cort5bc, na.rm=TRUE)
+cp_joined$c <- mean(cp_joined$cort6bc, na.rm=TRUE)
+cp_joined$d <- mean(cp_joined$cort7bc, na.rm=TRUE)
+cp_joined$e <- mean(cp_joined$cort8bc, na.rm=TRUE)
+cp_joined$f <- mean(cp_joined$cort9bc, na.rm=TRUE)
+cp_joined$g <- mean(cp_joined$cort10bc, na.rm=TRUE)
+cp_joined$h <- mean(cp_joined$cort11bc, na.rm=TRUE)
+cp_joined$i <- mean(cp_joined$cort12bc, na.rm=TRUE)
+
+dataset <- data.frame(Main = c("Cort 4", "Cort 5", "Cort 6", "Cort 7", "Cort 8", "Cort 9", "Cort 10", "Cort 11", "Cort 12"), Detail = c("a", "b", "c", "d", "e", "f", "g", "h", "i"), value = runif(9, min = 0.5, max = 1)) 
+
+dataset$Main2 <- factor(dataset$Main, as.character(dataset$Main))
+
+colfunc4 <- colorRampPalette(c("red", "lightgreen"))
+
+ggplot(dataset, aes(x = Main2, y = value)) + geom_bar(stat = "identity",colour="black",fill=colfunc4(9)) + scale_fill_manual(breaks = c("Cort 4", "Cort 5", "Cort 6", "Cort 7", "Cort 8", "Cort 9", "Cort 10", "Cort 11", "Cort 12")) + ggtitle("Cortisol Barplot") + xlab("Cortisol Samples") + ylab("Value")
+```
+
+```{r}
+plot( c(), c(),  xlim = c(4,12), ylim = c(-2.5,-0.5))
+lines(cp_joined$cort4bc,col='red')
+lines(cp_joined$cort5bc,col='orange')
+lines(cp_joined$cort6bc,col='yellow')
+lines(cp_joined$cort7bc,col='lightgreen')
+lines(cp_joined$cort8bc,col='darkgreen')
+lines(cp_joined$cort9bc,col='cyan')
+lines(cp_joined$cort10bc,col='darkblue')
+lines(cp_joined$cort11bc,col='purple')
+lines(cp_joined$cort12bc,col='pink')
+```
+
+```{r Super messy graph!}
+library(ggplot2)
+library(reshape2)
+#dev.off()
+which( colnames(cp_joined)=="cort4bc") #194
+which( colnames(cp_joined)=="cort12bc") #202
+df <- cp_joined[c(1,194:202)]
+df <- melt(df, id=c("id"),na.rm=FALSE)
+ggplot(df, aes(variable, value, group=factor(id))) + geom_line(aes(color=factor(id))) + theme(legend.position = "none")
+```
+
+```{r Helps us see the ranges of cortisol values}
+ggplot(df, aes(variable, value, group=factor(id))) + geom_point(aes(color=factor(id)))  + theme(legend.position = "none")
+```
+
+```{r}
+ggplot(df, aes(variable, value, group=factor(id))) + geom_jitter(aes(color=factor(id)))  + theme(legend.position = "none")
+```
+
+```{r}
+ggplot(df, aes(variable, value, group=factor(id))) + geom_boxplot(aes(color=factor(id)))  + theme(legend.position = "none")
+```
+
+```{r}
+ggplot(df, aes(x=variable,y=value, col=variable,fill=variable)) +
+  geom_boxplot(notch = FALSE) + theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) + scale_color_manual(values=c("black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black"))+ ggtitle("Cortisol Boxplot") 
+```
+
