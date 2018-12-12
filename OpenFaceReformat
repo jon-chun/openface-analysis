@@ -1,0 +1,94 @@
+---
+title: "OpenFace: Making a Cleaner Dataset"
+author: "Julianna Calabrese"
+date: "11/12/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#install.packages("mosaic") #Computation and modeling
+#install.packages("ggplot2") #Graphic creation
+#install.packages("tidyr") #Data tidying
+#install.packages("dplyr") #Working with objects and dataframes
+#install.packages("psych") #Basic analysis packages
+#install.packages("plyr") #Tidyr's cousin
+#install.packages("devtools") #Needed for other packages
+#install.packages("nlme") #Non/linear mixed effects models
+#install.packages("Hmisc") #Misc
+#install.packages("pastecs) #Regularisation, decomposition and analysis of space-time series
+#install.packages("reshape2") #Tidyr's tougher older brother
+#install.packages("ggpubr") #ggplot2's visualization package
+#install.packages("tinytex") #Needed to knit pdfs
+#install.packages("latexpdf") #Needed to knit pdfs
+#install.packages("rmarkdown") #Needed to knit pdfs
+#install.packages("stargazer") #Makes nice tables
+#install.packafes("mediation") #Mediation package
+#install.packages("rockchalk") #Graphing simple slopes; moderation
+#install.packages("multilevel") #Sobel Test
+#install.packages("bda") #Sobel Test
+#install.packages("gvlma") #Testing model assumptions
+#install.packages("DescTools") #Misc basic functions to describe data
+#install.packages("pROC") #Displays and analyzes ROC curves
+#install.packages("lattice") #???
+#install.packages("data.table")
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(devtools)
+library(pastecs)
+library(reshape2)
+library(ggpubr)
+library(tinytex)
+library(latexpdf)
+library(rmarkdown)
+library(knitr)
+library(stargazer)
+library(mediation)
+library(rockchalk)
+library(multilevel)
+library(bda)
+library(gvlma)
+library(DescTools)
+library(pROC)
+library(lattice)
+library(data.table)
+```
+
+## Outline/Description
+
+This is a very tricky file. You basically want to convert the wide cp_full into cp_long. Your dataset will need to be in a long format because you're going to do multilevel GCM. Here's some code from CSCAR to get you started. This file should be ran AFTER OpenFaceEmotion!
+
+## Old CSCAR code
+
+```{r}
+cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
+cp_joined$X <- NULL
+
+dffull <- cp_joined[c(1,204,194:202,149,154,159,164,169,174,179,184,189)]
+df <- dffull
+df2 <- cp_joined[c(194:202)] 
+df3 <- cp_joined[c(149,154,159,164,169,174,179,184,189)] 
+df$peakname <- colnames(df2)[max.col(df2,ties.method="first")]
+df$peaktime <- colnames(df3)[max.col(df2,ties.method="first")]
+df$peaktimenum <- NA 
+df$peaktimenum <- ifelse(df$peaktime == "s4time", df$s4time, 
+    ifelse(df$peaktime == "s5time", df$s5time,
+    ifelse(df$peaktime == "s6time", df$s6time,
+    ifelse(df$peaktime == "s7time", df$s7time,
+    ifelse(df$peaktime == "s8time", df$s8time,
+    ifelse(df$peaktime == "s9time", df$s9time,
+    ifelse(df$peaktime == "s10time", df$s10time,
+    ifelse(df$peaktime == "s11time", df$s11time,
+    ifelse(df$peaktime == "s12time", df$s12time,NA)))))))))
+rm(df2)
+rm(df3)
+rm(dffull)
+
+dfgather <- gather(df, idk, value, cort4bc:s12time, factor_key=TRUE)
+```
