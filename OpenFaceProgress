@@ -1,5 +1,5 @@
 ---
-title: "OpenFaceProgress_Ver3"
+title: "OpenFaceProgress"
 author: "Julianna Calabrese"
 date: "12/7/2018"
 output: html_document
@@ -82,8 +82,8 @@ cortisol$X <- NULL
 
 ```{r}
 names(cp_full)[names(cp_full) == "FF_ID"] <- "id"
-names(ctq)[names(ctq) == "ï..id"] <- "id"
-names(medication)[names(medication) == "ï..id"] <- "id"
+names(ctq)[names(ctq) == "Ã¯..id"] <- "id"
+names(medication)[names(medication) == "Ã¯..id"] <- "id"
 ```
 
 ## Merge the survey, cortisol, and video data
