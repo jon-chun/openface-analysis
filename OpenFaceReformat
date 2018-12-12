@@ -1,7 +1,7 @@
 ---
-title: "OpenFace: Making a Cleaner Dataset"
+title: "OpenFaceReformat"
 author: "Julianna Calabrese"
-date: "11/12/2018"
+date: "12/12/2018"
 output: html_document
 ---
 
@@ -29,7 +29,7 @@ output: html_document
 #install.packages("gvlma") #Testing model assumptions
 #install.packages("DescTools") #Misc basic functions to describe data
 #install.packages("pROC") #Displays and analyzes ROC curves
-#install.packages("lattice") #???
+#install.packages("lattice")
 #install.packages("data.table")
 
 library(mosaic)
@@ -64,14 +64,38 @@ library(data.table)
 
 This is a very tricky file. You basically want to convert the wide cp_full into cp_long. Your dataset will need to be in a long format because you're going to do multilevel GCM. Here's some code from CSCAR to get you started. This file should be ran AFTER OpenFaceEmotion!
 
-## Old CSCAR code
+Most of this code was taken from old .rmd files called OpenFace_Making_df.rmd and OpenFace_Making_cleandf.rmd.
+
+# THIS FILE IS UNFINISHED IT DOESN'T DO EXACTLY WHAT IT NEEDS TO DO YET!!!!
+
+## Load in data
 
 ```{r}
 cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
 cp_joined$X <- NULL
+```
 
-dffull <- cp_joined[c(1,204,194:202,149,154,159,164,169,174,179,184,189)]
-df <- dffull
+## Is everything where it's supposed to be?
+
+```{r, include=FALSE}
+which( colnames(cp_joined)=="gender") #204
+which( colnames(cp_joined)=="cort4bc") #194
+which( colnames(cp_joined)=="cort12bc") #202
+which( colnames(cp_joined)=="s4time") #149
+which( colnames(cp_joined)=="s5time") #154
+which( colnames(cp_joined)=="s6time") #159
+which( colnames(cp_joined)=="s7time") #164
+which( colnames(cp_joined)=="s8time") #169
+which( colnames(cp_joined)=="s9time") #174
+which( colnames(cp_joined)=="s10time") #179
+which( colnames(cp_joined)=="s11time") #184
+which( colnames(cp_joined)=="s12time") #189
+```
+
+## Making df
+
+```{r}
+df <- cp_joined[c(1,204,194:202,149,154,159,164,169,174,179,184,189)]
 df2 <- cp_joined[c(194:202)] 
 df3 <- cp_joined[c(149,154,159,164,169,174,179,184,189)] 
 df$peakname <- colnames(df2)[max.col(df2,ties.method="first")]
@@ -88,7 +112,53 @@ df$peaktimenum <- ifelse(df$peaktime == "s4time", df$s4time,
     ifelse(df$peaktime == "s12time", df$s12time,NA)))))))))
 rm(df2)
 rm(df3)
-rm(dffull)
+```
 
-dfgather <- gather(df, idk, value, cort4bc:s12time, factor_key=TRUE)
+## Making dfgather
+
+```{r }
+dfgather <- gather(df, cortisol, cortvalue, cort4bc:cort12bc, factor_key=TRUE)
+
+dfgather$stime <- 0
+dfgather$stime[dfgather$cortisol == "cort4bc"] <- dfgather$s4time
+dfgather$stime[dfgather$cortisol == "cort5bc"] <- dfgather$s5time
+dfgather$stime[dfgather$cortisol == "cort6bc"] <- dfgather$s6time
+dfgather$stime[dfgather$cortisol == "cort7bc"] <- dfgather$s7time
+dfgather$stime[dfgather$cortisol == "cort8bc"] <- dfgather$s8time
+dfgather$stime[dfgather$cortisol == "cort9bc"] <- dfgather$s9time
+dfgather$stime[dfgather$cortisol == "cort10bc"] <- dfgather$s10time
+dfgather$stime[dfgather$cortisol == "cort11bc"] <- dfgather$s11time
+dfgather$stime[dfgather$cortisol == "cort12bc"] <- dfgather$s12time
+```
+
+```{r}
+dfgather$timenum <- 0
+dfgather$timenum[dfgather$cortisol == "cort4bc"] <- 4
+dfgather$timenum[dfgather$cortisol == "cort5bc"] <- 5
+dfgather$timenum[dfgather$cortisol == "cort6bc"] <- 6
+dfgather$timenum[dfgather$cortisol == "cort7bc"] <- 7
+dfgather$timenum[dfgather$cortisol == "cort8bc"] <- 8
+dfgather$timenum[dfgather$cortisol == "cort9bc"] <- 9
+dfgather$timenum[dfgather$cortisol == "cort10bc"] <- 10
+dfgather$timenum[dfgather$cortisol == "cort11bc"] <- 11
+dfgather$timenum[dfgather$cortisol == "cort12bc"] <- 12
+```
+
+```{r}
+dfgather$s4time <- NULL
+dfgather$s5time <- NULL
+dfgather$s6time <- NULL
+dfgather$s7time <- NULL
+dfgather$s8time <- NULL
+dfgather$s9time <- NULL
+dfgather$s10time <- NULL
+dfgather$s11time <- NULL
+dfgather$s12time <- NULL
+```
+
+## Writing it out into a .csv file
+
+```{r}
+cleandf <- dfgather
+write.csv(cleandf, file="/Users/Julianna/Desktop/data/cleandf.csv")
 ```
