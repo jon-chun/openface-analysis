@@ -63,3 +63,20 @@ Pain = AU4 + (AU6||AU7) + (AU9||AU10) + AU43
 However, since we don't have data on AU43, we're just going to go with this formula. This will result in a 15-point scale:
 Pain = AU4 + (AU6||AU7) + (AU9||AU10)
 
+Okay, I'm going to make a variable. I'll call it pain2, because it's the second part of the pain equation. It'll be a new variable added to cp_full and will have the value of AU06_r or AU07_r--depending which one is larger. Same thing will happen for AU09_r and AU10_r in pain3. 
+
+```{r}
+cp_full$pain2 <- 0
+cp_full$pain2 <- ifelse(cp_full$AU06_r > cp_full$AU07_r, cp_full$AU06_r, cp_full$AU07_r)
+cp_full$pain3 <- 0
+cp_full$pain3 <- ifelse(cp_full$AU09_r > cp_full$AU10_r, cp_full$AU09_r, cp_full$AU10_r)
+```
+
+Now make the pain variable.
+
+```{r}
+cp_full$pain <- 0
+cp_full$pain <- cp_full$AU04_r + cp_full$pain2 + cp_full$pain3
+```
+
+
