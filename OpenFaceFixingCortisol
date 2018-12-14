@@ -129,6 +129,22 @@ cortisol["cort11bc"] <- cort11bc
 cortisol["cort12bc"] <- cort12bc
 ```
 
+### Removing anything unneccessary from environment
+
+```{r}
+rm(cort1bc)
+rm(cort2bc)
+rm(cort3bc)
+rm(cort4bc)
+rm(cort5bc)
+rm(cort6bc)
+rm(cort7bc)
+rm(cort8bc)
+rm(cort9bc)
+rm(cort10bc)
+rm(cort11bc)
+rm(cort12bc)
+```
 
 ### Growth Curve Modeling (GCM)
 
