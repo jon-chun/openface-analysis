@@ -219,6 +219,6 @@ write.csv(cp_joined, "C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.cs
 
 #write.csv(cp_joined, "/Users/Julianna/Desktop/data/cp_joined.csv")
 
-#cp_joined has 185 observations and 320 variables.
+#cp_joined has 185 observations and 325 variables.
 ```
 
