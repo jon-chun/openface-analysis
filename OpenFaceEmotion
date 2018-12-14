@@ -77,6 +77,32 @@ Now make the pain variable.
 ```{r}
 cp_full$pain <- 0
 cp_full$pain <- cp_full$AU04_r + cp_full$pain2 + cp_full$pain3
+cp_full$pain2 <- NULL
+cp_full$pain3 <- NULL
+```
+
+## Placeholder Emotions
+
+```{r}
+x <- seq(from=0,to=5,by=.0000001)
+cp_full$anger <- 0
+cp_full$fear <- 0
+cp_full$happiness <- 0
+cp_full$sadness <- 0
+
+cp_full$anger <- sample(x, size=185, replace=TRUE)
+cp_full$fear <- sample(x, size=185, replace=TRUE)
+cp_full$happiness <- sample(x, size=185, replace=TRUE)
+cp_full$sadness <- sample(x, size=185, replace=TRUE)
+
+cp_full$x <- NULL
+rm(x)
+```
+
+## Write it out back as "cp_full"
+
+```{r}
+write.csv(cp_full, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_full.csv")
 ```
 
 
