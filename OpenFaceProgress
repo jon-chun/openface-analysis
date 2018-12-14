@@ -121,29 +121,29 @@ join3 <- join2[complete.cases(join2[ , 7]),]
 ## Remove non-reversed-coded items
 
 ```{r}
-which( colnames(join3)=="ctq1_2") #43
-join3 <- join3[ -c(43)]
+which( colnames(join3)=="ctq1_2") #48
+join3 <- join3[ -c(48)]
 
-which( colnames(join3)=="ctq1_5") #45
-join3 <- join3[ -c(45)]
+which( colnames(join3)=="ctq1_5") #50
+join3 <- join3[ -c(50)]
 
-which( colnames(join3)=="ctq1_7") #46
-join3 <- join3[ -c(46)]
-
-which( colnames(join3)=="ctq2_13") #51
+which( colnames(join3)=="ctq1_7") #51
 join3 <- join3[ -c(51)]
 
-which( colnames(join3)=="ctq3_19") #56
+which( colnames(join3)=="ctq2_13") #56
 join3 <- join3[ -c(56)]
 
-which( colnames(join3)=="ctq4_26") #62
-join3 <- join3[ -c(62)]
+which( colnames(join3)=="ctq3_19") #61
+join3 <- join3[ -c(61)]
 
-which( colnames(join3)=="ctq4_28") #63
-join3 <- join3[ -c(63)]
+which( colnames(join3)=="ctq4_26") #67
+join3 <- join3[ -c(67)]
 
-which( colnames(join3)=="ctq_complete") #63
-join3 <- join3[ -c(63)]
+which( colnames(join3)=="ctq4_28") #68
+join3 <- join3[ -c(68)]
+
+which( colnames(join3)=="ctq_complete") #68
+join3 <- join3[ -c(68)]
 ```
 
 ## Modify the CTQ data so that all the -99/88/77's are now NA
@@ -166,7 +166,7 @@ which(join3 == 77, arr.ind=TRUE) #None.
 ```{r Merging with gender}
 #Merge join3 and gender
 join4 <- merge(join3,gender,all=TRUE,by='id')
-#cp_joined2 has 237 observations.
+#join4 has 237 observations.
 
 which( colnames(join4)=="frame") #2 #Which column is "frame"?
 options(max.print=10000000)
@@ -176,7 +176,6 @@ join4[which(is.na(join4[,2])),] #Which rows are NA for the "frame" column?
 
 #Remove rows if frame is NA
 join5 <- join4[!is.na(join4$frame),]
-
 #join5 has 185 observations.
 ```
 
@@ -221,4 +220,3 @@ write.csv(cp_joined, "C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.cs
 
 #cp_joined has 185 observations and 325 variables.
 ```
-
