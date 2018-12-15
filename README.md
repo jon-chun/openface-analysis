@@ -20,4 +20,4 @@ Notes to self:
 - You need to adjust the first/last lines of every .rmd file depending on where you're running it from i.e. correct the paths.
 - Landmark registration of the cortisol values needs to be stuck somewhere, probably in OpenFaceFixingCortisol. 
 - As of 12/14/2018, OpenFaceEmotion just has placeholder emotion values so DON'T forget to properly adjust those once you finish your lit review.
--You should add the "Responder" variable in OpenFaceReformat, probably
+- You should add the "Responder" variable in OpenFaceReformat, probably
