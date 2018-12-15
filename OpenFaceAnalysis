@@ -22,6 +22,8 @@ editor_options:
 #install.packages("rapportools")
 #install.packages("lavaan")
 #install.packages("lme4")
+#install.packages("corrr")
+#install.packages("corrplot")
 
 library(mosaic)
 library(ggplot2)
@@ -37,6 +39,8 @@ library(yaml)
 library(rapportools)
 library(lavaan)
 library(lme4)
+library(corrr)
+library(corrplot)
 ```
 
 ### Outline/Description
@@ -49,6 +53,163 @@ mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
 
 ...but it's not going to be a lm() model, it's going to be a multilevel growth curve model, so you'll probably need to use the lme4() package with the lmer() command. This will produce a fixed effects table that represents the parameters of everything that you put in the above model to predict cortisol. Then you need to tell R what your random effects are, which is the intercept and time. 
 
-Then you do something with landmark registration, but that's kind of already done, so you need to ask someone who ask access to that dataset to share it with you.
+Then you do something with landmark registration.
 
-All the instructions can be found in Lopez-Duran 2014. Do NOT do anything involving AUC! 
+All the instructions can be found in Lopez-Duran 2014. Do NOT do anything involving AUC!
+
+## Load in data and other logistics
+
+```{r}
+#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long$X <- NULL
+```
+
+## Pre-Analysis Cleaning
+
+```{r}
+cp_long$ctqsum <- cp_long$CTQ_Total_Sum
+cp_long$emosum <- cp_long$CTQ_EmoAbuse_Sum
+
+cp_long$CTQ_Total_Sum <- NULL
+cp_long$CTQ_Total_Mean <- NULL
+cp_long$CTQ_EmoAbuse_Sum <- NULL
+cp_long$CTQ_EmoAbuse_Mean <- NULL
+cp_long$CTQ_PhyAbuse_Sum <- NULL
+cp_long$CTQ_PhyAbuse_Mean <- NULL
+cp_long$CTQ_SexAbuse_Sum <- NULL
+cp_long$CTQ_SexAbuse_Mean <- NULL
+```
+
+## Centering
+
+```{r}
+hist(cp_long$pain) #Wow, that's terrible
+cp_long$painC <- scale(cp_long$pain)
+hist(cp_long$painC) #Slightly better, there's an outlier though
+
+hist(cp_long$anger)
+cp_long$angerC <- scale(cp_long$anger)
+hist(cp_long$angerC)
+
+hist(cp_long$fear)
+cp_long$fearC <- scale(cp_long$fear)
+hist(cp_long$fear)
+
+hist(cp_long$happiness)
+cp_long$happinessC <- scale(cp_long$happiness)
+hist(cp_long$happinessC)
+
+hist(cp_long$peaktimenum)
+cp_long$peaktimenumC <- scale(cp_long$peaktimenum)
+hist(cp_long$peaktimenumC)
+
+hist(cp_long$cortvalue)
+cp_long$cortvalueC <- scale(cp_long$cortvalue)
+hist(cp_long$cortvalueC)
+
+hist(cp_long$stime) #That looks fine
+cp_long$stimeC <- scale(cp_long$stime)
+hist(cp_long$stimeC) #It almost looks worse in a way, maybe I won't use it
+
+hist(cp_long$ctqsum)
+cp_long$ctqsumC <- scale(cp_long$ctqsum)
+hist(cp_long$ctqsumC)
+
+hist(cp_long$emosum)
+cp_long$emosumC <- scale(cp_long$emosum)
+hist(cp_long$emosumC)
+```
+
+## Creating variables: maxtime, timetopeak, timebeforepeak, timeafterpeak
+
+```{r}
+cp_long$maxtime <- 0
+cp_long$maxtime <- ave(cp_long$stimeC, cp_long$id, FUN = max)
+hist(cp_long$maxtime)
+
+cp_long$timetopeak <- 0
+cp_long$timetopeak <- (cp_long$peaktimenumC - cp_long$maxtime) * -1
+hist(cp_long$timetopeak)
+
+cp_long$timebeforepeak <- 0
+cp_long$timebeforepeak <- ifelse(cp_long$timetopeak < 0, cp_long$timetopeak, 0)
+#If timetopeak < 0, then timebeforepeak = timetopeak
+#If timetopeak > 0, then timebeforepeak = 0
+hist(cp_long$timebeforepeak)
+
+cp_long$timeafterpeak <- 0
+cp_long$timeafterpeak <- ifelse(cp_long$timetopeak > 0, cp_long$timetopeak, 0)
+#If timetopeak > 0, then timeafterpeak = timetopeak
+#If timetopeak < 0, then timeafterpeak = 0
+hist(cp_long$timeafterpeak)
+```
+
+## Replicate that plot from Lopez-Duran 2014
+
+```{r}
+plot(cp_long$cortvalue,cp_long$stime) #Bad
+plot(cp_long$stime,cp_long$cortvalue) #Bad
+plot(cp_long$cortvalue,cp_long$timenum) #Bad
+plot(cp_long$timenum,cp_long$cortvalue) #Bad
+
+test.plot <- aggregate( cortvalue ~ timenum, cp_long, mean )
+
+plot(test.plot, col="black", lwd=2, type="o", xlab="Time", ylab="Cortisol", main="Cortisol Over Time")
+```
+
+## Correlations
+
+```{r}
+matrix_vars <- c("cortvalue", "stime", "pain", "gender", "ctqsum")
+cp_matrix <- cp_long[matrix_vars]
+
+matrix1 <- stats::cor(cp_matrix, use = "complete.obs")
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+matrix1_plot <- corrplot(matrix1,method="square", type = "upper", title = "Correlation Matrix", mar=c(0,0,4,0), tl.cex = .7, tl.offset=.3, tl.srt = 90)
+```
+
+Nothing appears to be significantly correlated with the other.
+
+## Testing out the incorrect model with lm()
+
+```{r}
+badmod <- lm(cortvalue~stime+stime^2+gender+painC+painC*stime+painC*stime*stime^2, data=cp_long)
+summary(badmod)
+#This says that everything is significant: time, gender, pain, and interaction between time and pain
+```
+
+## Basic lm() models
+
+```{r}
+mod1 <- lm(cortvalue ~ stime, data = cp_long)
+summary(mod1) #sig
+
+mod2 <- lm(cortvalue ~ ctqsum, data = cp_long)
+summary(mod2) #sig
+
+mod3 <- lm(cortvalue ~ pain, data = cp_long)
+summary(mod3) #not sig
+
+mod4 <- lm(cortvalue ~ gender, data = cp_long)
+summary(mod4) #sig
+```
+
+Let's build a bigger lm() model.
+
+```{r}
+mod5 <- lm(cortvalue ~ stime + ctqsum + gender, data = cp_long)
+summary(mod5)
+
+mod6 <- lm(cortvalue ~ stime + ctqsum + gender + stime:ctqsum + stime:gender + ctqsum:gender + stime:ctqsum:gender, data = cp_long)
+summary(mod6) #Jesus Christ
+```
+
+## Checking assumptions
+
+```{r}
+plot(mod5, which = 1) #Linearity
+plot(mod5, which = 2) #Normality
+plot(mod5, which = 3) #Equality of variance
+plot(mod5, which = 4) #Leverage / Identifies outliers
+```
