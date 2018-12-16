@@ -24,6 +24,7 @@ editor_options:
 #install.packages("lme4")
 #install.packages("corrr")
 #install.packages("corrplot")
+#install.packages("reshape2")
 
 library(mosaic)
 library(ggplot2)
@@ -41,6 +42,7 @@ library(lavaan)
 library(lme4)
 library(corrr)
 library(corrplot)
+library(reshape2)
 ```
 
 ### Outline/Description
@@ -53,7 +55,7 @@ mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
 
 ...but it's not going to be a lm() model, it's going to be a multilevel growth curve model, so you'll probably need to use the lme4() package with the lmer() command. This will produce a fixed effects table that represents the parameters of everything that you put in the above model to predict cortisol. Then you need to tell R what your random effects are, which is the intercept and time. 
 
-Then you do something with landmark registration.
+Then you do something with landmark registration, but that's kind of already done, so you need to ask someone who ask access to that dataset to share it with you.
 
 All the instructions can be found in Lopez-Duran 2014. Do NOT do anything involving AUC!
 
@@ -145,17 +147,23 @@ cp_long$timeafterpeak <- ifelse(cp_long$timetopeak > 0, cp_long$timetopeak, 0)
 hist(cp_long$timeafterpeak)
 ```
 
-## Replicate that plot from Lopez-Duran 2014
+## Creating variables: maxgrouptime, timebeforegrouppeak, timeaftergrouppeak
 
 ```{r}
-plot(cp_long$cortvalue,cp_long$stime) #Bad
-plot(cp_long$stime,cp_long$cortvalue) #Bad
-plot(cp_long$cortvalue,cp_long$timenum) #Bad
-plot(cp_long$timenum,cp_long$cortvalue) #Bad
+#Uhhhh... I'll do that later. I'm not 100% sure what I should use as the "group" anyway. 
+#Maybe I don't even need to do this step. 
+```
 
+## Replicating that plot from Lopez-Duran 2014
+
+```{r}
 test.plot <- aggregate( cortvalue ~ timenum, cp_long, mean )
 
 plot(test.plot, col="black", lwd=2, type="o", xlab="Time", ylab="Cortisol", main="Cortisol Over Time")
+
+ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_line(aes(color=factor(timenum))) + theme(legend.position = "none") + ggtitle("Cortisol Line Graph")
+
+ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_jitter(aes(color=factor(timenum))) + theme(legend.position = "none") + ggtitle("Cortisol Dot Plot")
 ```
 
 ## Correlations
@@ -208,8 +216,15 @@ summary(mod6) #Jesus Christ
 ## Checking assumptions
 
 ```{r}
-plot(mod5, which = 1) #Linearity
-plot(mod5, which = 2) #Normality
-plot(mod5, which = 3) #Equality of variance
-plot(mod5, which = 4) #Leverage / Identifies outliers
+plot(mod5, which = 1) #Linearity - Good
+plot(mod5, which = 2) #Normality - Bad but no registration
+plot(mod5, which = 3) #Equality of variance - ???
+plot(mod5, which = 4) #Leverage / Identifies outliers - 3 outliers
+```
+
+```{r}
+plot(mod6, which = 1) #Linearity
+plot(mod6, which = 2) #Normality
+plot(mod6, which = 3) #Equality of variance
+plot(mod6, which = 4) #Leverage / Identifies outliers
 ```
