@@ -392,3 +392,44 @@ Same thing for timenumC (2.8%).
 
 I think for lmer(), timenumC should be used anyway, since we shouldn't have a continous variable as a grouping variable.
 
+## What if I used nlme()?
+
+```{r}
+lmemod1 <- lme(cortvalue~painC+gender+ctqsumC,data=cp_long,random=~1|stimeC)
+#lmemod1 <- lme(cortvalue~painC+gender+ctqsum,data=cp_long,random=~1|stimeC,method="ML")
+#default is method=REML, not 100% sure what the difference is yet
+summary(lmemod1)
+anova(lmemod1)
+
+lmemod2 <- lme(cortvalue~gender+ctqsumC,data=cp_long,random=~1|stimeC)
+summary(lmemod2)
+anova(lmemod2)
+
+lmemod3 <- lme(cortvalue~painC+gender+ctqsumC,data=cp_long,random=~1|timenumC)
+summary(lmemod3)
+anova(lmemod3)
+
+lmemod4 <- lme(cortvalue~gender+ctqsumC,data=cp_long,random=~1|timenumC)
+summary(lmemod4)
+anova(lmemod4)
+```
+
+## lme() plots
+
+```{r}
+plot(lmemod1)
+qqnorm(resid(lmemod1)) + qqline(resid(lmemod1)) #Bad
+summary(lmemod1)
+plot(bestmod)
+```
+
+## Side by side comparison
+
+```{r}
+lmermod <- lmer(cortvalue ~ painC + ctqsumC + gender + (1|stime), data = cp_long)
+lmemod <- lme(cortvalue ~ painC + ctqsumC + gender, data=cp_long,random=~1|stimeC)
+
+summary(lmermod)
+summary(lmemod)
+#They look basically the same, the only difference is that lmer() doesn't provide p-values as designed by the package-maker
+```
