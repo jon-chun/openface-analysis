@@ -1,0 +1,46 @@
+---
+title: "OpenFaceAim2b"
+author: "Julianna Calabrese"
+date: "12/12/2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+#install.packages("mosaic")
+#install.packages("ggplot2")
+#install.packages("tidyr")
+#install.packages("dplyr")
+#install.packages("psych")
+#install.packages("nlme")
+#install.packages("plyr")
+#install.packages("Hmisc")
+#install.packages("rmarkdown")
+#install.packages("shiny")
+#install.packages("yaml")
+#install.packages("rapportools")
+#install.packages("lavaan")
+#install.packages("lme4")
+#install.packages("corrr")
+#install.packages("corrplot")
+#install.packages("reshape2")
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(rmarkdown)
+library(shiny)
+library(yaml)
+library(rapportools)
+library(lavaan)
+library(lme4)
+library(corrr)
+library(corrplot)
+library(reshape2)
+```
