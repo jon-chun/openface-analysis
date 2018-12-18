@@ -172,23 +172,25 @@ hist(cp_long$timeafterpeak)
 ## Replicating that plot from Lopez-Duran 2014
 
 ```{r}
-test.plot <- aggregate( cortvalue ~ timenum, cp_long, mean )
+test.plot <- aggregate( cortvalue ~ timenumC, cp_long, mean )
 
-plot(test.plot, col="black", lwd=2, type="o", xlab="Time", ylab="Cortisol", main="Cortisol Over Time")
+plot(test.plot, lwd=2, type="o", xlab="Time", ylab="Cortisol", main="Mean Cortisol Over Time")
 
 ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_line(aes(color=factor(timenum))) + theme(legend.position = "none") + ggtitle("Cortisol Line Graph")
 
 ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_jitter(aes(color=factor(timenum))) + theme(legend.position = "none") + ggtitle("Cortisol Dot Plot")
 ```
 
+# Simple Statistics
+
 ## Correlations
 
 ```{r}
-matrix_vars <- c("cortvalue", "stime", "timenum", "pain", "gender", "ctqsum")
+matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC","gender","ctqsumC")]
 
-cp_matrix <- cp_long[matrix_vars]
+matrix_vars <- data.matrix(matrix_vars)
 
-matrix1 <- stats::cor(cp_matrix, use = "complete.obs")
+matrix1 <- cor(matrix_vars, use = "complete.obs")
 
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 
@@ -198,56 +200,19 @@ corrplot(matrix1, method = "color", col = col(200),
          tl.col = "black", tl.srt = 90, # Text label color and rotation
          # Combine with significance
          #sig.level = 0.05, insig = "blank", 
-         # hide correlation coefficient on the principal diagonal
-         diag = FALSE)
+         # hide correlation coefficient on the principal diagonal (or not)
+         diag = TRUE, title = "Correlation Matrix", mar=c(0,0,1,0))
 ```
 
-## Basic lm() models
+## T-Tests
 
 ```{r}
-mod1 <- lm(cortvalue ~ stime, data = cp_long)
-summary(mod1) #sig
 
-mod2 <- lm(cortvalue ~ ctqsum, data = cp_long)
-summary(mod2) #sig
-
-mod3 <- lm(cortvalue ~ pain, data = cp_long)
-summary(mod3) #not sig
-
-mod4 <- lm(cortvalue ~ gender, data = cp_long)
-summary(mod4) #sig
 ```
 
-Let's build a bigger lm() model.
 
-```{r}
-mod5 <- lm(cortvalue ~ stime + ctqsum + gender, data = cp_long)
-summary(mod5)
 
-mod5.2 <- lm(cortvalue ~ timenum + ctqsum + gender, data = cp_long)
-summary(mod5.2)
-
-mod6 <- lm(cortvalue ~ stime + ctqsum + gender + stime:ctqsum + stime:gender + ctqsum:gender + stime:ctqsum:gender, data = cp_long)
-summary(mod6) #Jesus Christ
-```
-
-## Checking assumptions
-
-```{r}
-plot(mod5, which = 1) #Linearity - Good
-plot(mod5, which = 2) #Normality - Bad but no registration
-plot(mod5, which = 3) #Equality of variance - ???
-plot(mod5, which = 4) #Leverage / Identifies outliers - 3 outliers
-```
-
-```{r}
-plot(mod6, which = 1) #Linearity
-plot(mod6, which = 2) #Normality
-plot(mod6, which = 3) #Equality of variance
-plot(mod6, which = 4) #Leverage / Identifies outliers
-```
-
-## Trying lmer() again
+# Using lmer() with the lme4 package
 
 https://ourcodingclub.github.io/2017/03/15/mixed-models.html
 
@@ -259,27 +224,20 @@ https://ourcodingclub.github.io/2017/03/15/mixed-models.html
 6. Modify the basic lm() model.
 7. Fit your first lmer() model.
 8. Check assumptions for the first lmer() model.
-9. Crossed vs nested effects????
+9. [Do something re: crossed vs. nested effects, but I don't think this applies here.]
 10. Make it all look pretty in tables and graphs.
 
 ## Testing out the big model with lm()
 
 ```{r}
-bigmod <- lm(cortvalue~stime+stime^2+gender+painC+painC*stime+painC*stime*stime^2, data=cp_long)
-summary(bigmod)
+original <- lm(cortvalue~stime+stime^2+gender+painC+painC*stime+painC*stime*stime^2, data=cp_long)
+summary(original)
 #This says that everything is significant: time, gender, pain, and interaction between time and pain except the Intercept.
 
-bigmod2 <- lm(cortvalue~stimeC+stimeC^2+gender+painC+painC*stimeC+painC*stimeC*stimeC^2, data=cp_long)
-summary(bigmod2)
+original2 <- lm(cortvalue~stimeC+stimeC^2+gender+painC+painC*stimeC+painC*stimeC*stimeC^2, data=cp_long)
+summary(original2)
 #Okay, now pain isn't significant, huh. And now the intercept is significant. This is probably the correct model.
 ```
-
-Your random effects are intercept and time.
-
-Intercept estimate: -3.53375
-stimeC estimate: -0.20656
-painC estimate: 0.03253
-gender estimate: 0.34327
 
 ## Checking distributions
 
@@ -303,9 +261,20 @@ summary(basic3) #Intercept is significant but painC is not
 
 basic4 <- lm(cortvalue ~ ctqsumC, data = cp_long)
 summary(basic4) #Intercept and CTQ are significant
+```
 
-basictest <- lm(cortvalue ~ timenumC, data = cp_long)
-summary(basictest)
+## Checking assumptions
+
+```{r}
+plot(basic1, which = 1) #Linearity
+plot(basic1, which = 2) #Normality
+plot(basic1, which = 3) #Equality of variance
+plot(basic1, which = 4) #Leverage / Identifies outliers
+
+plot(basic1)
+plot(basic2)
+plot(basic3)
+plot(basic4)
 ```
 
 ## Modified lm() models
@@ -313,18 +282,23 @@ summary(basictest)
 ```{r}
 modified1 <- lm(cortvalue ~ stimeC + gender, data = cp_long)
 summary(modified1) #All are significant
+plot(modified1)
 
 modified2 <- lm(cortvalue ~ stimeC + painC, data = cp_long)
 summary(modified2) #Only Intercept and stimeC are significant
+plot(modified2)
 
 modified3 <- lm(cortvalue ~ stimeC + painC + gender, data = cp_long)
 summary(modified3) #Intercept, stimeC, and gender are significant
+plot(modified3)
 
 modified4 <- lm(cortvalue ~ stimeC + ctqsumC + gender, data = cp_long)
 summary(modified4) #All are significant
+plot(modified4)
 
-modified5 <- lm(cortvalue ~ timenum + ctqsumC + gender, data = cp_long)
+modified5 <- lm(cortvalue ~ timenumC + ctqsumC + gender, data = cp_long)
 summary(modified5) #All are significant
+plot(modified5)
 ```
 
 ## lmer() model
@@ -337,26 +311,33 @@ summary(modified5) #All are significant
 
 #Mixed effects models are supposed to have categorical variables... (and gender doesn't count here!)
 
-lmer1 <- lmer(cortvalue ~ painC + gender + (1|stime), data = cp_long)
+#Models that use stimeC
+
+lmer1 <- lmer(cortvalue ~ painC + (1|stimeC), data = cp_long)
 summary(lmer1)
 
-lmer2 <- lmer(cortvalue ~ painC + gender + (1|timenum), data = cp_long)
+lmer2 <- lmer(cortvalue ~ gender + (1|stimeC), data = cp_long)
 summary(lmer2)
 
-lmer3 <- lmer(cortvalue ~ painC + ctqsumC + gender + (1|stime), data = cp_long)
+lmer3 <- lmer(cortvalue ~ ctqsumC + (1|stimeC), data = cp_long)
 summary(lmer3)
 
-lmer4 <- lmer(cortvalue ~ painC + ctqsumC + gender + (1|timenum), data = cp_long)
+lmer4 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|stimeC), data = cp_long)
 summary(lmer4)
 
-lmertest <- lmer(cortvalue ~ gender+ (1|timenum), data = cp_long)
-summary(lmertest)
+#Models that use timenumC
 
-goodmod <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|stimeC), data = cp_long)
-summary(goodmod)
+lmer5 <- lmer(cortvalue ~ painC + (1|timenumC), data = cp_long)
+summary(lmer5)
 
-goodmod2 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|timenumC), data = cp_long)
-summary(goodmod2)
+lmer6 <- lmer(cortvalue ~ gender + (1|timenumC), data = cp_long)
+summary(lmer6)
+
+lmer7 <- lmer(cortvalue ~ ctqsumC + (1|timenumC), data = cp_long)
+summary(lmer7)
+
+lmer8 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|timenumC), data = cp_long)
+summary(lmer8)
 ```
 
 Let's see if either of those lmer() models worked. Probably not.
@@ -366,70 +347,110 @@ plot(lmer1)
 plot(lmer2)
 plot(lmer3)
 plot(lmer4)
-plot(lmertest)
-plot(goodmod)
+
+plot(lmer5)
+plot(lmer6)
+plot(lmer7)
+plot(lmer8)
 ```
 
 ```{r}
-qqnorm(resid(lmer1)) + qqline(resid(lmer1)) #Bad
-qqnorm(resid(lmer2)) + qqline(resid(lmer2)) #Bad
-qqnorm(resid(lmer3)) + qqline(resid(lmer3)) #Bad
-qqnorm(resid(lmer4)) + qqline(resid(lmer4)) #Bad
-qqnorm(resid(lmertest)) + qqline(resid(lmertest)) #Bad
-qqnorm(resid(goodmod)) + qqline(resid(goodmod)) #Bad
-qqnorm(resid(goodmod2)) + qqline(resid(goodmod2)) #Bad
-#I blame the lack of landmark registration at the moment
+qqnorm(resid(lmer1)) + qqline(resid(lmer1))
+qqnorm(resid(lmer2)) + qqline(resid(lmer2))
+qqnorm(resid(lmer3)) + qqline(resid(lmer3))
+qqnorm(resid(lmer4)) + qqline(resid(lmer4))
+#Gives warning but plots anyway
 ```
 
-For "goodmod"...
+For "lmer4"...
 
 stimeC variance: 0.04193
 Residual variance: 1.02347
 Total variance: 0.04193 + 1.02347 = 1.0654
 Variance explained by stimeC = 0.04193/1.0654 = 0.03936
-Cool... so stimeC explains 3% of the variance in goodmod. 
-Same thing for timenumC (2.8%).
+Cool... so stimeC explains 3% of the variance in lmer4. 
 
-I think for lmer(), timenumC should be used anyway, since we shouldn't have a continous variable as a grouping variable.
+Same thing if timenumC replaces stimeC (2.8%).
 
-## What if I used nlme()?
+I am still unsure whether I should stimeC or timenumC. 
+
+# Using lme() with the nlme package
 
 ```{r}
-lmemod1 <- lme(cortvalue~painC+gender+ctqsumC,data=cp_long,random=~1|stimeC)
-#lmemod1 <- lme(cortvalue~painC+gender+ctqsum,data=cp_long,random=~1|stimeC,method="ML")
-#default is method=REML, not 100% sure what the difference is yet
-summary(lmemod1)
-anova(lmemod1)
+#The default is method="REML" anyway
+lme1 <- lme(cortvalue ~ painC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme1)
 
-lmemod2 <- lme(cortvalue~gender+ctqsumC,data=cp_long,random=~1|stimeC)
-summary(lmemod2)
-anova(lmemod2)
+lme2 <- lme(cortvalue ~ gender,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme2)
 
-lmemod3 <- lme(cortvalue~painC+gender+ctqsumC,data=cp_long,random=~1|timenumC)
-summary(lmemod3)
-anova(lmemod3)
+lme3 <- lme(cortvalue ~ ctqsumC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme3)
 
-lmemod4 <- lme(cortvalue~gender+ctqsumC,data=cp_long,random=~1|timenumC)
-summary(lmemod4)
-anova(lmemod4)
+lme4 <- lme(cortvalue ~ painC + gender + ctqsumC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme4)
 ```
 
 ## lme() plots
 
 ```{r}
-plot(lmemod1)
-qqnorm(resid(lmemod1)) + qqline(resid(lmemod1)) #Bad
-summary(lmemod1)
-plot(bestmod)
+plot(lme1)
+plot(lme2)
+plot(lme3)
+plot(lme4)
 ```
 
-## Side by side comparison
+```{r}
+qqnorm(resid(lme1)) + qqline(resid(lme1))
+qqnorm(resid(lme2)) + qqline(resid(lme2))
+qqnorm(resid(lme3)) + qqline(resid(lme3))
+qqnorm(resid(lme4)) + qqline(resid(lme4))
+#Gives warning but plots anyway
+```
+
+# Side by side comparison of lme() and lmer()
 
 ```{r}
-lmermod <- lmer(cortvalue ~ painC + ctqsumC + gender + (1|stime), data = cp_long)
-lmemod <- lme(cortvalue ~ painC + ctqsumC + gender, data=cp_long,random=~1|stimeC)
+summary(lmer4)
+summary(lme4)
 
-summary(lmermod)
-summary(lmemod)
+coef(summary(lmer4))
+coef(summary(lme4))
+
 #They look basically the same, the only difference is that lmer() doesn't provide p-values as designed by the package-maker
+```
+
+## Moderation with lme() WORK IN PROGRESS!!!!
+
+```{r}
+lmemod2 <- lme(cortvalue ~ painC + ctqsumC + gender + painC*ctqsumC, 
+              data=cp_long,
+              random=~1|stimeC)
+summary(lmemod2)
+```
+
+```{r}
+lmemod3 <- lme(cortvalue ~ painC + ctqsumC + painC*ctqsumC, 
+              data=cp_long,
+              random=~1|stimeC)
+summary(lmemod3)
+```
+
+```{r}
+lmemod4 <- lme(cortvalue ~ painC + ctqsumC + gender*ctqsumC, 
+              data=cp_long,
+              random=~1|stimeC)
+summary(lmemod4)
 ```
