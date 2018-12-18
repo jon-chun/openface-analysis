@@ -1,0 +1,111 @@
+---
+title: "OpenFaceAim1"
+author: "Julianna Calabrese"
+date: "12/12/2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+#install.packages("mosaic")
+#install.packages("ggplot2")
+#install.packages("tidyr")
+#install.packages("dplyr")
+#install.packages("psych")
+#install.packages("nlme")
+#install.packages("plyr")
+#install.packages("Hmisc")
+#install.packages("rmarkdown")
+#install.packages("shiny")
+#install.packages("yaml")
+#install.packages("rapportools")
+#install.packages("lavaan")
+#install.packages("lme4")
+#install.packages("corrr")
+#install.packages("corrplot")
+#install.packages("reshape2")
+
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(rmarkdown)
+library(shiny)
+library(yaml)
+library(rapportools)
+library(lavaan)
+library(lme4)
+library(corrr)
+library(corrplot)
+library(reshape2)
+```
+
+## Load in data
+
+```{r}
+cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.csv", header=TRUE, sep=",")
+#cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
+cp_joined$X <- NULL
+```
+
+# Aim 1
+
+# Simple Statistics
+
+## Correlations
+
+```{r}
+matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC","gender","ctqsumC")]
+
+matrix_vars <- data.matrix(matrix_vars)
+
+matrix1 <- cor(matrix_vars, use = "complete.obs")
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+
+corrplot(matrix1, method = "color", col = col(200),
+         type = "upper", order = "hclust", number.cex = .7,
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col = "black", tl.srt = 90, # Text label color and rotation
+         # Combine with significance
+         #sig.level = 0.05, insig = "blank", 
+         # hide correlation coefficient on the principal diagonal (or not)
+         diag = TRUE, title = "Correlation Matrix", mar=c(0,0,1,0))
+```
+
+## T-Tests
+
+### Gender
+
+```{r}
+#onlyf <- cp_long[ which(cp_long$gender =='2'), ]
+#onlym <- cp_long[ which(cp_long$gender == '1'), ]
+
+#Do genders differ in regards to CTQ?
+t.test(onlyf$ctqsumC,onlym$ctqsumC) #sig
+
+plot(cp_long$ctqsumC[which (cp_long$gender == '2'), ], col = "pink",type="l")
+lines(cp_long$ctqsumC[which (cp_long$gender == '1'), ], col = "lightblue")
+
+boxplot(cp_long$ctqsumC[which (cp_long$gender == '2'), ], cp_long$ctqsumC[which (cp_long$gender == '1')],col=c("pink","lightblue"))
+
+#Do genders differ in regards to pain?
+t.test(onlyf$painC,onlym$painC) #sig
+
+plot(cp_long$painC[which (cp_long$gender == '2'), ], col = "pink",type="l")
+lines(cp_long$painC[which (cp_long$gender == '1'), ], col = "lightblue")
+
+boxplot(cp_long$painC[which (cp_long$gender == '2'), ], cp_long$painC[which (cp_long$gender == '1')],col=c("pink","lightblue"))
+```
+
+### Responders
+
+```{r}
+t.test(cp_long$gender,cp_long$Responder)
+t.test(onlyf$Responder,onlym$Responder)
+```
