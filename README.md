@@ -15,7 +15,7 @@ Files that are related to analysis:
 - OpenFaceAim2a: It conducts analysis relating to Aim2a, mostly modelling. Will utilize "cp_long.csv".
 - OpenFaceAim2b: It conducts analysis relating to Aim2b. Will utilize "cp_joined.csv" and "cp_long.csv". 
 
-Files that are related to descriptive statistics. 
+Files that are related to descriptive statistics:
 - OpenFaceDeStatCTQ: This runs descriptive statistics on CTQ data. Should be run directly after OpenFaceProgress. Does not change data in any way. 
 - OpenFaceDeStatCort: This runs descriptive statistics on the cortisol data. Should be run directly after OpenFaceProgress. Does not change data in any way. 
 - OpenFaceDeStatFacial: This runs descriptive statistics on the facial expression data. Should be run directly after OpenFaceProgress. Does not change data in any way. 
