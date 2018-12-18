@@ -1,5 +1,5 @@
 ---
-title: "OpenFaceAnalysis"
+title: "OpenFaceAim2a"
 author: "Julianna Calabrese"
 date: "12/12/2018"
 output: html_document
@@ -181,9 +181,7 @@ ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_line(aes(color
 ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_jitter(aes(color=factor(timenum))) + theme(legend.position = "none") + ggtitle("Cortisol Dot Plot")
 ```
 
-# Simple Statistics
-
-## Correlations
+## Correlation Matrix of relevant variables
 
 ```{r}
 matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC","gender","ctqsumC")]
@@ -204,13 +202,7 @@ corrplot(matrix1, method = "color", col = col(200),
          diag = TRUE, title = "Correlation Matrix", mar=c(0,0,1,0))
 ```
 
-## T-Tests
-
-```{r}
-
-```
-
-
+# Aim 2a
 
 # Using lmer() with the lme4 package
 
@@ -454,3 +446,11 @@ lmemod4 <- lme(cortvalue ~ painC + ctqsumC + gender*ctqsumC,
               random=~1|stimeC)
 summary(lmemod4)
 ```
+
+## Writing out the new cp_long
+
+```{r}
+#write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
+write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
+```
+
