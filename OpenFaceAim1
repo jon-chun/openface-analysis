@@ -48,19 +48,22 @@ library(reshape2)
 ## Load in data
 
 ```{r}
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long$X <- NULL
+
 cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined.csv", header=TRUE, sep=",")
 #cp_joined <- read.csv(file="/Users/Julianna/Desktop/data/cp_joined.csv", header=TRUE, sep=",")
 cp_joined$X <- NULL
 ```
 
-# Aim 1
-
 # Simple Statistics
 
-## Correlations
+## Correlation Matrix with cp_long
 
 ```{r}
-matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC","gender","ctqsumC")]
+#Please note that variables in this chunk are not centered
+matrix_vars <- cp_long[c("cortvalue","stime","timenum","pain","gender","ctqsum")]
 
 matrix_vars <- data.matrix(matrix_vars)
 
@@ -106,6 +109,72 @@ boxplot(cp_long$painC[which (cp_long$gender == '2'), ], cp_long$painC[which (cp_
 ### Responders
 
 ```{r}
-t.test(cp_long$gender,cp_long$Responder)
-t.test(onlyf$Responder,onlym$Responder)
+t.test(cp_long$gender,cp_long$Responder) #sig
+```
+
+# Hypothesis 1a
+
+"In non-traumatized participants, there will be a correlation between salivary cortisol and non-neutral facial expressivity."
+
+First, to test this hypothesis, we have to define "non-traumatized" participants. Options:
+- Use the mean or median of CTQ Total Sum
+- Use the clinical severity of CTQ Emotional Abuse
+- Try to use CTQ Total Sum as a continuous variable anyway
+
+Additionally, if we want to run a test that involves cortisol, we need to use the cp_long dataset.
+
+```{r}
+#cortvalue and pain
+#You will be able to duplicate this chunk and just replace "pain" with other emotions
+
+t.test(cp_long$cortvalue,cp_long$pain) #sig but a t-test isn't appropriate here
+
+boxplot(cp_long$cortvalue,cp_long$pain,col=c("red","blue"))
+
+cor(cp_long$cortvalue,cp_long$pain) #0.0148
+
+plot(cp_long$cortvalue,cp_long$pain)
+
+plot(cortvalue~pain,data=cp_long,main="Cortisol and Pain",xlab="Pain",ylab="Cortisol") + abline(lm(cortvalue~pain,data=cp_long), col='red')
+
+summary(lm(cortvalue ~ pain, data = cp_long))
+```
+
+Let's try it by using individuals that did or did not meet criteria for CTQ Emotional Abuse.
+
+```{r}
+cp_long$yesemoabuse <- between(cp_joined$CTQ_EmoAbuse_Sum, 8, 21, incbounds=TRUE)
+cp_long$noemoabuse <- between(cp_joined$CTQ_EmoAbuse_Sum, 0, 7.9, incbounds=TRUE)
+
+count(cp_long$yesemoabuse)
+count(cp_long$noemoabuse)
+
+yesemoabuse <- cp_long[ which(cp_long$yesemoabuse == 'TRUE'), ]
+noemoabuse <- cp_long[ which(cp_long$noemoabuse == 'TRUE'), ]
+```
+
+```{r}
+t.test(yesemoabuse$CTQ_EmoAbuse_Sum,noemoabuse$CTQ_EmoAbuse_Sum) #sig, obviously
+t.test(yesemoabuse$cortvalue,noemoabuse$cortvalue) #not sig... :sadface:
+t.test(yesemoabuse$pain,noemoabuse$pain) #sig!
+
+plot(yesemoabuse$pain,col="red")
+points(noemoabuse$pain,col="blue")
+```
+
+
+# Hypothesis 1b
+
+"In non-traumatized participants, non-neutral facial expressivity will increase alongside cortisol reactivity as participants continue to hold their hand in cold water over time."
+
+I don't think Hypothesis 1b is realistic anymore. 
+
+## Writing out the new files
+
+```{r}
+#write.csv(cp_joined, file="/Users/Julianna/Desktop/data/cp_joined_aim1.csv")
+write.csv(cp_joined, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joined_aim1.csv")
+
+#write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim1.csv")
+write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim1.csv")
 ```
