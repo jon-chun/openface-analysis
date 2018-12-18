@@ -98,18 +98,22 @@ which( colnames(cp_joined)=="happiness") #45
 which( colnames(cp_joined)=="sadness") #46
 which( colnames(cp_joined)=="CTQ_Total_Sum") #75
 which( colnames(cp_joined)=="CTQ_SexAbuse_Mean") #82
+which( colnames(cp_joined)=="Responder") #88
 ```
 
 ## Making df
 
 ```{r}
-df <- cp_joined[c(1,209,199:207,154,159,164,169,174,179,184,189,194,42:46,75:82)] 
+#olddf <- cp_joined[c(1,209,199:207,154,159,164,169,174,179,184,189,194,42:46,75:82,88)] 
+df <- cp_joined[c("id","gender","cort4bc","cort5bc","cort6bc","cort7bc","cort8bc","cort9bc","cort10bc","cort11bc","cort12bc","s4time","s5time","s6time","s7time","s8time","s9time","s10time","s11time","s12time","Responder","pain","anger","fear","happiness","sadness","CTQ_Total_Sum","CTQ_Total_Mean","CTQ_EmoAbuse_Sum","CTQ_EmoAbuse_Mean","CTQ_PhyAbuse_Sum","CTQ_PhyAbuse_Mean","CTQ_SexAbuse_Sum","CTQ_SexAbuse_Mean")]
 #This includes id, cortisol values, emotions, ctq, and time values
 
-df2 <- cp_joined[c(199:207)] 
-#This just includes raw cortisol values
+#olddf2 <- cp_joined[c(199:207)] 
+df2 <- cp_joined[c("cort4bc","cort5bc","cort6bc","cort7bc","cort8bc","cort9bc","cort10bc","cort11bc","cort12bc")]
+#This just includes (the Box-Cox-transformed) cortisol values
 
-df3 <- cp_joined[c(154,159,164,169,174,179,184,189,194)]
+#olddf3 <- cp_joined[c(154,159,164,169,174,179,184,189,194)]
+df3 <- cp_joined[c("s4time","s5time","s6time","s7time","s8time","s9time","s10time","s11time","s12time")]
 #This just includes the time values associated with the corresponding cortisol values
 
 df$peakname <- colnames(df2)[max.col(df2,ties.method="first")]
