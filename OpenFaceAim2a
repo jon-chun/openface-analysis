@@ -4,7 +4,7 @@ author: "Julianna Calabrese"
 date: "12/12/2018"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -47,13 +47,13 @@ library(reshape2)
 
 ### Outline/Description
 
-This file will be where all the primary data analysis occurs. First, in a totally separate .rmd file, you'll want to convert cp_whatever to a "long" format, meaning that every time for cortisol will have its own row. This long dataset will also have to include everything else too: gender/demographic data, AUs, CTQ, etc.
+This file will be where all the primary data analysis occurs. In previous rmd files, you'll need to convert all the stuff to a long format.
 
 Then, you're going to run a model that looks like this...
 
 mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
 
-...but it's not going to be a lm() model, it's going to be a multilevel growth curve model, so you'll probably need to use the lme4() package with the lmer() command. This will produce a fixed effects table that represents the parameters of everything that you put in the above model to predict cortisol. Then you need to tell R what your random effects are, which is the intercept and time. 
+...but it's not going to be a lm() model, it's going to be a multilevel growth curve model, so you'll probably need to use the lme4() package with the lmer() command or the nlme() package with the lme() command. This will produce a fixed effects table that represents the parameters of everything that you put in the above model to predict cortisol. Then you need to tell R what your random effects are, which is the intercept and time. 
 
 Then you do something with landmark registration, but that's kind of already done, so you need to ask someone who ask access to that dataset to share it with you.
 
@@ -86,41 +86,45 @@ cp_long$CTQ_SexAbuse_Mean <- NULL
 ## Centering
 
 ```{r}
-hist(cp_long$pain) #Wow, that's terrible
+hist(cp_long$pain, main = "Uncentered Pain",col='gray')
 cp_long$painC <- scale(cp_long$pain)
-hist(cp_long$painC) #Slightly better, there's an outlier though
+hist(cp_long$painC, main = "Centered Pain",col=rainbow(8))
 
-hist(cp_long$anger)
+hist(cp_long$anger, main = "Uncentered Anger", col='gray')
 cp_long$angerC <- scale(cp_long$anger)
-hist(cp_long$angerC)
+hist(cp_long$angerC, main = "Centered Anger", col=rainbow(8))
 
-hist(cp_long$fear)
+hist(cp_long$fear, main = "Uncentered Fear", col='gray')
 cp_long$fearC <- scale(cp_long$fear)
-hist(cp_long$fear)
+hist(cp_long$fear, main = "Centered Fear", col=rainbow(8))
 
-hist(cp_long$happiness)
+hist(cp_long$happiness, main = "Uncentered Happiness", col = 'gray')
 cp_long$happinessC <- scale(cp_long$happiness)
-hist(cp_long$happinessC)
+hist(cp_long$happinessC, main = "Centered Happiness", col = rainbow(8))
 
-hist(cp_long$peaktimenum)
+hist(cp_long$sadness, main = "Uncentered Sadness", col = 'gray')
+cp_long$sadnessC <- scale(cp_long$sadness)
+hist(cp_long$sadnessC, main = "Centered Sadness", col = rainbow(8))
+
+hist(cp_long$peaktimenum, main = "Uncentered peaktimenum", col = 'gray')
 cp_long$peaktimenumC <- scale(cp_long$peaktimenum)
-hist(cp_long$peaktimenumC)
+hist(cp_long$peaktimenumC, main = "Centered peaktimenum", col = rainbow(8))
 
-hist(cp_long$cortvalue)
+hist(cp_long$cortvalue, main = "Uncentered cortvalue", col = 'gray')
 cp_long$cortvalueC <- scale(cp_long$cortvalue)
-hist(cp_long$cortvalueC)
+hist(cp_long$cortvalueC, main = "Centered cortvalue", col = rainbow(8))
 
-hist(cp_long$stime) #That looks fine
+hist(cp_long$stime, main = "Uncentered stime", col = 'gray')
 cp_long$stimeC <- scale(cp_long$stime)
-hist(cp_long$stimeC) #It almost looks worse in a way, maybe I won't use it
+hist(cp_long$stimeC, main = "Centered stime", col = rainbow(8))
 
-hist(cp_long$ctqsum)
+hist(cp_long$ctqsum, main = "Uncentered ctqsum", col = 'gray')
 cp_long$ctqsumC <- scale(cp_long$ctqsum)
-hist(cp_long$ctqsumC)
+hist(cp_long$ctqsumC, main = "Centered ctqsum", col = rainbow(8))
 
-hist(cp_long$emosum)
+hist(cp_long$emosum, main = "Uncentered emosum", col = 'gray')
 cp_long$emosumC <- scale(cp_long$emosum)
-hist(cp_long$emosumC)
+hist(cp_long$emosumC, main = "Centered emosum", col = rainbow(8))
 
 #This is timenum's version of centering
 cp_long$timenumC <- 0
@@ -143,23 +147,23 @@ cp_long$timenumC <- as.factor(cp_long$timenumC)
 ```{r}
 cp_long$maxtime <- 0
 cp_long$maxtime <- ave(cp_long$stimeC, cp_long$id, FUN = max)
-hist(cp_long$maxtime)
+hist(cp_long$maxtime, main = "Histogram of maxtime")
 
 cp_long$timetopeak <- 0
 cp_long$timetopeak <- (cp_long$peaktimenumC - cp_long$maxtime) * -1
-hist(cp_long$timetopeak)
+hist(cp_long$timetopeak, main = "Histogram of timetopeak")
 
 cp_long$timebeforepeak <- 0
 cp_long$timebeforepeak <- ifelse(cp_long$timetopeak < 0, cp_long$timetopeak, 0)
 #If timetopeak < 0, then timebeforepeak = timetopeak
 #If timetopeak > 0, then timebeforepeak = 0
-hist(cp_long$timebeforepeak)
+hist(cp_long$timebeforepeak, main = "Histogram of timebeforepeak")
 
 cp_long$timeafterpeak <- 0
 cp_long$timeafterpeak <- ifelse(cp_long$timetopeak > 0, cp_long$timetopeak, 0)
 #If timetopeak > 0, then timeafterpeak = timetopeak
 #If timetopeak < 0, then timeafterpeak = 0
-hist(cp_long$timeafterpeak)
+hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak")
 ```
 
 ## Creating variables: maxgrouptime, timebeforegrouppeak, timeaftergrouppeak
@@ -184,7 +188,7 @@ ggplot(cp_long, aes(timenum, cortvalue, group=factor(id))) + geom_jitter(aes(col
 ## Correlation Matrix of relevant variables
 
 ```{r}
-matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC","gender","ctqsumC")]
+matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC", "angerC", "fearC", "happinessC", "sadnessC", "gender","ctqsumC")]
 
 matrix_vars <- data.matrix(matrix_vars)
 
@@ -234,9 +238,9 @@ summary(original2)
 ## Checking distributions
 
 ```{r}
-hist(cp_long$cortvalue)
-hist(cp_long$stimeC)
-hist(cp_long$painC)
+hist(cp_long$cortvalue, main = "Uncentered cortvalue Histogram")
+hist(cp_long$stimeC, main = "Centered stime Histogram")
+hist(cp_long$painC, main = "Centered pain Histogram")
 ```
 
 ## Basic lm() models
@@ -335,6 +339,7 @@ summary(lmer8)
 Let's see if either of those lmer() models worked. Probably not.
 
 ```{r}
+#Add titles?
 plot(lmer1)
 plot(lmer2)
 plot(lmer3)
