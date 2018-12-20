@@ -4,7 +4,7 @@ author: "Julianna Calabrese"
 date: "12/12/2018"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -57,13 +57,86 @@ cp_joined <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_joi
 cp_joined$X <- NULL
 ```
 
+## Pre-Analysis Cleaning and Centering
+
+```{r Cleaning}
+cp_long$ctqsum <- cp_long$CTQ_Total_Sum
+cp_long$emosum <- cp_long$CTQ_EmoAbuse_Sum
+
+#cp_long$CTQ_Total_Sum <- NULL
+#cp_long$CTQ_Total_Mean <- NULL
+#cp_long$CTQ_EmoAbuse_Sum <- NULL
+#cp_long$CTQ_EmoAbuse_Mean <- NULL
+#cp_long$CTQ_PhyAbuse_Sum <- NULL
+#cp_long$CTQ_PhyAbuse_Mean <- NULL
+#cp_long$CTQ_SexAbuse_Sum <- NULL
+#cp_long$CTQ_SexAbuse_Mean <- NULL
+```
+
+```{r Centering}
+hist(cp_long$pain, main = "Uncentered Pain",col='gray')
+cp_long$painC <- scale(cp_long$pain)
+hist(cp_long$painC, main = "Centered Pain",col=rainbow(8))
+
+hist(cp_long$anger, main = "Uncentered Anger", col='gray')
+cp_long$angerC <- scale(cp_long$anger)
+hist(cp_long$angerC, main = "Centered Anger", col=rainbow(8))
+
+hist(cp_long$fear, main = "Uncentered Fear", col='gray')
+cp_long$fearC <- scale(cp_long$fear)
+hist(cp_long$fear, main = "Centered Fear", col=rainbow(8))
+
+hist(cp_long$happiness, main = "Uncentered Happiness", col = 'gray')
+cp_long$happinessC <- scale(cp_long$happiness)
+hist(cp_long$happinessC, main = "Centered Happiness", col = rainbow(8))
+
+hist(cp_long$sadness, main = "Uncentered Sadness", col = 'gray')
+cp_long$sadnessC <- scale(cp_long$sadness)
+hist(cp_long$sadnessC, main = "Centered Sadness", col = rainbow(8))
+
+hist(cp_long$peaktimenum, main = "Uncentered peaktimenum", col = 'gray')
+cp_long$peaktimenumC <- scale(cp_long$peaktimenum)
+hist(cp_long$peaktimenumC, main = "Centered peaktimenum", col = rainbow(8))
+
+hist(cp_long$cortvalue, main = "Uncentered cortvalue", col = 'gray')
+cp_long$cortvalueC <- scale(cp_long$cortvalue)
+hist(cp_long$cortvalueC, main = "Centered cortvalue", col = rainbow(8))
+
+hist(cp_long$stime, main = "Uncentered stime", col = 'gray')
+cp_long$stimeC <- scale(cp_long$stime)
+hist(cp_long$stimeC, main = "Centered stime", col = rainbow(8))
+
+hist(cp_long$ctqsum, main = "Uncentered ctqsum", col = 'gray')
+cp_long$ctqsumC <- scale(cp_long$ctqsum)
+hist(cp_long$ctqsumC, main = "Centered ctqsum", col = rainbow(8))
+
+hist(cp_long$emosum, main = "Uncentered emosum", col = 'gray')
+cp_long$emosumC <- scale(cp_long$emosum)
+hist(cp_long$emosumC, main = "Centered emosum", col = rainbow(8))
+
+#This is timenum's version of centering
+cp_long$timenumC <- 0
+cp_long$timenumC[cp_long$timenum==4] <- 1
+cp_long$timenumC[cp_long$timenum==5] <- 2
+cp_long$timenumC[cp_long$timenum==6] <- 3
+cp_long$timenumC[cp_long$timenum==7] <- 4
+cp_long$timenumC[cp_long$timenum==8] <- 5
+cp_long$timenumC[cp_long$timenum==9] <- 6
+cp_long$timenumC[cp_long$timenum==10] <- 7
+cp_long$timenumC[cp_long$timenum==11] <- 8
+cp_long$timenumC[cp_long$timenum==12] <- 9
+
+cp_long$timenum <- as.factor(cp_long$timenum)
+cp_long$timenumC <- as.factor(cp_long$timenumC)
+```
+
 # Simple Statistics
 
 ## Correlation Matrix with cp_long
 
 ```{r}
 #Please note that variables in this chunk are not centered
-matrix_vars <- cp_long[c("cortvalue","stime","timenum","pain","gender","ctqsum")]
+matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC", "angerC", "fearC", "happinessC", "sadnessC", "gender","ctqsumC")]
 
 matrix_vars <- data.matrix(matrix_vars)
 
@@ -79,36 +152,32 @@ corrplot(matrix1, method = "color", col = col(200),
          #sig.level = 0.05, insig = "blank", 
          # hide correlation coefficient on the principal diagonal (or not)
          diag = TRUE, title = "Correlation Matrix", mar=c(0,0,1,0))
+
+#Note: the variables are in a weird order, maybe you can play around and re-order them later
 ```
 
 ## T-Tests
 
-### Gender
-
 ```{r}
-#onlyf <- cp_long[ which(cp_long$gender =='2'), ]
-#onlym <- cp_long[ which(cp_long$gender == '1'), ]
+#Subsetting datasets  by gender
+onlyf <- cp_long[ which(cp_long$gender == '2'), ]
+onlym <- cp_long[ which(cp_long$gender == '1'), ]
 
 #Do genders differ in regards to CTQ?
 t.test(onlyf$ctqsumC,onlym$ctqsumC) #sig
 
-plot(cp_long$ctqsumC[which (cp_long$gender == '2'), ], col = "pink",type="l")
-lines(cp_long$ctqsumC[which (cp_long$gender == '1'), ], col = "lightblue")
+plot(cp_long$ctqsumC[which (cp_long$gender == '2'), ], col = "pink",type="l", main = "Line graph of ctqsumC between genders") + lines(cp_long$ctqsumC[which (cp_long$gender == '1'), ], col = "lightblue")
 
-boxplot(cp_long$ctqsumC[which (cp_long$gender == '2'), ], cp_long$ctqsumC[which (cp_long$gender == '1')],col=c("pink","lightblue"))
+boxplot(cp_long$ctqsumC[which (cp_long$gender == '2'), ], cp_long$ctqsumC[which (cp_long$gender == '1')],col=c("pink","lightblue"), main = "Boxplot of ctqsumC between genders")
 
 #Do genders differ in regards to pain?
 t.test(onlyf$painC,onlym$painC) #sig
 
-plot(cp_long$painC[which (cp_long$gender == '2'), ], col = "pink",type="l")
-lines(cp_long$painC[which (cp_long$gender == '1'), ], col = "lightblue")
+plot(cp_long$painC[which (cp_long$gender == '2'), ], col = "pink",type="l", main = "Line graph of painC between genders") + lines(cp_long$painC[which (cp_long$gender == '1'), ], col = "lightblue")
 
-boxplot(cp_long$painC[which (cp_long$gender == '2'), ], cp_long$painC[which (cp_long$gender == '1')],col=c("pink","lightblue"))
-```
+boxplot(cp_long$painC[which (cp_long$gender == '2'), ], cp_long$painC[which (cp_long$gender == '1')],col=c("pink","lightblue"), main = "Boxplot of painC between genders")
 
-### Responders
-
-```{r}
+#Does one gender have more responders than the other?
 t.test(cp_long$gender,cp_long$Responder) #sig
 ```
 
@@ -123,31 +192,14 @@ First, to test this hypothesis, we have to define "non-traumatized" participants
 
 Additionally, if we want to run a test that involves cortisol, we need to use the cp_long dataset.
 
-```{r}
-#cortvalue and pain
-#You will be able to duplicate this chunk and just replace "pain" with other emotions
-
-t.test(cp_long$cortvalue,cp_long$pain) #sig but a t-test isn't appropriate here
-
-boxplot(cp_long$cortvalue,cp_long$pain,col=c("red","blue"))
-
-cor(cp_long$cortvalue,cp_long$pain) #0.0148
-
-plot(cp_long$cortvalue,cp_long$pain)
-
-plot(cortvalue~pain,data=cp_long,main="Cortisol and Pain",xlab="Pain",ylab="Cortisol") + abline(lm(cortvalue~pain,data=cp_long), col='red')
-
-summary(lm(cortvalue ~ pain, data = cp_long))
-```
-
-Let's try it by using individuals that did or did not meet criteria for CTQ Emotional Abuse.
+## Sorting out the 'non-traumatized' participants using cp_long
 
 ```{r}
-cp_long$yesemoabuse <- between(cp_joined$CTQ_EmoAbuse_Sum, 8, 21, incbounds=TRUE)
-cp_long$noemoabuse <- between(cp_joined$CTQ_EmoAbuse_Sum, 0, 7.9, incbounds=TRUE)
+cp_long$yesemoabuse <- between(cp_long$CTQ_EmoAbuse_Sum, 8, 21)
+cp_long$noemoabuse <- between(cp_long$CTQ_EmoAbuse_Sum, 0, 7.9)
 
-count(cp_long$yesemoabuse)
-count(cp_long$noemoabuse)
+count(cp_long$yesemoabuse) #504
+count(cp_long$noemoabuse) #1161
 
 yesemoabuse <- cp_long[ which(cp_long$yesemoabuse == 'TRUE'), ]
 noemoabuse <- cp_long[ which(cp_long$noemoabuse == 'TRUE'), ]
@@ -158,10 +210,53 @@ t.test(yesemoabuse$CTQ_EmoAbuse_Sum,noemoabuse$CTQ_EmoAbuse_Sum) #sig, obviously
 t.test(yesemoabuse$cortvalue,noemoabuse$cortvalue) #not sig... :sadface:
 t.test(yesemoabuse$pain,noemoabuse$pain) #sig!
 
-plot(yesemoabuse$pain,col="red")
-points(noemoabuse$pain,col="blue")
+plot(yesemoabuse$pain,col="red", main = "Scatterplot of cortvalue between yesemoabuse and noemoabuse") + points(noemoabuse$pain,col="blue")
 ```
 
+#### Is there a correlation between cortisol and painful expressions?
+
+```{r}
+cor(noemoabuse$cortvalue,noemoabuse$painC) #0.06366343
+
+painmod <- lm(cortvalue ~ painC, data = noemoabuse)
+summary(painmod) #Holy fuck it's slightly significant! Probably because of multicolinearity -- or maybe it's legitimately something!
+```
+
+#### Is there a correlation between cortisol and angry expressions?
+
+```{r}
+cor(noemoabuse$cortvalue,noemoabuse$angerC) #?
+
+angermod <- lm(cortvalue ~ angerC, data = noemoabuse)
+summary(angermod) #?
+```
+
+#### Is there a correlation between cortisol and fearful expressions?
+
+```{r}
+cor(noemoabuse$cortvalue,noemoabuse$fearC) #?
+
+fearmod <- lm(cortvalue ~ fearC, data = noemoabuse)
+summary(fearmod) #?
+```
+
+#### Is there a correlation between cortisol and happy expressions?
+
+```{r}
+cor(noemoabuse$cortvalue,noemoabuse$happinessC) #?
+
+happymod <- lm(cortvalue ~ happinessC, data = noemoabuse)
+summary(happymod) #?
+```
+
+#### Is there a correlation between cortisol and sad expressions?
+
+```{r}
+cor(noemoabuse$cortvalue,noemoabuse$sadnessC) #?
+
+sadmod <- lm(cortvalue ~ sadnessC, data = noemoabuse)
+summary(sadmod) #?
+```
 
 # Hypothesis 1b
 
@@ -178,3 +273,4 @@ write.csv(cp_joined, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_join
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim1.csv")
 write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim1.csv")
 ```
+
