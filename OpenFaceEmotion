@@ -81,28 +81,114 @@ cp_full$pain2 <- NULL
 cp_full$pain3 <- NULL
 ```
 
-## Placeholder Emotions
+## Anger
+
+As described in Kohler et al. 2004 and summarized by Hamm, Kohler, Gur, & Verma 2011, anger is (AU9 + AU16) - AU1.
 
 ```{r}
-x <- seq(from=0,to=5,by=.0000001)
-cp_full$anger <- 0
-cp_full$fear <- 0
-cp_full$happiness <- 0
-cp_full$sadness <- 0
-
-cp_full$anger <- sample(x, size=185, replace=TRUE)
-cp_full$fear <- sample(x, size=185, replace=TRUE)
-cp_full$happiness <- sample(x, size=185, replace=TRUE)
-cp_full$sadness <- sample(x, size=185, replace=TRUE)
-
-cp_full$x <- NULL
-rm(x)
+#cp_full$anger_kohler <- 0
+#cp_full$anger_kohler <- (cp_full$AU09_r + cp_full$AU16_r) - cp_full$AU01_r
 ```
+
+According to Ekman, Hager, & Friesen (2002; CD-ROM) in the FACS Manual/Investigator's Guide...
+
+```{r}
+#cp_full$anger1 <- cp_full$AU04_r + cp_full$AU05_r
+#cp_full$anger2 <- cp_full$AU04_r + cp_full$AU07_r
+#cp_full$anger3 <- cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r
+#cp_full$anger4 <- cp_full$AU17_r + cp_full$AU24_r
+#cp_full$anger5 <- cp_full$AU23_r
+```
+
+According to Affectiva (https://imotions.com/blog/facial-action-coding-system/)...
+
+```{r}
+#cp_full$anger_aff <- cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU23_r
+```
+
+
+```{r}
+#cp_full$anger <- 0
+```
+
+
+## Fear
+
+As described in Kohler et al. 2004 and summarized by Hamm, Kohler, Gur, & Verma 2011, fear is AU2 - AU7 - AU10. 
+
+According to Ekman, Hager, & Friesen (2002; CD-ROM) in the FACS Manual/Investigator's Guide...
+
+```{r}
+#cp_full$fear1 <- cp_full$AU01_r + cp_full$AU02_r + cp_full$AU04_r
+#cp_full$fear2 <- cp_full$AU20_r
+```
+
+According to Affectiva (https://imotions.com/blog/facial-action-coding-system/)...
+
+```{r}
+#cp_full$fear_aff <- cp_full$AU01_r + cp_full$AU02_r + cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU20_r cp_full$AU26_r 
+```
+
+
+```{r}
+#cp_full$fear <- 0
+```
+
+
+## Happiness
+
+As described in Kohler et al. 2004 and summarized by Hamm, Kohler, Gur, & Verma 2011, happiness is (AU6 + AU12) - AU4 - AU20.
+
+According to Ekman, Hager, & Friesen (2002; CD-ROM) in the FACS Manual/Investigator's Guide...
+
+```{r}
+#cp_full$happiness1 <- cp_full$AU12_r
+#cp_full$happiness2 <- cp_full$AU06_r + cp_full$AU12_r
+#cp_full$happiness3 <- cp_full$AU07_r + cp_full$AU12_r
+```
+
+According to Affectiva (https://imotions.com/blog/facial-action-coding-system/)...
+
+```{r}
+#cp_full$happiness_aff <- cp_full$AU06_r + cp_full$AU12_r
+```
+
+
+```{r}
+#cp_full$happiness <- 0
+```
+
+
+## Sadness
+
+As described in Kohler et al. 2004 and summarized by Hamm, Kohler, Gur, & Verma 2011, sadness is AU17 - AU25. 
+
+According to Ekman, Hager, & Friesen (2002; CD-ROM) in the FACS Manual/Investigator's Guide...
+
+```{r}
+#cp_full$sadness1 <- cp_full$AU01_r
+#cp_full$sadness2 <- cp_full$AU01_r + cp_full$AU04_r
+#cp_full$sadness3 <- cp_full$AU15_r
+#cp_full$sadness4 <- cp_full$AU06_r + cp_full$AU15_r
+#cp_full$sadness5 <- cp_full$AU11_r + cp_full$AU17_r
+#cp_full$sadness6 <- cp_full$AU11_r + cp_full$AU17_r
+#cp_full$sadness7 <- cp_full$AU11_r + cp_full$AU15_r
+```
+
+According to Affectiva (https://imotions.com/blog/facial-action-coding-system/)...
+
+```{r}
+#cp_full$sadness_aff <- cp_full$AU01_r + cp_full$AU04_r + cp_full$AU15_r
+```
+
+
+```{r}
+#cp_full$sadness <- 0
+```
+
 
 ## Write it out back as "cp_full"
 
 ```{r}
 write.csv(cp_full, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_full.csv")
 ```
-
-
