@@ -90,7 +90,7 @@ As described in Kohler et al. 2004 and summarized by Hamm, Kohler, Gur, & Verma 
 #cp_full$anger_kohler <- (cp_full$AU09_r + cp_full$AU16_r) - cp_full$AU01_r
 ```
 
-According to Ekman, Hager, & Friesen (2002; CD-ROM) in the FACS Manual/Investigator's Guide...
+According to Ekman, Hager, & Friesen (2002; CD-ROM) in the FACS Manual/Investigator's Guide... 
 
 ```{r}
 #cp_full$anger1 <- cp_full$AU04_r + cp_full$AU05_r
@@ -106,9 +106,8 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 #cp_full$anger_aff <- cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU23_r
 ```
 
-
 ```{r}
-#cp_full$anger <- 0
+cp_full$anger <- cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU23_r
 ```
 
 
@@ -129,9 +128,8 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 #cp_full$fear_aff <- cp_full$AU01_r + cp_full$AU02_r + cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU20_r cp_full$AU26_r 
 ```
 
-
 ```{r}
-#cp_full$fear <- 0
+cp_full$fear <- cp_full$AU01_r + cp_full$AU02_r + cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU20_r + cp_full$AU26_r
 ```
 
 
@@ -153,9 +151,8 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 #cp_full$happiness_aff <- cp_full$AU06_r + cp_full$AU12_r
 ```
 
-
 ```{r}
-#cp_full$happiness <- 0
+cp_full$happiness <- cp_full$AU06_r + cp_full$AU12_r
 ```
 
 
@@ -181,11 +178,16 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 #cp_full$sadness_aff <- cp_full$AU01_r + cp_full$AU04_r + cp_full$AU15_r
 ```
 
-
 ```{r}
-#cp_full$sadness <- 0
+cp_full$sadness <- cp_full$AU01_r + cp_full$AU04_r + cp_full$AU15_r
 ```
 
+
+## CURRENT ISSUE
+
+Ideally I'd like to use EMFACS' proper AU combinations, but I have no idea how to take all these combinations and use them like Lupis, Lerman, and Wolf (2014) describe in their methods. Lupis et al. says that they utilize different combinations but don't exactly explain how they translate these different pieces into a coherent "anger". So for the time being I'm using Affectiva's equations with the hope that I can figure out how to properly utilize the EMFACS combinations. 
+
+Also here is the link/citation for EMFACS that I used: https://www.worldcat.org/title/facial-action-coding-system-the-manual-on-cd-rom-html-demonstration-version/oclc/176910557
 
 ## Write it out back as "cp_full"
 
