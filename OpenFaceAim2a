@@ -4,7 +4,7 @@ author: "Julianna Calabrese"
 date: "12/12/2018"
 output: html_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -203,7 +203,7 @@ corrplot(matrix1, method = "color", col = col(200),
          # Combine with significance
          #sig.level = 0.05, insig = "blank", 
          # hide correlation coefficient on the principal diagonal (or not)
-         diag = TRUE, title = "Correlation Matrix", mar=c(0,0,1,0))
+         diag = TRUE, title = "Correlation Matrix", mar=c(0,0,3,0))
 ```
 
 # Aim 2a
@@ -233,6 +233,18 @@ summary(original)
 original2 <- lm(cortvalue~stimeC+stimeC^2+gender+painC+painC*stimeC+painC*stimeC*stimeC^2, data=cp_long)
 summary(original2)
 #Okay, now pain isn't significant, huh. And now the intercept is significant. This is probably the correct model.
+
+original3 <- lm(cortvalue~stimeC+stimeC^2+gender+angerC+angerC*stimeC+angerC*stimeC*stimeC^2, data=cp_long)
+summary(original3)
+
+original4 <- lm(cortvalue~stimeC+stimeC^2+gender+fearC+fearC*stimeC+fearC*stimeC*stimeC^2, data=cp_long)
+summary(original4)
+
+original5 <- lm(cortvalue~stimeC+stimeC^2+gender+happinessC+happinessC*stimeC+happinessC*stimeC*stimeC^2, data=cp_long)
+summary(original5)
+
+original6 <- lm(cortvalue~stimeC+stimeC^2+gender+sadnessC+sadnessC*stimeC+sadnessC*stimeC*stimeC^2, data=cp_long)
+summary(original6) #sadnessC is very slightly significant!
 ```
 
 ## Checking distributions
@@ -241,6 +253,10 @@ summary(original2)
 hist(cp_long$cortvalue, main = "Uncentered cortvalue Histogram")
 hist(cp_long$stimeC, main = "Centered stime Histogram")
 hist(cp_long$painC, main = "Centered pain Histogram")
+hist(cp_long$angerC, main = "Centered anger Histogram")
+hist(cp_long$fearC, main = "Centered fear Histogram")
+hist(cp_long$happinessC, main = "Centered happiness Histogram")
+hist(cp_long$sadnessC, main = "Centered sadness Histogram")
 ```
 
 ## Basic lm() models
@@ -252,11 +268,23 @@ summary(basic1) #Intercept and stimeC are significant
 basic2 <- lm(cortvalue ~ gender, data = cp_long)
 summary(basic2) #Intercept and gender are significant
 
-basic3 <- lm(cortvalue ~ painC, data = cp_long)
-summary(basic3) #Intercept is significant but painC is not
+basic3 <- lm(cortvalue ~ ctqsumC, data = cp_long)
+summary(basic3) #Intercept and CTQ are significant
 
-basic4 <- lm(cortvalue ~ ctqsumC, data = cp_long)
-summary(basic4) #Intercept and CTQ are significant
+basic4 <- lm(cortvalue ~ painC, data = cp_long)
+summary(basic4) #Intercept is significant but painC is not
+
+basic5 <- lm(cortvalue ~ angerC, data = cp_long)
+summary(basic5) #Intercept is significant but angerC is not
+
+basic6 <- lm(cortvalue ~ fearC, data = cp_long)
+summary(basic6) #Intercept is significant but fearC is not
+
+basic7 <- lm(cortvalue ~ happinessC, data = cp_long)
+summary(basic7) #Intercept is significant but happinessC is not
+
+basic8 <- lm(cortvalue ~ sadnessC, data = cp_long)
+summary(basic8) #Intercept is significant but sadnessC is not
 ```
 
 ## Checking assumptions
@@ -271,6 +299,10 @@ plot(basic1)
 plot(basic2)
 plot(basic3)
 plot(basic4)
+plot(basic5)
+plot(basic6)
+plot(basic7)
+plot(basic8)
 ```
 
 ## Modified lm() models
@@ -292,9 +324,25 @@ modified4 <- lm(cortvalue ~ stimeC + ctqsumC + gender, data = cp_long)
 summary(modified4) #All are significant
 plot(modified4)
 
-modified5 <- lm(cortvalue ~ timenumC + ctqsumC + gender, data = cp_long)
-summary(modified5) #All are significant
-plot(modified5)
+#modified5 <- lm(cortvalue ~ timenumC + ctqsumC + gender, data = cp_long)
+#summary(modified5) #All are significant
+#plot(modified5)
+
+modified3.1 <- lm(cortvalue ~ stimeC + angerC + gender, data = cp_long)
+summary(modified3.1) #Intercept, stimeC, and gender are significant
+plot(modified3.1)
+
+modified3.2 <- lm(cortvalue ~ stimeC + fearC + gender, data = cp_long)
+summary(modified3.2) #Intercept, stimeC, and gender are significant
+plot(modified3.2)
+
+modified3.3 <- lm(cortvalue ~ stimeC + happinessC + gender, data = cp_long)
+summary(modified3.3) #Intercept, stimeC, and gender are significant
+plot(modified3.3)
+
+modified3.4 <- lm(cortvalue ~ stimeC + sadnessC + gender, data = cp_long)
+summary(modified3.4) #Intercept, stimeC, and gender are significant - AND ALMOST SADNESS - but not quite here
+plot(modified3.4)
 ```
 
 ## lmer() model
@@ -309,8 +357,20 @@ plot(modified5)
 
 #Models that use stimeC
 
-lmer1 <- lmer(cortvalue ~ painC + (1|stimeC), data = cp_long)
-summary(lmer1)
+lmer1.1 <- lmer(cortvalue ~ painC + (1|stimeC), data = cp_long)
+summary(lmer1.1)
+
+lmer1.2 <- lmer(cortvalue ~ angerC + (1|stimeC), data = cp_long)
+summary(lmer1.2)
+
+lmer1.3 <- lmer(cortvalue ~ fearC + (1|stimeC), data = cp_long)
+summary(lmer1.3)
+
+lmer1.4 <- lmer(cortvalue ~ happinessC + (1|stimeC), data = cp_long)
+summary(lmer1.4)
+
+lmer1.5 <- lmer(cortvalue ~ sadnessC + (1|stimeC), data = cp_long)
+summary(lmer1.5)
 
 lmer2 <- lmer(cortvalue ~ gender + (1|stimeC), data = cp_long)
 summary(lmer2)
@@ -321,19 +381,20 @@ summary(lmer3)
 lmer4 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|stimeC), data = cp_long)
 summary(lmer4)
 
+
 #Models that use timenumC
 
-lmer5 <- lmer(cortvalue ~ painC + (1|timenumC), data = cp_long)
-summary(lmer5)
+lmertimenum1 <- lmer(cortvalue ~ painC + (1|timenumC), data = cp_long)
+summary(lmertimenum1)
 
-lmer6 <- lmer(cortvalue ~ gender + (1|timenumC), data = cp_long)
-summary(lmer6)
+lmertimenum2 <- lmer(cortvalue ~ gender + (1|timenumC), data = cp_long)
+summary(lmertimenum2)
 
-lmer7 <- lmer(cortvalue ~ ctqsumC + (1|timenumC), data = cp_long)
-summary(lmer7)
+lmertimenum3 <- lmer(cortvalue ~ ctqsumC + (1|timenumC), data = cp_long)
+summary(lmertimenum3)
 
-lmer8 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|timenumC), data = cp_long)
-summary(lmer8)
+lmer4 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|timenumC), data = cp_long)
+summary(lmertimenum4)
 ```
 
 Let's see if either of those lmer() models worked. Probably not.
@@ -375,11 +436,36 @@ I am still unsure whether I should stimeC or timenumC.
 
 ```{r}
 #The default is method="REML" anyway
-lme1 <- lme(cortvalue ~ painC,
+lme1.1 <- lme(cortvalue ~ painC,
             data = cp_long,
             random=~1|stimeC,
             method="REML")
-summary(lme1)
+summary(lme1.1)
+
+
+lme1.2 <- lme(cortvalue ~ angerC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme1.2)
+
+lme1.3 <- lme(cortvalue ~ fearC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme1.3)
+
+lme1.4 <- lme(cortvalue ~ happinessC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme1.4)
+
+lme1.5 <- lme(cortvalue ~ sadnessC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme1.5)
 
 lme2 <- lme(cortvalue ~ gender,
             data = cp_long,
@@ -393,11 +479,41 @@ lme3 <- lme(cortvalue ~ ctqsumC,
             method="REML")
 summary(lme3)
 
-lme4 <- lme(cortvalue ~ painC + gender + ctqsumC,
+lme4.1 <- lme(cortvalue ~ painC + gender + ctqsumC,
             data = cp_long,
             random=~1|stimeC,
             method="REML")
-summary(lme4)
+summary(lme4.1)
+
+lme4.2 <- lme(cortvalue ~ angerC + gender + ctqsumC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme4.2)
+
+lme4.3 <- lme(cortvalue ~ fearC + gender + ctqsumC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme4.3)
+
+lme4.4 <- lme(cortvalue ~ happinessC + gender + ctqsumC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme4.4)
+
+lme4.5 <- lme(cortvalue ~ sadnessC + gender + ctqsumC,
+            data = cp_long,
+            random=~1|stimeC,
+            method="REML")
+summary(lme4.5)
+
+badidea1 <- lme(cortvalue ~ painC + angerC + fearC + happinessC + sadnessC,
+               data = cp_long,
+               random=~1|stimeC,
+               method="REML")
+summary(badidea1)
 ```
 
 ## lme() plots
@@ -452,10 +568,10 @@ lmemod4 <- lme(cortvalue ~ painC + ctqsumC + gender*ctqsumC,
 summary(lmemod4)
 ```
 
+
 ## Writing out the new cp_long
 
 ```{r}
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
 write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
 ```
-
