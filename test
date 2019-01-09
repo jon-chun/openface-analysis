@@ -1,0 +1,137 @@
+# ???
+
+## Section 2.3
+
+```{r Sect 2.3.1}
+m.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data = cp_long, REML=FALSE)
+m.0 <- lmer(cortvalue ~ 1 + stime + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+m.1 <- lmer(cortvalue ~ 1 + stime + gender + stime:gender + (1 + stime|id), data=cp_long, REML=FALSE)
+
+anova(m.base,m.0,m.1) #wtf why is m.0 sig? i guess there's no interaction but thats expected
+#I don't think this chunk is accurate anyway because this whole protocol assumes we have a linearity somewhere in the dataset, and i don't think we do....
+```
+
+```{r Sect 2.3.2}
+m.1_shorter <- lmer(cortvalue ~ stime*gender + (stime|id), data=cp_long, REML=FALSE)
+summary(m.1_shorter)
+```
+
+```{r Sect 2.3.3}
+cp_long$gender <- as.factor(cp_long$gender)
+
+m.12 <- lmer(cortvalue ~ 1 + stime + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+
+ggplot(cp_long, aes(timenumC,cortvalue,shape=gender)) + 
+  stat_summary(fun.data=mean_se, geom="pointrange") +
+  stat_summary(aes(y=fitted(m.12), linetype=gender), 
+               fun.y=mean, geom="line")
+
+#Huh... Girls have higher cortvalues than boys? i dont think this is a good model!!!!!!
+```
+
+## Chapter 3
+
+```{r not actually part of chapter 3}
+ggplot(cp_long, aes(timenumC, cortvalue, shape=gender)) + stat_summary(fun.y=mean, geom="line") + stat_summary(fun.data=mean_se, geom="pointrange")
+#this would be cool if you could make trauma/traumamedian/something and put it in there instead of gender
+```
+
+"Systematic deviations can be more formally described in terms of **autocorrelated residuals**, which can be used to quantitatively assess whether a model is inadequate."
+
+Dynamic consistency means that the model of the average data is equal to the average of the models of individual participants' data. Dynamic consistency is required for multilevel regression.
+
+Time^2 is a higher-order polynominal. 
+
+Polynomial functions are non-linear in their variables (i.e., Time), but linear in their parameters.
+
+The mismatch between the central tendency of the individual models and the average of the individual models poses quite serious problems.
+
+Models can make two fundamentally different kinds of "predictions": model fits within the boundaries of the observed data and model forecasts for what would happen outside of those boundaries.
+
+There's a difference between computational and statistical modeling: Statistical models provide descriptions of large data sets in terms of a small set of effects or patterns and quantify those effects or patterns in ways that can be compared against any theoretical account. Computational models embody a particular theory in a way that allows concrete testing and making predictions. They serve complementary roles.
+
+A relatively standard solution to the colinearity problem is to orthogonalize the predictors, which removes their correlation. In the case of polynomials, this means creating **orthogonal polynomials**.
+
+Conveniently, the R function poly will create an orthogonal polynomial for a specified range and order.
+
+```{r Example 3.4}
+#cp_long$sadnessC <- as.numeric(cp_long$sadnessC)
+
+#"Subject" = id
+#"TP" = gender
+#"Block" = timenumCn
+#"Accuracy" = cortvalue
+
+ggplot(cp_long, aes(timenumC, cortvalue, shape=gender)) +
+stat_summary(fun.y=mean, geom="line", size=1) +
+stat_summary(fun.data=mean_se, geom="pointrange", size=1) 
+#+
+#theme_bw(base_size=10) +
+#coord_cartesian(ylim=c(0.5, 1.0)) +
+#scale_x_continuous(breaks=1:10)
+```
+
+We can use the poly function to create a second-order orthogonal polynomial in the range of Block:
+
+```{r}
+class(cp_long$timenumC)
+cp_long$timenumCn <- as.numeric(cp_long$timenumC)
+t <- poly(unique(cp_long$timenumCn), 2)
+```
+
+```{r}
+#WordLearnEx[,paste("ot", 1:2, sep="")] <- t[WordLearnEx$Block, 1:2]
+cp_long[,paste("ot", 1:2, sep="")] <- t[cp_long$timenumCn, 1:2]
+```
+
+```{r}
+m.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+m.0 <- lmer(cortvalue ~ (ot1+ot2) + gender + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+m.1 <- lmer(cortvalue ~ (ot1+ot2) + gender + ot1:gender + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+m.2 <- lmer(cortvalue ~ (ot1+ot2)*gender + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+anova(m.base,m.0,m.1,m.2)
+#only m.0 is sig
+```
+
+```{r}
+cp_long$gender <- as.factor(cp_long$gender)
+ggplot(cp_long, aes(timenumCn, cortvalue, shape=gender)) +
+stat_summary(aes(y=fitted(m.0), linetype=gender), fun.y=mean,
+geom="line", size=1) + stat_summary(fun.data=mean_se,geom="pointrange",size=1) + theme_bw(base_size=10)
+
+#you can put your fav model in place of m.0
+```
+
+```{r Section 3.5}
+coefs <- data.frame(coef(summary(m.2)))
+coefs$p <- 2 * (1 - pnorm(abs(coefs$t.value)))
+coefs
+m.2t <- lmer(cortvalue  ~ (ot1+ot2)*gender + (ot1+ot2 | id), data=cp_long, REML=F)
+coef(summary(m.2t))
+```
+
+### Sect 3.6 & 3.7
+
+Page 58 is important for when you write up your results.
+
+Modeling non-linear effects of time begins with choosing an overall function or shape to describe the data, which is called the **functional form**. Three principles for selecting a functional form were discussed: (1) it must be adequate to the data, (2) it must be dynamically consistent, and (3) it must be able to make the kinds of predictions that the analyst wants to make.
+
+## Chapter 4
+
+Should participants be treated as fixed or random effects? To be continued...
+
+```{r}
+m.2 <- lmer(cortvalue ~ (ot1+ot2)*gender + (ot1+ot2 | id), data=cp_long, REML=FALSE)
+summary(m.2)
+```
+
+```{r}
+m.1r <- lmer(cortvalue ~ (ot1+ot2)*gender + (ot1 | id), data=cp_long, REML=FALSE)
+summary(m.1r)
+```
+
+```{r}
+m.nocorr <- lmer(cortvalue ~ (ot1+ot2)*gender + (1|id) + (0+ot1|id) + (0+ot2|id), data=cp_long, REML=FALSE)
+summary(m.nocorr)
+```
