@@ -589,7 +589,6 @@ anger.1 <- lmer(cortvalue ~ 1 + stime + angerC + gender + (1 + stime|id), data=c
 anger.2 <- lmer(cortvalue ~ 1 + stime + angerC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
 anger.3 <- lmer(cortvalue ~ 1 + stime + angerC + gender + ctqsumC + angerC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
 
-
 summary(anger.base)
 summary(anger.0)
 summary(anger.1)
@@ -607,7 +606,6 @@ fear.0 <- lmer(cortvalue ~ 1 + stime + fearC + (1 + stime|id), data=cp_long, REM
 fear.1 <- lmer(cortvalue ~ 1 + stime + fearC + gender + (1 + stime|id), data=cp_long, REML=FALSE)
 fear.2 <- lmer(cortvalue ~ 1 + stime + fearC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
 fear.3 <- lmer(cortvalue ~ 1 + stime + fearC + gender + ctqsumC + fearC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
-
 
 summary(fear.base)
 summary(fear.0)
@@ -627,7 +625,6 @@ happy.1 <- lmer(cortvalue ~ 1 + stime + happinessC + gender + (1 + stime|id), da
 happy.2 <- lmer(cortvalue ~ 1 + stime + happinessC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
 happy.3 <- lmer(cortvalue ~ 1 + stime + happinessC + gender + ctqsumC + happinessC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
 
-
 summary(happy.base)
 summary(happy.0)
 summary(happy.1)
@@ -646,7 +643,6 @@ sad.1 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + (1 + stime|id), data=c
 sad.2 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
 sad.3 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + ctqsumC + sadnessC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
 
-
 summary(sad.base)
 summary(sad.0)
 summary(sad.1)
@@ -661,10 +657,7 @@ anova(sad.base,sad.0,sad.1,sad.2,sad.3)
 ```{r}
 ggplot(data=cp_long, aes(angerC, cortvalue, color=gender)) + stat_summary(fun.data=mean_se, geom="pointrange")
 
-ggplot(cp_long, aes(cortvalue, angerC, color=gender)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(anger.2), linetype=id),
-fun.y=mean, geom="line")
+#ggplot(cp_long, aes(cortvalue, angerC, color=gender)) + stat_summary(fun.data=mean_se, geom="pointrange") + stat_summary(aes(y=fitted(anger.2), linetype=gender), fun.y=mean, geom="line")
 ```
 
 ```{r}
@@ -725,8 +718,6 @@ summary(anger.1)
 summary(anger.2)
 
 anova(anger.base,anger.0,anger.1,anger.2)
-
-#nothing is sig
 ```
 
 ### Fear
@@ -743,8 +734,6 @@ summary(fear.1)
 summary(fear.2)
 
 anova(fear.base,fear.0,fear.1,fear.2)
-
-#nothing is sig
 ```
 
 ### Happiness
@@ -761,8 +750,6 @@ summary(happy.1)
 summary(happy.2)
 
 anova(happy.base,happy.0,happy.1,happy.2)
-
-#happy1 is sig?
 ```
 
 ### Sadness
