@@ -135,3 +135,44 @@ summary(m.1r)
 m.nocorr <- lmer(cortvalue ~ (ot1+ot2)*gender + (1|id) + (0+ot1|id) + (0+ot2|id), data=cp_long, REML=FALSE)
 summary(m.nocorr)
 ```
+
+
+#### MORE MESSING AROUND
+
+
+```{r}
+onlyf <- cp_long[ which(cp_long$gender=='2'), ]
+onlym <- cp_long[ which(cp_long$gender=='1'), ]
+
+t.test(onlyf$sadnessC,onlym$sadnessC)
+boxplot(onlyf$sadnessC,onlym$sadnessC, names=c('girls','boys'))
+here <- lm(as.numeric(gender) ~ sadnessC, data=cp_long)
+summary(here)
+mean(onlyf$sadnessC)
+mean(onlym$sadnessC)
+```
+```{r}
+#sad.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data=cp_long, REML=FALSE)
+#sad.0 <- lmer(cortvalue ~ 1 + stime + sadnessC + (1 + stime|id), data=cp_long, REML=FALSE)
+#sad.1 <- lmer(cortvalue ~ 1 + stime + sadnessC + sadnessC:stime+ (1 + stime|id), data=cp_long, REML=FALSE)
+
+#summary(sad.base)
+#summary(sad.0)
+#summary(sad.1)
+
+#anova(sad.base,sad.0,sad.1)
+```
+
+```{r}
+#sad.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data=cp_long, REML=FALSE)
+#sad.0 <- lmer(cortvalue ~ 1 + stime + sadnessC + (1 + stime|id), data=cp_long, REML=FALSE)
+#sad.0.5 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+#sad.1 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + sadnessC:gender + (1 + stime|id), data=cp_long, REML=FALSE)
+
+#summary(sad.base)
+#summary(sad.0)
+#summary(sad.0.5)
+#summary(sad.1)
+
+#anova(sad.base,sad.0,sad.0.5,sad.1)
+```
