@@ -25,6 +25,7 @@ editor_options:
 #install.packages("corrr")
 #install.packages("corrplot")
 #install.packages("reshape2")
+#install.packages("lmerTest")
 
 library(mosaic)
 library(ggplot2)
@@ -43,6 +44,7 @@ library(lme4)
 library(corrr)
 library(corrplot)
 library(reshape2)
+library(lmerTest)
 ```
 
 ### Outline/Description
@@ -81,6 +83,9 @@ cp_long$CTQ_PhyAbuse_Sum <- NULL
 cp_long$CTQ_PhyAbuse_Mean <- NULL
 cp_long$CTQ_SexAbuse_Sum <- NULL
 cp_long$CTQ_SexAbuse_Mean <- NULL
+
+cp_long$gender <- as.factor(cp_long$gender)
+cp_long$id <- as.factor(cp_long$id)
 ```
 
 ## Centering
@@ -568,6 +573,242 @@ lmemod4 <- lme(cortvalue ~ painC + ctqsumC + gender*ctqsumC,
 summary(lmemod4)
 ```
 
+
+## From "Growth Curve Analysis and Visualization Using R"
+
+https://www.taylorfrancis.com/books/9781466584334
+
+### Chapter 2
+
+### Anger
+
+```{r}
+anger.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data=cp_long, REML=FALSE)
+anger.0 <- lmer(cortvalue ~ 1 + stime + angerC + (1 + stime|id), data=cp_long, REML=FALSE)
+anger.1 <- lmer(cortvalue ~ 1 + stime + angerC + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+anger.2 <- lmer(cortvalue ~ 1 + stime + angerC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
+anger.3 <- lmer(cortvalue ~ 1 + stime + angerC + gender + ctqsumC + angerC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
+
+
+summary(anger.base)
+summary(anger.0)
+summary(anger.1)
+summary(anger.2)
+summary(anger.3)
+
+anova(anger.base,anger.0,anger.1,anger.2,anger.3)
+```
+
+### Fear
+
+```{r}
+fear.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data=cp_long, REML=FALSE)
+fear.0 <- lmer(cortvalue ~ 1 + stime + fearC + (1 + stime|id), data=cp_long, REML=FALSE)
+fear.1 <- lmer(cortvalue ~ 1 + stime + fearC + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+fear.2 <- lmer(cortvalue ~ 1 + stime + fearC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
+fear.3 <- lmer(cortvalue ~ 1 + stime + fearC + gender + ctqsumC + fearC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
+
+
+summary(fear.base)
+summary(fear.0)
+summary(fear.1)
+summary(fear.2)
+summary(fear.3)
+
+anova(fear.base,fear.0,fear.1,fear.2,fear.3)
+```
+
+### Happiness
+
+```{r}
+happy.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data=cp_long, REML=FALSE)
+happy.0 <- lmer(cortvalue ~ 1 + stime + happinessC + (1 + stime|id), data=cp_long, REML=FALSE)
+happy.1 <- lmer(cortvalue ~ 1 + stime + happinessC + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+happy.2 <- lmer(cortvalue ~ 1 + stime + happinessC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
+happy.3 <- lmer(cortvalue ~ 1 + stime + happinessC + gender + ctqsumC + happinessC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
+
+
+summary(happy.base)
+summary(happy.0)
+summary(happy.1)
+summary(happy.2)
+summary(happy.3)
+
+anova(happy.base,happy.0,happy.1,happy.2,happy.3)
+```
+
+### Sadness
+
+```{r}
+sad.base <- lmer(cortvalue ~ 1 + stime + (1 + stime|id), data=cp_long, REML=FALSE)
+sad.0 <- lmer(cortvalue ~ 1 + stime + sadnessC + (1 + stime|id), data=cp_long, REML=FALSE)
+sad.1 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + (1 + stime|id), data=cp_long, REML=FALSE)
+sad.2 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + ctqsumC + (1 + stime|id), data=cp_long, REML=FALSE)
+sad.3 <- lmer(cortvalue ~ 1 + stime + sadnessC + gender + ctqsumC + sadnessC*gender*ctqsumC +  (1 + stime|id), data=cp_long, REML=FALSE)
+
+
+summary(sad.base)
+summary(sad.0)
+summary(sad.1)
+summary(sad.2)
+summary(sad.3)
+
+anova(sad.base,sad.0,sad.1,sad.2,sad.3)
+```
+
+#### Basic plots
+
+```{r}
+ggplot(data=cp_long, aes(angerC, cortvalue, color=gender)) + stat_summary(fun.data=mean_se, geom="pointrange")
+
+ggplot(cp_long, aes(cortvalue, angerC, color=gender)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(anger.2), linetype=id),
+fun.y=mean, geom="line")
+```
+
+```{r}
+ggplot(data=cp_long, aes(fearC, cortvalue, color=gender)) + stat_summary(fun.data=mean_se, geom="pointrange") 
+```
+
+```{r}
+ggplot(data=cp_long, aes(happinessC, cortvalue, color=gender)) + stat_summary(fun.data=mean_se, geom="pointrange") 
+```
+
+```{r}
+ggplot(data=cp_long, aes(sadnessC, cortvalue, color=gender)) + stat_summary(fun.data=mean_se, geom="pointrange") 
+```
+
+### Chapter 3
+
+```{r}
+cp_long$timenumCn <- as.numeric(cp_long$timenumC)
+cp_long$gender <- as.factor(cp_long$gender)
+
+ggplot(cp_long, aes(timenumC, cortvalue, shape=gender)) +
+stat_summary(fun.y=mean, geom="line", size=1) +
+stat_summary(fun.data=mean_se, geom="pointrange", size=1) 
+
+t <- poly(unique(cp_long$timenumCn), 2)
+cp_long[,paste("ot", 1:2, sep="")] <- t[cp_long$timenumCn, 1:2]
+
+#WARNING: I don't know if this is appropriate or not considering that timenumC is a factor/bin/whatever and not a proper numeric time variablike like stime
+```
+
+```{r}
+sad.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+sad.0 <- lmer(cortvalue ~ (ot1+ot2) + sadnessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+sad.1 <- lmer(cortvalue ~ (ot1+ot2) + sadnessC + ot1:sadnessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+sad.2 <- lmer(cortvalue ~ (ot1+ot2)*sadnessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+summary(sad.base)
+summary(sad.0)
+summary(sad.1)
+summary(sad.2)
+
+anova(sad.base,sad.0,sad.1,sad.2)
+
+#does this mean I don't need to use the second order of time to predict sadnessC? 
+```
+
+### Anger
+
+```{r}
+anger.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+anger.0 <- lmer(cortvalue ~ (ot1+ot2) + angerC + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+anger.1 <- lmer(cortvalue ~ (ot1+ot2) + angerC + ot1:angerC + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+anger.2 <- lmer(cortvalue ~ (ot1+ot2)*angerC + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+summary(anger.base)
+summary(anger.0)
+summary(anger.1)
+summary(anger.2)
+
+anova(anger.base,anger.0,anger.1,anger.2)
+
+#nothing is sig
+```
+
+### Fear
+
+```{r}
+fear.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+fear.0 <- lmer(cortvalue ~ (ot1+ot2) + fearC + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+fear.1 <- lmer(cortvalue ~ (ot1+ot2) + fearC + ot1:fearC + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+fear.2 <- lmer(cortvalue ~ (ot1+ot2)*fearC + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+summary(fear.base)
+summary(fear.0)
+summary(fear.1)
+summary(fear.2)
+
+anova(fear.base,fear.0,fear.1,fear.2)
+
+#nothing is sig
+```
+
+### Happiness
+
+```{r}
+happy.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+happy.0 <- lmer(cortvalue ~ (ot1+ot2) + happinessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+happy.1 <- lmer(cortvalue ~ (ot1+ot2) + happinessC + ot1:happinessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+happy.2 <- lmer(cortvalue ~ (ot1+ot2)*happinessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+summary(happy.base)
+summary(happy.0)
+summary(happy.1)
+summary(happy.2)
+
+anova(happy.base,happy.0,happy.1,happy.2)
+
+#happy1 is sig?
+```
+
+### Sadness
+
+```{r}
+sad.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+sad.0 <- lmer(cortvalue ~ (ot1+ot2) + sadnessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+sad.1 <- lmer(cortvalue ~ (ot1+ot2) + sadnessC + ot1:sadnessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+sad.2 <- lmer(cortvalue ~ (ot1+ot2)*sadnessC + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+summary(sad.base)
+summary(sad.0)
+summary(sad.1)
+summary(sad.2)
+
+anova(sad.base,sad.0,sad.1,sad.2)
+
+#So I think we don't need a second order polynominal for stime to adequately predict sadnessC, which is pretty much the same for all emotions for both Chapters 2 and 3. 
+```
+
+### Pain
+
+```{r}
+pain.base <- lmer(cortvalue ~ (ot1+ot2) + (ot1+ot2|id), data=cp_long, REML=FALSE)
+pain.0 <- lmer(cortvalue ~ (ot1+ot2) + painC + (ot1+ot2|id), data=cp_long, REML=FALSE) #intercept
+pain.1 <- lmer(cortvalue ~ (ot1+ot2) + painC + ot1:painC + (ot1+ot2|id), data=cp_long, REML=FALSE) #linear
+pain.2 <- lmer(cortvalue ~ (ot1+ot2)*painC + (ot1+ot2|id), data=cp_long, REML=FALSE) #quadratic
+
+summary(pain.base)
+summary(pain.0)
+summary(pain.1)
+summary(pain.2)
+
+anova(pain.base,pain.0,pain.1,pain.2)
+```
+
+## Gender Testing
+
+```{r}
+summary(gender1 <- lm(angerC ~ gender, cp_long)) #sig
+summary(gender2 <- lm(fearC ~ gender, cp_long)) #sig
+summary(gender2 <- lm(happinessC ~ gender, cp_long)) #sig
+summary(gender2 <- lm(sadnessC ~ gender, cp_long)) #NOT SIG!
+```
+
+OKAY. Something is up with gender and sadness but I have no idea what it is.
 
 ## Writing out the new cp_long
 
