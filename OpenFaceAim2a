@@ -688,9 +688,77 @@ summary(gender2 <- lm(sadnessC ~ gender, cp_long)) #NOT SIG!
 
 OKAY. Something is up with gender and sadness but I have no idea what it is.
 
+## Trying my best to replicate the model from Lopez-Duran et al. 2014
+
+Cortisol = b0 + (b1 x sex) + (B2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 x sex x timebeforepeak) + (b5 x sex x timeafterpeak)
+
+```{r}
+#b0 <- intercept aka peak
+#b1 <- the impact of sex on levels at the group peak time
+#b2 <- the activation slope for males
+#b3 <- the regulation slope for males
+#b4 <- the impact of sex (females) on the activation slope
+#b5 <- the impact of sex (females) on the regulation slope
+```
+
+timebeforepeak = the reactivity slope / activation
+timeafterpeak = the recovery slope / regulation
+
+```{r}
+cp_long$b0 <- cp_long$peaktimenumC
+
+test1 <- lm(peaktimenumC ~ gendernum, data = cp_long)
+summary(test1)
+cp_long$b1 <- 11.983
+
+cp_long$b2 <- ifelse((cp_long$gendernum == '1'), cp_long$timebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gendernum == '1'), cp_long$timeafterpeak, 0)
+
+test2 <- lm(timebeforepeak ~ femalenum, data=cp_long)
+summary(test2)
+cp_long$b4 <- 0.03717
+
+test3 <- lm(timeafterpeak ~ femalenum, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.02191
+
+lopez1 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gendernum) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gendernum*timebeforepeak) + (b5*gendernum*timeafterpeak), data=cp_long)
+summary(lopez1)
+```
+
+```{r}
+cp_long$b0 <- cp_long$peaktimenumC
+
+test1 <- lm(peaktimenumC ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- 11.983
+
+cp_long$b2 <- ifelse((cp_long$gender == '1'), cp_long$timebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '1'), cp_long$timeafterpeak, 0)
+
+test2 <- lm(timebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <- 0.03717
+
+test3 <- lm(timeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.02191
+
+lopez2 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long)
+summary(lopez2)
+#Am I supposed to put zeros for all females when creating b2 and b3. I don't think that's right...
+```
+
+```{r}
+lopez3 <- lmer(cortvalue ~ (1|b0) + (1|timenumC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long)
+summary(lopez3)
+```
+
 ## Writing out the new cp_long
 
 ```{r}
-#write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
-write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
+##write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
+#write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
 ```
