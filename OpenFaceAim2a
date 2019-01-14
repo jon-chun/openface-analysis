@@ -147,37 +147,6 @@ cp_long$timenum <- as.factor(cp_long$timenum)
 cp_long$timenumC <- as.factor(cp_long$timenumC)
 ```
 
-## Creating variables: maxtime, timetopeak, timebeforepeak, timeafterpeak
-
-```{r}
-cp_long$maxtime <- 0
-cp_long$maxtime <- ave(cp_long$stimeC, cp_long$id, FUN = max)
-hist(cp_long$maxtime, main = "Histogram of maxtime")
-
-cp_long$timetopeak <- 0
-cp_long$timetopeak <- (cp_long$peaktimenumC - cp_long$maxtime) * -1
-hist(cp_long$timetopeak, main = "Histogram of timetopeak")
-
-cp_long$timebeforepeak <- 0
-cp_long$timebeforepeak <- ifelse(cp_long$timetopeak < 0, cp_long$timetopeak, 0)
-#If timetopeak < 0, then timebeforepeak = timetopeak
-#If timetopeak > 0, then timebeforepeak = 0
-hist(cp_long$timebeforepeak, main = "Histogram of timebeforepeak")
-
-cp_long$timeafterpeak <- 0
-cp_long$timeafterpeak <- ifelse(cp_long$timetopeak > 0, cp_long$timetopeak, 0)
-#If timetopeak > 0, then timeafterpeak = timetopeak
-#If timetopeak < 0, then timeafterpeak = 0
-hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak")
-```
-
-## Creating variables: maxgrouptime, timebeforegrouppeak, timeaftergrouppeak
-
-```{r}
-#Uhhhh... I'll do that later. I'm not 100% sure what I should use as the "group" anyway. 
-#Maybe I don't even need to do this step. 
-```
-
 ## Replicating that plot from Lopez-Duran 2014
 
 ```{r}
