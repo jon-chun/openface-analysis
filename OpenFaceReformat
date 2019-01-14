@@ -261,7 +261,6 @@ cp_long$timenum <- as.factor(cp_long$timenum)
 cp_long$timenumC <- as.factor(cp_long$timenumC)
 ```
 
-
 ## Landmark Registration
 
 ### Creating variables: maxtime, timetopeak, timebeforepeak, timeafterpeak
