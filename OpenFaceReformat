@@ -202,6 +202,28 @@ cp_long$CTQ_SexAbuse_Mean <- NULL
 
 cp_long$gender <- as.factor(cp_long$gender)
 cp_long$id <- as.factor(cp_long$id)
+cp_long$Responder <- as.factor(cp_long$Responder)
+```
+
+## Re-coding gender because of the patriarchy
+
+```{r}
+cp_long$gendernew <- ifelse(cp_long$gender == '1', 0, 1)
+cp_long$genderold <- cp_long$gender
+cp_long$gender <- cp_long$gendernew
+cp_long$gendernew <- NULL
+```
+
+```{r}
+cp_long$male <- ifelse(cp_long$gender == '0', 1, 0)
+cp_long$male <- as.factor(cp_long$male)
+cp_long$female <- ifelse(cp_long$gender == '1', 1, 0)
+cp_long$female <- as.factor(cp_long$female)
+```
+
+```{r}
+cp_long$gendercat <- ifelse(cp_long$gender == '0', "male", "female")
+cp_long$gendercat <- as.factor(cp_long$gendercat)
 ```
 
 ## Centering
