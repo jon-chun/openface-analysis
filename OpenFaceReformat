@@ -226,6 +226,12 @@ cp_long$gendercat <- ifelse(cp_long$gender == '0', "male", "female")
 cp_long$gendercat <- as.factor(cp_long$gendercat)
 ```
 
+```{r}
+cp_long$gendernum <- as.numeric(cp_long$gender)
+cp_long$malenum <- as.numeric(cp_long$male)
+cp_long$femalenum <- as.numeric(cp_long$female)
+```
+
 ## Centering
 
 ```{r}
