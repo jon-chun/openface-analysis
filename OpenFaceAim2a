@@ -704,60 +704,13 @@ Cortisol = b0 + (b1 x sex) + (B2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 
 timebeforepeak = the reactivity slope / activation
 timeafterpeak = the recovery slope / regulation
 
-```{r}
-cp_long$b0 <- cp_long$peaktimenumC
-
-test1 <- lm(peaktimenumC ~ gendernum, data = cp_long)
-summary(test1)
-cp_long$b1 <- 11.983
-
-cp_long$b2 <- ifelse((cp_long$gendernum == '1'), cp_long$timebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gendernum == '1'), cp_long$timeafterpeak, 0)
-
-test2 <- lm(timebeforepeak ~ femalenum, data=cp_long)
-summary(test2)
-cp_long$b4 <- 0.03717
-
-test3 <- lm(timeafterpeak ~ femalenum, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.02191
-
-lopez1 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gendernum) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gendernum*timebeforepeak) + (b5*gendernum*timeafterpeak), data=cp_long, REML=TRUE)
-summary(lopez1)
-```
-
-```{r}
-cp_long$b0 <- cp_long$peaktimenumC
-
-test1 <- lm(peaktimenumC ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- 11.983
-
-cp_long$b2 <- ifelse((cp_long$gender == '1'), cp_long$timebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == '1'), cp_long$timeafterpeak, 0)
-
-test2 <- lm(timebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <- 0.03717
-
-test3 <- lm(timeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.02191
-
-lopez2 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
-summary(lopez2)
-#Am I supposed to put zeros for all females when creating b2 and b3. I don't think that's right...
-```
-
-```{r THIS IS IT!!!!}
+```{r This is it!}
 cp_long$b0 <- cp_long$peaknamenum
 cp_long$b0 <- as.numeric(cp_long$b0)
 
 test1 <- lm(peaknamenum ~ as.factor(gender), data = cp_long)
 summary(test1)
-cp_long$b1 <- 11.983
+cp_long$b1 <- -0.4046
 
 cp_long$b2 <- ifelse((cp_long$gender == '1'), cp_long$timebeforepeak, 0)
 
@@ -771,8 +724,11 @@ test3 <- lm(timeafterpeak ~ as.factor(female), data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.02191
 
-lopez3 <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
-summary(lopez3)
+lopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
+summary(lopez)
+rm(test1)
+rm(test2)
+rm(test3)
 ```
 
 ## Adding emotions in the model that worked
@@ -817,8 +773,8 @@ summary(ctqlopez)
 ```
 
 ```{r}
-sadlopez1 <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC + ctqsum, data=cp_long, REML=TRUE)
-summary(sadlopez1)
+sadctqlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC + ctqsum, data=cp_long, REML=TRUE)
+summary(sadctqlopez)
 #CTQ still not sig, but SadnessC still is!
 ```
 
@@ -829,6 +785,10 @@ cor(cp_long$sadnessC,cp_long$b2) #0.02
 cor(cp_long$sadnessC,cp_long$b3) #-0.015
 cor(cp_long$sadnessC,cp_long$b4) #NA
 cor(cp_long$sadnessC,cp_long$b5) #NA
+```
+
+```{r}
+anova(lopez, sadlopez, sadctqlopez) #I think this says that the addition of sadness makes the model really good, right? 
 ```
 
 ## Still trying to recreate plots from Lopez-Duran et al. 2014
@@ -850,20 +810,11 @@ cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
 ggplot(cp_long, aes(as.factor(peaknamenum), sadnessC, color=gendercat)) +
 stat_summary(fun.y=mean, geom="line", size=1) +
 stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
+```
+
+```{r}
 cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
 ```
-
-```{r}
-ggplot(cp_long, aes(peaknamenum, sadnessC, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="point") +
-stat_summary(aes(y=fitted(sadlopez), linetype=gendercat),
-fun.y=mean, geom="line")
-```
-
-```{r}
-anova(lopez3, sadlopez1, sadlopez) #I think this says that the addition of sadness makes the model really good, right? 
-```
-
 
 ## Writing out the new cp_long
 
