@@ -274,7 +274,11 @@ hist(cp_long$ctqsumC, main = "Centered ctqsum", col = rainbow(8))
 hist(cp_long$emosum, main = "Uncentered emosum", col = 'gray')
 cp_long$emosumC <- scale(cp_long$emosum)
 hist(cp_long$emosumC, main = "Centered emosum", col = rainbow(8))
+```
 
+## Pseudo-Centering
+
+```{}
 #This is timenum's version of centering
 cp_long$timenumC <- 0
 cp_long$timenumC[cp_long$timenum==4] <- 1
@@ -289,6 +293,20 @@ cp_long$timenumC[cp_long$timenum==12] <- 9
 
 cp_long$timenum <- as.factor(cp_long$timenum)
 cp_long$timenumC <- as.factor(cp_long$timenumC)
+```
+
+```{r}
+#Creating a variable called peaknamenum that directly corresponds to peakname but is numeric (kind of)
+cp_long$peaknamenum <- 0
+cp_long$peaknamenum[cp_long$peakname=='cort4bc'] <- 1
+cp_long$peaknamenum[cp_long$peakname=='cort5bc'] <- 2
+cp_long$peaknamenum[cp_long$peakname=='cort6bc'] <- 3
+cp_long$peaknamenum[cp_long$peakname=='cort7bc'] <- 4
+cp_long$peaknamenum[cp_long$peakname=='cort8bc'] <- 5
+cp_long$peaknamenum[cp_long$peakname=='cort9bc'] <- 6
+cp_long$peaknamenum[cp_long$peakname=='cort10bc'] <- 7
+cp_long$peaknamenum[cp_long$peakname=='cort11bc'] <- 8
+cp_long$peaknamenum[cp_long$peakname=='cort12bc'] <- 9
 ```
 
 ## Landmark Registration
