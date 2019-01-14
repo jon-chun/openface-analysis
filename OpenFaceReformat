@@ -3,6 +3,8 @@ title: "OpenFaceReformat"
 author: "Julianna Calabrese"
 date: "12/12/2018"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -268,23 +270,37 @@ cp_long$timenumC <- as.factor(cp_long$timenumC)
 ```{r}
 cp_long$maxtime <- 0
 cp_long$maxtime <- ave(cp_long$stimeC, cp_long$id, FUN = max)
-hist(cp_long$maxtime, main = "Histogram of maxtime")
+hist(cp_long$maxtime, main = "Histogram of maxtime", col=rainbow(8))
+```
 
+```{r}
 cp_long$timetopeak <- 0
-cp_long$timetopeak <- (cp_long$peaktimenumC - cp_long$maxtime) * -1
-hist(cp_long$timetopeak, main = "Histogram of timetopeak")
+#peaktimenumC - stimeC = minutes from peak
+#Multiplied by -1 so that times before peak are negative and times after peak are positive (for next step: creating TimeBeforePeak and TimeAfterPeak)
+cp_long$timetopeak <- (cp_long$peaktimenumC - cp_long$stimeC) * -1
+hist(cp_long$timetopeak, main = "Histogram of timetopeak", col=rainbow(8))
+```
 
+From Melissa's code:
+
+* Creating TimeBeforePeak and TimeAfterPeak (reactivity and recovery times, respectively):
+    + When Time2Pk is negative, TimeBeforePeak = minutes from peak at each sampling time
+    + When Time2Pk is positive, TimeBeforePeak = 0
+    + When Time2Pk is positive, TimeAfterPeak = minutes from peak at each sampling time
+    + When Time2Pk is negative, TimeAfterPeak = 0
+
+```{r}
 cp_long$timebeforepeak <- 0
 cp_long$timebeforepeak <- ifelse(cp_long$timetopeak < 0, cp_long$timetopeak, 0)
-#If timetopeak < 0, then timebeforepeak = timetopeak
-#If timetopeak > 0, then timebeforepeak = 0
-hist(cp_long$timebeforepeak, main = "Histogram of timebeforepeak")
+#If timetopeak < 0 (aka negative), then timebeforepeak = timetopeak
+#If timetopeak > 0 (aka positive), then timebeforepeak = 0
+hist(cp_long$timebeforepeak, main = "Histogram of timebeforepeak",col=rainbow(8))
 
 cp_long$timeafterpeak <- 0
 cp_long$timeafterpeak <- ifelse(cp_long$timetopeak > 0, cp_long$timetopeak, 0)
-#If timetopeak > 0, then timeafterpeak = timetopeak
-#If timetopeak < 0, then timeafterpeak = 0
-hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak")
+#If timetopeak > 0 (aka positive), then timeafterpeak = timetopeak
+#If timetopeak < 0 (aka negative), then timeafterpeak = 0
+hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak",col=rainbow(8))
 ```
 
 ### Creating variables: maxgrouptime, timebeforegrouppeak, timeaftergrouppeak
@@ -300,4 +316,6 @@ hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak")
 ```{r}
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long.csv")
 write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv")
+
+#cp_long has 1665 observations and 32 variables.
 ```
