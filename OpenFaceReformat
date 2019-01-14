@@ -290,7 +290,7 @@ From Melissa's code:
     + When Time2Pk is negative, TimeAfterPeak = 0
 
 ```{r}
-#timebeforepeak aka the regulation slope
+#timebeforepeak aka the reactivity slope
 cp_long$timebeforepeak <- 0
 cp_long$timebeforepeak <- ifelse(cp_long$timetopeak < 0, cp_long$timetopeak, 0)
 #If timetopeak < 0 (aka negative), then timebeforepeak = timetopeak
