@@ -278,7 +278,7 @@ hist(cp_long$emosumC, main = "Centered emosum", col = rainbow(8))
 
 ## Pseudo-Centering
 
-```{}
+```{r}
 #This is timenum's version of centering
 cp_long$timenumC <- 0
 cp_long$timenumC[cp_long$timenum==4] <- 1
