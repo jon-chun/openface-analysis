@@ -23,4 +23,4 @@ Files that are related to descriptive statistics:
 Notes to self: 
 - There's no age, puberty, or race/ethnicity anywhere at the moment, so you might want to add that in somewhere. You could add it to OpenFaceProgress but then everything after would have to be adjusted a bit. Or you could add it directly in OpenFaceReformat but that might be difficult. 
 - You need to adjust the first/last lines of every .rmd file depending on where you're running it from i.e. correct the paths.
-- Landmark registration of the cortisol values needs to be stuck somewhere, probably in OpenFaceFixingCortisol. 
+- Files that you need to have on hand before beginning: cortisol_original, ctq, gender, and medication. 
