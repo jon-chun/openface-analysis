@@ -36,6 +36,8 @@ library(shiny)
 library(yaml)
 ```
 
+## Last updated 1/14/2019
+
 ## Read in cortisol.csv
 
 ```{r}
@@ -90,18 +92,18 @@ The formula used in Lopez-Duran 2014:
 X' = ((X^0.26) - 1))/0.26
 
 ```{r BoxCox Power Transformations}
-cort1bc <- (((cortisol$Cortisol_Win.1)^-.26)- 1)/-0.26
-cort2bc <- (((cortisol$Cortisol_Win.2)^-.26)- 1)/-0.26
-cort3bc <- (((cortisol$Cortisol_Win.3)^-.26)- 1)/-0.26
-cort4bc <- (((cortisol$Cortisol_Win.4)^-.26)- 1)/-0.26
-cort5bc <- (((cortisol$Cortisol_Win.5)^-.26)- 1)/-0.26
-cort6bc <- (((cortisol$Cortisol_Win.6)^-.26)- 1)/-0.26
-cort7bc <- (((cortisol$Cortisol_Win.7)^-.26)- 1)/-0.26
-cort8bc <- (((cortisol$Cortisol_Win.8)^-.26)- 1)/-0.26
-cort9bc <- (((cortisol$Cortisol_Win.9)^-.26)- 1)/-0.26
-cort10bc <- (((cortisol$Cortisol_Win.10)^-.26)- 1)/-0.26
-cort11bc <- (((cortisol$Cortisol_Win.11)^-.26)- 1)/-0.26
-cort12bc <- (((cortisol$Cortisol_Win.12)^-.26)- 1)/-0.26
+cort1bc <- (((cortisol$Cortisol_Win.1)^-.26)- 1)/0.26
+cort2bc <- (((cortisol$Cortisol_Win.2)^-.26)- 1)/0.26
+cort3bc <- (((cortisol$Cortisol_Win.3)^-.26)- 1)/0.26
+cort4bc <- (((cortisol$Cortisol_Win.4)^-.26)- 1)/0.26
+cort5bc <- (((cortisol$Cortisol_Win.5)^-.26)- 1)/0.26
+cort6bc <- (((cortisol$Cortisol_Win.6)^-.26)- 1)/0.26
+cort7bc <- (((cortisol$Cortisol_Win.7)^-.26)- 1)/0.26
+cort8bc <- (((cortisol$Cortisol_Win.8)^-.26)- 1)/0.26
+cort9bc <- (((cortisol$Cortisol_Win.9)^-.26)- 1)/0.26
+cort10bc <- (((cortisol$Cortisol_Win.10)^-.26)- 1)/0.26
+cort11bc <- (((cortisol$Cortisol_Win.11)^-.26)- 1)/0.26
+cort12bc <- (((cortisol$Cortisol_Win.12)^-.26)- 1)/0.26
 ```
 
 ```{r }
@@ -153,7 +155,7 @@ mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
 
 ## Landmark Registration
 
-Ask someone who knows where the cortisol data with landmark registration is.
+Landmark registration should already be conducted in cortisol_original.csv.
 
 ## Writing it back out
 
