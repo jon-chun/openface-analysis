@@ -290,12 +290,14 @@ From Melissa's code:
     + When Time2Pk is negative, TimeAfterPeak = 0
 
 ```{r}
+#timebeforepeak aka the regulation slope
 cp_long$timebeforepeak <- 0
 cp_long$timebeforepeak <- ifelse(cp_long$timetopeak < 0, cp_long$timetopeak, 0)
 #If timetopeak < 0 (aka negative), then timebeforepeak = timetopeak
 #If timetopeak > 0 (aka positive), then timebeforepeak = 0
 hist(cp_long$timebeforepeak, main = "Histogram of timebeforepeak",col=rainbow(8))
 
+#timeafterpeak aka the recovery slope
 cp_long$timeafterpeak <- 0
 cp_long$timeafterpeak <- ifelse(cp_long$timetopeak > 0, cp_long$timetopeak, 0)
 #If timetopeak > 0 (aka positive), then timeafterpeak = timetopeak
