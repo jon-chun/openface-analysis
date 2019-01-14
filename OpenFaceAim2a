@@ -289,7 +289,7 @@ summary(lmertimenum2)
 lmertimenum3 <- lmer(cortvalue ~ ctqsumC + (1|timenumC), data = cp_long)
 summary(lmertimenum3)
 
-lmer4 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|timenumC), data = cp_long)
+lmertimenum4 <- lmer(cortvalue ~ painC + gender + ctqsumC + (1|timenumC), data = cp_long)
 summary(lmertimenum4)
 ```
 
@@ -297,22 +297,22 @@ Let's see if either of those lmer() models worked. Probably not.
 
 ```{r}
 #Add titles?
-plot(lmer1)
-plot(lmer2)
-plot(lmer3)
-plot(lmer4)
+#plot(lmer1)
+#plot(lmer2)
+#plot(lmer3)
+#plot(lmer4)
 
-plot(lmer5)
-plot(lmer6)
-plot(lmer7)
-plot(lmer8)
+#plot(lmer5)
+#plot(lmer6)
+#plot(lmer7)
+#plot(lmer8)
 ```
 
 ```{r}
-qqnorm(resid(lmer1)) + qqline(resid(lmer1))
-qqnorm(resid(lmer2)) + qqline(resid(lmer2))
-qqnorm(resid(lmer3)) + qqline(resid(lmer3))
-qqnorm(resid(lmer4)) + qqline(resid(lmer4))
+#qqnorm(resid(lmer1)) + qqline(resid(lmer1))
+#qqnorm(resid(lmer2)) + qqline(resid(lmer2))
+#qqnorm(resid(lmer3)) + qqline(resid(lmer3))
+#qqnorm(resid(lmer4)) + qqline(resid(lmer4))
 #Gives warning but plots anyway
 ```
 
@@ -415,28 +415,28 @@ summary(badidea1)
 ## lme() plots
 
 ```{r}
-plot(lme1)
-plot(lme2)
-plot(lme3)
-plot(lme4)
+#plot(lme1)
+#plot(lme2)
+#plot(lme3)
+#plot(lme4)
 ```
 
 ```{r}
-qqnorm(resid(lme1)) + qqline(resid(lme1))
-qqnorm(resid(lme2)) + qqline(resid(lme2))
-qqnorm(resid(lme3)) + qqline(resid(lme3))
-qqnorm(resid(lme4)) + qqline(resid(lme4))
+#qqnorm(resid(lme1)) + qqline(resid(lme1))
+#qqnorm(resid(lme2)) + qqline(resid(lme2))
+#qqnorm(resid(lme3)) + qqline(resid(lme3))
+#qqnorm(resid(lme4)) + qqline(resid(lme4))
 #Gives warning but plots anyway
 ```
 
 # Side by side comparison of lme() and lmer()
 
 ```{r}
-summary(lmer4)
-summary(lme4)
+#summary(lmer4)
+#summary(lme4)
 
-coef(summary(lmer4))
-coef(summary(lme4))
+#coef(summary(lmer4))
+#coef(summary(lme4))
 
 #They look basically the same, the only difference is that lmer() doesn't provide p-values as designed by the package-maker
 ```
@@ -723,7 +723,7 @@ test3 <- lm(timeafterpeak ~ femalenum, data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.02191
 
-lopez1 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gendernum) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gendernum*timebeforepeak) + (b5*gendernum*timeafterpeak), data=cp_long)
+lopez1 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gendernum) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gendernum*timebeforepeak) + (b5*gendernum*timeafterpeak), data=cp_long, REML=TRUE)
 summary(lopez1)
 ```
 
@@ -746,15 +746,124 @@ test3 <- lm(timeafterpeak ~ female, data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.02191
 
-lopez2 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long)
+lopez2 <- lmer(cortvalue ~ (1|b0) + (1|stimeC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
 summary(lopez2)
 #Am I supposed to put zeros for all females when creating b2 and b3. I don't think that's right...
 ```
 
-```{r}
-lopez3 <- lmer(cortvalue ~ (1|b0) + (1|timenumC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long)
+```{r THIS IS IT!!!!}
+cp_long$b0 <- cp_long$peaknamenum
+cp_long$b0 <- as.numeric(cp_long$b0)
+
+test1 <- lm(peaknamenum ~ as.factor(gender), data = cp_long)
+summary(test1)
+cp_long$b1 <- 11.983
+
+cp_long$b2 <- ifelse((cp_long$gender == '1'), cp_long$timebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '1'), cp_long$timeafterpeak, 0)
+
+test2 <- lm(timebeforepeak ~ as.factor(female), data=cp_long)
+summary(test2)
+cp_long$b4 <- 0.03717
+
+test3 <- lm(timeafterpeak ~ as.factor(female), data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.02191
+
+lopez3 <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
 summary(lopez3)
 ```
+
+## Adding emotions in the model that worked
+
+```{r}
+painlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + painC, data=cp_long, REML=TRUE)
+summary(painlopez)
+#Not sig!
+```
+
+```{r}
+angrylopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + angerC, data=cp_long, REML=TRUE)
+summary(angrylopez)
+#Not sig!
+```
+
+```{r}
+fearfullopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + fearC, data=cp_long, REML=TRUE)
+summary(fearfullopez)
+#Not sig!
+```
+
+```{r}
+happylopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + happinessC, data=cp_long, REML=TRUE)
+summary(happylopez)
+#Not sig!
+#VERY WEIRD WARNING...
+```
+
+```{r}
+sadlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
+summary(sadlopez)
+#SadnessC is the only significant model which is good!
+```
+
+## Running with sadness and adding more stuff
+
+```{r}
+ctqlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + ctqsum, data=cp_long, REML=TRUE)
+summary(ctqlopez)
+#CTQ isn't significant in this model
+```
+
+```{r}
+sadlopez1 <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC + ctqsum, data=cp_long, REML=TRUE)
+summary(sadlopez1)
+#CTQ still not sig, but SadnessC still is!
+```
+
+```{r}
+cor(cp_long$sadnessC,cp_long$b0) #0.002
+cor(cp_long$sadnessC,cp_long$b1) #NA
+cor(cp_long$sadnessC,cp_long$b2) #0.02
+cor(cp_long$sadnessC,cp_long$b3) #-0.015
+cor(cp_long$sadnessC,cp_long$b4) #NA
+cor(cp_long$sadnessC,cp_long$b5) #NA
+```
+
+## Still trying to recreate plots from Lopez-Duran et al. 2014
+
+```{r}
+ggplot(cp_long, aes(peaknamenum, cortvalue, shape=gendercat)) +
+stat_summary(fun.y=mean, geom="line", size=1) +
+stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
+```
+
+```{r}
+ggplot(cp_long, aes(as.integer(peaknamenum), sadnessC, shape=gendercat)) +
+stat_summary(fun.y=mean, geom="line", size=1) +
+stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
+cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
+```
+
+```{r}
+ggplot(cp_long, aes(as.factor(peaknamenum), sadnessC, color=gendercat)) +
+stat_summary(fun.y=mean, geom="line", size=1) +
+stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
+cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
+```
+
+```{r}
+ggplot(cp_long, aes(peaknamenum, sadnessC, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="point") +
+stat_summary(aes(y=fitted(sadlopez), linetype=gendercat),
+fun.y=mean, geom="line")
+```
+
+```{r}
+anova(lopez3, sadlopez1, sadlopez) #I think this says that the addition of sadness makes the model really good, right? 
+```
+
 
 ## Writing out the new cp_long
 
