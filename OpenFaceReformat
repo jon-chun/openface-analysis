@@ -358,6 +358,81 @@ hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak",col=rainbow(8))
 #Maybe I don't even need to do this step. 
 ```
 
+## Creating variables: sampletime, which corresponds directly to minutes post-SECPT
+
+Sample 4: 0
+Sample 5: 3
+Sample 6: 15
+Sample 7: 25
+Sample 8: 30
+Sample 9: 35
+Sample 10: 40
+Sample 11: 45
+Sample 12: 60
+
+```{r Creating sampletime}
+cp_long$sampletime <- 0
+cp_long$sampletime[cp_long$cortisol=='cort4bc'] <- 0
+cp_long$sampletime[cp_long$cortisol=='cort5bc'] <- 3
+cp_long$sampletime[cp_long$cortisol=='cort6bc'] <- 15
+cp_long$sampletime[cp_long$cortisol=='cort7bc'] <- 25
+cp_long$sampletime[cp_long$cortisol=='cort8bc'] <- 30
+cp_long$sampletime[cp_long$cortisol=='cort9bc'] <- 35
+cp_long$sampletime[cp_long$cortisol=='cort10bc'] <- 40
+cp_long$sampletime[cp_long$cortisol=='cort11bc'] <- 45
+cp_long$sampletime[cp_long$cortisol=='cort12bc'] <- 60
+```
+
+```{r Creating samplepeaknamenum}
+cp_long$samplepeaknamenum <- 0
+cp_long$samplepeaknamenum[cp_long$peakname=='cort4bc'] <- 0
+cp_long$samplepeaknamenum[cp_long$peakname=='cort5bc'] <- 3
+cp_long$samplepeaknamenum[cp_long$peakname=='cort6bc'] <- 15
+cp_long$samplepeaknamenum[cp_long$peakname=='cort7bc'] <- 25
+cp_long$samplepeaknamenum[cp_long$peakname=='cort8bc'] <- 30
+cp_long$samplepeaknamenum[cp_long$peakname=='cort9bc'] <- 35
+cp_long$samplepeaknamenum[cp_long$peakname=='cort10bc'] <- 40
+cp_long$samplepeaknamenum[cp_long$peakname=='cort11bc'] <- 45
+cp_long$samplepeaknamenum[cp_long$peakname=='cort12bc'] <- 60
+```
+
+```{r Creating samplemaxtime}
+#cp_long$samplemaxtime <- 0
+#cp_long$samplemaxtime <- ave(cp_long$sampletime, cp_long$id, FUN = max)
+#hist(cp_long$samplemaxtime, main = "Histogram of maxtime", col=rainbow(8))
+```
+
+```{r Creating sampletimetopeak}
+cp_long$sampletimetopeak <- 0
+#peaktimenumC - stimeC = minutes from peak
+#Multiplied by -1 so that times before peak are negative and times after peak are positive (for next step: creating TimeBeforePeak and TimeAfterPeak)
+cp_long$sampletimetopeak <- (cp_long$samplepeaknamenum - cp_long$sampletime) * -1
+hist(cp_long$sampletimetopeak, main = "Histogram of sampletimetopeak", col=rainbow(8))
+```
+
+From Melissa's code:
+
+* Creating TimeBeforePeak and TimeAfterPeak (reactivity and recovery times, respectively):
+    + When Time2Pk is negative, TimeBeforePeak = minutes from peak at each sampling time
+    + When Time2Pk is positive, TimeBeforePeak = 0
+    + When Time2Pk is positive, TimeAfterPeak = minutes from peak at each sampling time
+    + When Time2Pk is negative, TimeAfterPeak = 0
+
+```{r Creating sampletimebeforepeak and sampletimeafterpeak}
+#sampletimebeforepeak aka the reactivity slope
+cp_long$sampletimebeforepeak <- 0
+cp_long$sampletimebeforepeak <- ifelse(cp_long$sampletimetopeak < 0, cp_long$sampletimetopeak, 0)
+#If sampletimetopeak < 0 (aka negative), then sampletimebeforepeak = sampletimetopeak
+#If sampletimetopeak > 0 (aka positive), then sampletimebeforepeak = 0
+hist(cp_long$sampletimebeforepeak, main = "Histogram of sampletimebeforepeak",col=rainbow(8))
+
+#sampletimeafterpeak aka the recovery slope
+cp_long$sampletimeafterpeak <- 0
+cp_long$sampletimeafterpeak <- ifelse(cp_long$sampletimetopeak > 0, cp_long$sampletimetopeak, 0)
+#If sampletimetopeak > 0 (aka positive), then sampletimeafterpeak = sampletimetopeak
+#If sampletimetopeak < 0 (aka negative), then sampletimeafterpeak = 0
+hist(cp_long$sampletimeafterpeak, main = "Histogram of sampletimeafterpeak",col=rainbow(8))
+```
 
 ## Writing cp_long out into a .csv file
 
@@ -365,5 +440,5 @@ hist(cp_long$timeafterpeak, main = "Histogram of timeafterpeak",col=rainbow(8))
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long.csv")
 write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv")
 
-#cp_long has 1665 observations and 32 variables.
+#cp_long has 1665 observations and 45 variables.
 ```
