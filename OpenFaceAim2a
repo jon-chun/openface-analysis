@@ -27,6 +27,8 @@ editor_options:
 #install.packages("reshape2")
 #install.packages("lmerTest")
 #install.packages("multcomp")
+#install.packages("optimx")
+#install.packages("MuMIn")
 
 library(mosaic)
 library(ggplot2)
@@ -47,6 +49,8 @@ library(corrplot)
 library(reshape2)
 library(lmerTest)
 library(multcomp)
+library(optimx)
+library(MuMIn)
 ```
 
 ### Outline/Description
@@ -849,7 +853,7 @@ cp_long$b5 <- 0.7182
 samplelopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak), data=cp_long, REML=TRUE)
 summary(samplelopez)
 
-samplesadlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=FALSE)
+samplesadlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
 summary(samplesadlopez)
 
 samplesadctqlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE)
@@ -862,33 +866,43 @@ rm(test3)
 ```
 
 ```{r}
-ggplot(amant.ex, aes(Week, DRS, shape=Group)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(m.1), linetype=Group),
-fun.y=mean, geom="line")
-```
-
-```{r}
 ggplot(cp_long, aes(samplepeaknamenum, sadnessC, color=gendercat)) +
 stat_summary(fun.data=mean_se, geom="pointrange") +
 stat_summary(aes(y=fitted(samplesadlopez), linetype=gendercat),
 fun.y=mean, geom="line")
 ```
 
-```{r}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gendercat)) +
+```{r Without Sadness}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(samplelopez)),
+fun.y=mean, geom="line")
+```
+
+```{r With Sadness}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
 stat_summary(fun.data=mean_se, geom="pointrange") +
 stat_summary(aes(y=fitted(samplesadlopez)),
 fun.y=mean, geom="line")
 ```
 
-```{r}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(samplesadlopez)))
+```{r Without Sadness}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC,
+shape=gendercat, linetype=gendercat)) +
+stat_summary(fun.y=mean, geom="point") +
+stat_summary(fun.data=mean_se, geom="errorbar",
+linetype="solid", width=0.6) +
+stat_summary(aes(y=fitted(samplelopez)), fun.y=mean, geom="line") +
+scale_shape_manual(values=c(1, 2)) +
+labs(x="Sample Time", y="Centered Cortisol Values",
+linetype="Gender", shape="Gender") +
+theme_bw(base_size=10) +
+theme(legend.justification=c(0,1), legend.position=c(0,1),
+legend.background=
+element_rect(fill="white", color="black"))
 ```
 
-```{r FUCK YES IT WORKS}
+```{r With Sadness}
 ggplot(cp_long, aes(samplepeaknamenum, cortvalueC,
 shape=gendercat, linetype=gendercat)) +
 stat_summary(fun.y=mean, geom="point") +
@@ -904,30 +918,110 @@ legend.background=
 element_rect(fill="white", color="black"))
 ```
 
+## Creating that good model but without any warnings
+
 ```{r}
-load(file="C:/Users/jrcala/Downloads/Examples.Rdata")
+cp_long$b0 <- cp_long$samplepeaknamenum
 
-m <- lmer(RT ~ Set.Size * Dx + (Set.Size | Participant),
-data=VisualSearchEx, REML=FALSE)
+test1 <- lm(samplepeaknamenum ~ gendercat, data = cp_long)
+summary(test1)
+cp_long$b1 <- 2.6990
 
-ggplot(VisualSearchEx, aes(Set.Size, RT,
-shape=Dx, linetype=Dx)) +
-stat_summary(fun.y=mean, geom="point") +
+cp_long$b2 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ as.factor(female), data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ as.factor(female), data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+samplelopez2 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+summary(samplelopez2)
+
+samplesadlopez2 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+summary(samplesadlopez2)
+
+samplesadctqlopez2 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+summary(samplesadlopez2)
+
+anova(samplelopez2, samplesadlopez2, samplesadctqlopez2)
+rm(test1)
+rm(test2)
+rm(test3)
+```
+
+#### Finding other important info?
+
+```{r}
+#Or at least trying to...
+
+r.squaredGLMM(samplelopez2)
+r.squaredGLMM(samplesadlopez2)
+
+#AIC and BIC are useless when REML is involved, but why not?
+AIC(samplelopez2)
+BIC(samplelopez2)
+AIC(samplesadlopez2)
+BIC(samplesadlopez2)
+```
+
+## ggplot with the new fewer-warning sample models
+
+```{r Without Sadness}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(samplelopez2)),
+fun.y=mean, geom="line")
+```
+
+```{r With Sadness}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(samplesadlopez2)),
+fun.y=mean, geom="line")
+```
+
+```{r Without Sadness Edited}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat, shape=gendercat)) +
+stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(m)), fun.y=mean, geom="line") +
-scale_shape_manual(values=c(1, 2)) +
-labs(x="Set Size", y="Response Time (ms)",
-linetype="Group", shape="Group") +
-theme_bw(base_size=10) +
+stat_summary(aes(y=fitted(samplelopez2)), fun.y=mean, geom="line", lwd=1.5) +
+scale_shape_manual(values=c(16, 17)) +
+labs(x="Sample Time", y="Centered Cortisol Values",
+color="Gender", shape="Gender") +
+theme_bw(base_size=18) +
 theme(legend.justification=c(0,1), legend.position=c(0,1),
 legend.background=
-element_rect(fill="white", color="black"))
+element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base Model")
+```
+
+```{r With Sadness Edited}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat, shape=gendercat)) +
+stat_summary(fun.y=mean, geom="point", size=5) +
+stat_summary(fun.data=mean_se, geom="errorbar",
+linetype="solid", width=0.6) +
+stat_summary(aes(y=fitted(samplesadlopez2)), fun.y=mean, geom="line", lwd=1.5) +
+scale_shape_manual(values=c(16, 17)) +
+labs(x="Sample Time", y="Centered Cortisol Values",
+color="Gender", shape="Gender") +
+theme_bw(base_size=18) +
+theme(legend.justification=c(0,1), legend.position=c(0,1),
+legend.background=
+element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad Model")
 ```
 
 ## Writing out the new cp_long
 
 ```{r}
-##write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
+#write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
 #write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
 ```
