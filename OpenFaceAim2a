@@ -26,6 +26,7 @@ editor_options:
 #install.packages("corrplot")
 #install.packages("reshape2")
 #install.packages("lmerTest")
+#install.packages("multcomp")
 
 library(mosaic)
 library(ggplot2)
@@ -45,6 +46,7 @@ library(corrr)
 library(corrplot)
 library(reshape2)
 library(lmerTest)
+library(multcomp)
 ```
 
 ### Outline/Description
@@ -711,9 +713,9 @@ test1 <- lm(peaknamenum ~ as.factor(gender), data = cp_long)
 summary(test1)
 cp_long$b1 <- -0.4046
 
-cp_long$b2 <- ifelse((cp_long$gender == '1'), cp_long$timebeforepeak, 0)
+cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$timebeforepeak, 0)
 
-cp_long$b3 <- ifelse((cp_long$gender == '1'), cp_long$timeafterpeak, 0)
+cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$timeafterpeak, 0)
 
 test2 <- lm(timebeforepeak ~ as.factor(female), data=cp_long)
 summary(test2)
@@ -778,11 +780,6 @@ summary(sadlopez)
 #SadnessC is the only significant model which is good!
 ```
 
-```{r}
-sadlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
-summary(sadlopez)
-```
-
 ## Running with sadness and adding more stuff
 
 ```{r}
@@ -821,18 +818,111 @@ stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying de
 ```{r}
 ggplot(cp_long, aes(as.integer(peaknamenum), sadnessC, shape=gendercat)) +
 stat_summary(fun.y=mean, geom="line", size=1) +
-stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
-cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
-```
-
-```{r}
-ggplot(cp_long, aes(as.factor(peaknamenum), sadnessC, color=gendercat)) +
-stat_summary(fun.y=mean, geom="line", size=1) +
-stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
+stat_summary(fun.data=mean_se, geom="pointrange", size=1) + ggtitle ("Trying desperately to plot peaknamenum")
 ```
 
 ```{r}
 cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
+```
+
+## Trying out the lopez models but with sample- variables
+
+```{r Base GC Model with Sample Data}
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gendercat, data = cp_long)
+summary(test1)
+cp_long$b1 <- 2.6990
+
+cp_long$b2 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ as.factor(female), data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ as.factor(female), data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+samplelopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak), data=cp_long, REML=TRUE)
+summary(samplelopez)
+
+samplesadlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=FALSE)
+summary(samplesadlopez)
+
+samplesadctqlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE)
+summary(samplesadlopez)
+
+anova(samplelopez, samplesadlopez, samplesadctqlopez)
+rm(test1)
+rm(test2)
+rm(test3)
+```
+
+```{r}
+ggplot(amant.ex, aes(Week, DRS, shape=Group)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(m.1), linetype=Group),
+fun.y=mean, geom="line")
+```
+
+```{r}
+ggplot(cp_long, aes(samplepeaknamenum, sadnessC, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(samplesadlopez), linetype=gendercat),
+fun.y=mean, geom="line")
+```
+
+```{r}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(samplesadlopez)),
+fun.y=mean, geom="line")
+```
+
+```{r}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gendercat)) +
+stat_summary(fun.data=mean_se, geom="pointrange") +
+stat_summary(aes(y=fitted(samplesadlopez)))
+```
+
+```{r FUCK YES IT WORKS}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalueC,
+shape=gendercat, linetype=gendercat)) +
+stat_summary(fun.y=mean, geom="point") +
+stat_summary(fun.data=mean_se, geom="errorbar",
+linetype="solid", width=0.6) +
+stat_summary(aes(y=fitted(samplesadlopez)), fun.y=mean, geom="line") +
+scale_shape_manual(values=c(1, 2)) +
+labs(x="Sample Time", y="Centered Cortisol Values",
+linetype="Gender", shape="Gender") +
+theme_bw(base_size=10) +
+theme(legend.justification=c(0,1), legend.position=c(0,1),
+legend.background=
+element_rect(fill="white", color="black"))
+```
+
+```{r}
+load(file="C:/Users/jrcala/Downloads/Examples.Rdata")
+
+m <- lmer(RT ~ Set.Size * Dx + (Set.Size | Participant),
+data=VisualSearchEx, REML=FALSE)
+
+ggplot(VisualSearchEx, aes(Set.Size, RT,
+shape=Dx, linetype=Dx)) +
+stat_summary(fun.y=mean, geom="point") +
+stat_summary(fun.data=mean_se, geom="errorbar",
+linetype="solid", width=0.6) +
+stat_summary(aes(y=fitted(m)), fun.y=mean, geom="line") +
+scale_shape_manual(values=c(1, 2)) +
+labs(x="Set Size", y="Response Time (ms)",
+linetype="Group", shape="Group") +
+theme_bw(base_size=10) +
+theme(legend.justification=c(0,1), legend.position=c(0,1),
+legend.background=
+element_rect(fill="white", color="black"))
 ```
 
 ## Writing out the new cp_long
