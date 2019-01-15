@@ -704,9 +704,8 @@ Cortisol = b0 + (b1 x sex) + (B2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 
 timebeforepeak = the reactivity slope / activation
 timeafterpeak = the recovery slope / regulation
 
-```{r This is it!}
+```{r Base Growth Curve Model}
 cp_long$b0 <- cp_long$peaknamenum
-cp_long$b0 <- as.numeric(cp_long$b0)
 
 test1 <- lm(peaknamenum ~ as.factor(gender), data = cp_long)
 summary(test1)
@@ -726,6 +725,21 @@ cp_long$b5 <- 0.02191
 
 lopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
 summary(lopez)
+```
+
+```{r}
+class(cp_long$peaknamenum)
+class(cp_long$b0)
+class(cp_long$b1)
+class(cp_long$b2)
+class(cp_long$b3)
+class(cp_long$b4)
+class(cp_long$b5)
+
+#Everything is numeric except b0 and peaknamenum, which are integers, but I think this is okay.
+```
+
+```{r}
 rm(test1)
 rm(test2)
 rm(test3)
@@ -762,6 +776,11 @@ summary(happylopez)
 sadlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
 summary(sadlopez)
 #SadnessC is the only significant model which is good!
+```
+
+```{r}
+sadlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
+summary(sadlopez)
 ```
 
 ## Running with sadness and adding more stuff
