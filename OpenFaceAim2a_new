@@ -4,7 +4,7 @@ author: "Julianna Calabrese"
 date: "1/17/2019"
 output: html_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -53,9 +53,17 @@ library(optimx)
 library(MuMIn)
 ```
 
+## Load in data
+
+```{r}
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long$X <- NULL
+```
+
 ## Introduction
 
-This is the new version of OpenFaceAim2a.rmd, where I'm actually getting closer to doing what I'm supposed to do. The other (_old) rmd file got two big and had too many models called "mod1" and "test2" and "thing123", so creating this file is my way of streamling things. In this file, I do my best to follow the instructions as laid out in Lopez-Duran 2014. I will also try to explain everything I do in this file, why I do it, and why things may look weird at times. I will also try to name variables in as consistent manner as possible.
+This is the new version of OpenFaceAim2a.rmd, where I'm actually getting closer to doing what I'm supposed to do. The other (_old) rmd file got two big and had too many models called "mod1" and "test2" and "thing123", so creating this file is my way of streamling things. In this file, I do my best to follow the instructions as laid out in Lopez-Duran 2014. I will also try to explain everything I do in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models in as consistent manner as possible.
 
 ## Outline/Description
 
@@ -69,55 +77,119 @@ mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
 
 All the instructions can be found in Lopez-Duran 2014. Do NOT do anything involving AUC!
 
-## Load in data and other logistics
+## Important R Information
+
+https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/
+
+Here, I wanted to explain the difference between certain data types and structures in R. It's important because I'm trying out different kind of models with (essentially) the same variables, but the variables are different "types". First, everything in R is an object.
+
+There are six types of atomic vector types. Atomic means that the vector only holds data of  asingle type.
+
+    + character: "london", "tokyo", "new york"
+    + numeric: 1, 2, 3
+    + integer: 2a (the "a" tells R to store this as an integer)
+    + logical: TRUE, FALSE
+    + complex: 1+4i (complex numbers with real and imaginary parts)
+
+The integer class is technically a subset of the numeric class. The main difference is about how the data are stored, not whether you have whole numbers or fractions, etc.
+
+We can use the class() function to determine the type of an object.
 
 ```{r}
-cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
-cp_long$X <- NULL
+class(cp_long$id)
 ```
 
-## Correlation Matrix of relevant variables
+## Correcting Object Class Types
 
-```{r}
-matrix_vars <- cp_long[c("cortvalue","stimeC","timenumC","painC", "angerC", "fearC", "happinessC", "sadnessC", "gender","ctqsumC")]
+### Gender
 
-matrix_vars <- data.matrix(matrix_vars)
+I have created multiple variables for gender in cp_long.
 
-matrix1 <- cor(matrix_vars, use = "complete.obs")
+    + gender: 0 for male, 1 for female
+    + gendercat: "male" for male, "female" for female
+    + male: 1 for male, 0 for female
+    + female: 1 for female, 0 for male
 
-col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
-
-corrplot(matrix1, method = "color", col = col(200),
-         type = "upper", order = "hclust", number.cex = .7,
-         addCoef.col = "black", # Add coefficient of correlation
-         tl.col = "black", tl.srt = 90, # Text label color and rotation
-         # Combine with significance
-         #sig.level = 0.05, insig = "blank", 
-         # hide correlation coefficient on the principal diagonal (or not)
-         diag = TRUE, title = "Correlation Matrix", mar=c(0,0,3,0))
+```{r Fixing gender types}
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$gendercat <- as.character(cp_long$gendercat)
+cp_long$male <- as.integer(cp_long$male)
+cp_long$female <- as.integer(cp_long$female)
 ```
 
-## Aim 2a
+## Base growth curve models
 
-Cortisol = b0 + (b1 x sex) + (B2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 x sex x timebeforepeak) + (b5 x sex x timeafterpeak)
+Cortisol = b0 + (b1 x sex) + (b2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 x sex x timebeforepeak) + (b5 x sex x timeafterpeak)
 
-```{r}
-#b0 <- intercept aka peak
-#b1 <- the impact of sex on levels at the group peak time
-#b2 <- the activation slope for males
-#b3 <- the regulation slope for males
-#b4 <- the impact of sex (females) on the activation slope
-#b5 <- the impact of sex (females) on the regulation slope
-```
+b0 <- intercept aka peak
+b1 <- the impact of sex on levels at the group peak time
+b2 <- the activation slope for males
+b3 <- the regulation slope for males
+b4 <- the impact of sex (females) on the activation slope
+b5 <- the impact of sex (females) on the regulation slope
 
 timebeforepeak = the reactivity slope / activation
 timeafterpeak = the recovery slope / regulation
 
-```{r Base Growth Curve Model}
+## Models using actual time values
+
+The models below use variables that were made using the variables "stimeC" and "peaktimenumC". "stime" is the actual time variable (e.g. 837, 844, 855) and "peaktimenum" is the time when the participant's cortisol value ("cortvalue") was highest. Therefore, for all the rows that have ID 10003, each row has a different "stime" value (e.g. 837, 844, 855, ...), but each row has the same "peaktimenum" value (e.g. 844, 844, 844, ...). "stimeC" is the zero-centered version of "stime" and "peaktimenumC" is the zero-centered version of "peaktimenum". 
+
+The variable "peaknamenum" corresponds to the order in which the sample were taken. For example, for ID 10003, the time at which his cortisol peaked was 844, which was the second sample taken (out of the nine samples related to the SECPT). Therefore, for ID 10003, his "peaknamenum" is "2". 
+
+Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric.
+
+```{r Confirming object class types for actual time variables}
+cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
+cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
+cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
+cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
+cp_long$stimeC <- as.numeric(cp_long$stimeC)
+```
+
+```{r Base growth curve model with actual time data and peaktimenumC as intercept}
+cp_long$b0 <- cp_long$peaktimenumC
+
+test1 <- lm(peaktimenumC ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- 0.27079
+
+cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$timebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$timeafterpeak, 0)
+
+test2 <- lm(timebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <- 0.03717
+
+test3 <- lm(timeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.02191
+
+mod1 <- lmer(cortvalue ~ (1|b0) + (1|peaktimenumC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
+summary(mod1)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+The model "mod1" showcased the following warnings:
+
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients unable to evaluate scaled gradient
+> Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+
+```{r Base growth curve model with actual time data and peaknamenum as intercept}
 cp_long$b0 <- cp_long$peaknamenum
 
-test1 <- lm(peaknamenum ~ as.factor(gender), data = cp_long)
+test1 <- lm(peaknamenum ~ gender, data = cp_long)
 summary(test1)
 cp_long$b1 <- -0.4046
 
@@ -125,35 +197,242 @@ cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$timebeforepeak, 0)
 
 cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$timeafterpeak, 0)
 
-test2 <- lm(timebeforepeak ~ as.factor(female), data=cp_long)
+test2 <- lm(timebeforepeak ~ female, data=cp_long)
 summary(test2)
 cp_long$b4 <- 0.03717
 
-test3 <- lm(timeafterpeak ~ as.factor(female), data=cp_long)
+test3 <- lm(timeafterpeak ~ female, data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.02191
 
-lopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
-summary(lopez)
-```
+mod2 <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE)
+summary(mod2)
 
-```{r}
-class(cp_long$peaknamenum)
-class(cp_long$b0)
-class(cp_long$b1)
-class(cp_long$b2)
-class(cp_long$b3)
-class(cp_long$b4)
-class(cp_long$b5)
-
-#Everything is numeric except b0 and peaknamenum, which are integers, but I think this is okay.
-```
-
-```{r}
 rm(test1)
 rm(test2)
 rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
 ```
+
+The model "mod2" showcased the following warnings:
+
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> Model failed to converge with 1 negative eigenvalue: -3.4e-0
+
+## Models using "sample" time values
+
+In cp_long, "samplepeaknamenum" is the variable that corresponds to the nine samples and the amount of minutes after the cold press task: 0, 3, 15, 25, 30, 35, 40, 45, 60.
+
+Like shown above, alternatives include "stime" or "stimeC" (which is stime but zero-centered), which is the actual amount of minutes between each sample (e.g. 837, 844, 855) or timenum, which is the mostly just the sample number. timenum is 4, 5, 6, 7, 8, 9, 10, 11, and 12, while timenum is "centered" (not really though--it just assumes that the fourth sample is actually the first sample, since we don't care about cortisol levels during the MRI) and is 1, 2, 3, 4, 5, 6, 7, 8, and 9.
+
+Therefore, any variable that begins with "sample" is based off this 0, 3, 15, etc. sequence: samplepeaknamenum, sampletimetopeak, sampletimebeforepeak, and sampletimeafterpeak. The reason I went with the "sample" version of the time variable is because we would be able to treat time as a factor instead of as an integer or as a numeric variable. 
+
+Before we start the below model, I want to make sure of the data types.
+
+```{r Confirming object class types for sample time variables}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+```
+ 
+```{r Base growth curve model with sample time data and samplepeaknamenum as intercept}
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- 2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+mod3 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak), data=cp_long, REML=TRUE)
+summary(mod3)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+The model "mod3" showcased the following warnings:
+
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> Model failed to converge with 1 negative eigenvalue: -2.0e-06
+
+## Base model findings and conclusions
+
+Note: don't try to summary() any of the models because I removed neccessary components of the models to reduce confusion in the environment.
+
+What these models have in common is that 1) they are "rank deficient" and 2) they "fail to converge". First, I will discuss the issue of rank deficiency.
+
+https://stackoverflow.com/questions/38766155/rank-deficiency-warning-mixed-model-lmer
+
+In the above, Ben Bolker (the creator of the package lme4) explains the warning. Generally, as far as I can read, this warning is not an issue. If I created a similiar model using lm(), I would have the same "problem" but the command wouldn't give me a warning because it hasn't been designed to give me a warning. It's just that lmer() gives me the courtesy of a warning while other commands often don't.
+
+Below is also a helpful link about this issue.
+
+https://stackoverflow.com/questions/37090722/lme4lmer-reports-fixed-effect-model-matrix-is-rank-deficient-do-i-need-a-fi
+
+Second, I will discuss the model failing to converge. 
+
+https://stats.stackexchange.com/questions/242109/model-failed-to-converge-warning-in-lmer
+
+I am still not 100% what this warning means from a statistical standpoint, but the StackExchange answer does give me a solution that prevents me from getting these scary warnings. First, REML has to remain *TRUE* no matter what since that is specified in Lopez-Duran 2014. Additionally, I have to add the following syntax to my models:
+
+> control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+
+This syntax "optimizes" the model by using the L-BFGS-B routine as part of the optimx package. I still need to learn more about this. So, I will duplicate the above three models, but this time I will add the new syntax at the end.
+
+## Base models with optimization
+
+```{r Optimized base growth curve model with actual time data and peaktimenumC as intercept}
+cp_long$b0 <- cp_long$peaktimenumC
+
+test1 <- lm(peaktimenumC ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- 0.27079
+
+cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$timebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$timeafterpeak, 0)
+
+test2 <- lm(timebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <- 0.03717
+
+test3 <- lm(timeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.02191
+
+modopt1 <- lmer(cortvalue ~ (1|b0) + (1|peaktimenumC) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+summary(modopt1)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+The model "modopt1" showcased the following warnings:
+
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> Warning message:
+> Model failed to converge with 1 negative eigenvalue: -1.6e-05 
+
+So unfortunately for "mod1" and "modopt1", optimization doesn't seem to remove the warning. Let's try for "mod2". I am not also 100% sure why it showcases the "dropping 12 columns" warning twice, but I don't think the warning itself is something to be very worried about. 
+
+```{r Optimized base growth curve model with actual time data and peaknamenum as intercept}
+cp_long$b0 <- cp_long$peaknamenum
+
+test1 <- lm(peaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- -0.4046
+
+cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$timebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$timeafterpeak, 0)
+
+test2 <- lm(timebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <- 0.03717
+
+test3 <- lm(timeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.02191
+
+modopt2 <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+summary(modopt2)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+The model "modopt2" showcased the following warnings:
+
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+
+Like "modopt1", it shows the same warning twice. Let's try with "mod3".
+
+```{r Optimized base growth curve model with sample time data and samplepeaknamenum as intercept}
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- 2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+modopt3 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+summary(modopt3)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+The model "modopt3" showcased the following warnings:
+
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+
+Again, like with "modopt1" and "modopt2", "modopt3" gives me the same warning twice. 
+
+# ADDING EMOTIONS
 
 ## Adding emotions in the model that worked
 
@@ -233,30 +512,24 @@ stat_summary(fun.data=mean_se, geom="pointrange", size=1) + ggtitle ("Trying des
 cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
 ```
 
-## Trying out the lopez models but with sample- variables
+## Model with "samplepeaknamenum"
 
+I admit that I am not very good with naming my variables. "samplepeaknamenum" is the variable that corresponds to the nine samples and the amount of minutes after the cold press task: 0, 3, 15, 25, 30, 35, 40, 45, 60. I think it is best to use these variables compared to alternatives.
+
+Alternatives include "stime" or "stimeC" (which is stime but zero-centered), which is the actual amount of minutes between each sample (e.g. 837, 844, 855) or timenum, which is the mostly just the sample number. timenum is 4, 5, 6, 7, 8, 9, 10, 11, and 12, while timenum is "centered" (not really though--it just assumes that the fourth sample is actually the first sample, since we don't care about cortisol levels during the MRI) and is 1, 2, 3, 4, 5, 6, 7, 8, and 9.
+
+Therefore, any variable that begins with "sample" is based off this 0, 3, 15, etc. sequence: samplepeaknamenum, sampletimetopeak, sampletimebeforepeak, and sampletimeafterpeak. The reason I went with the "sample" version of the time variable is because we would be able to treat time as a factor instead of as an integer or as a numeric variable. 
+
+Before we start the below model, I want to make sure of the data types.
+
+```{r Sample Data Class Checking}
+cp_long$samplepeaknamenum <- as.character(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.character(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.character(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.character(cp_long$sampletimeafterpeak)
+```
+ 
 ```{r Base GC Model with Sample Data}
-cp_long$b0 <- cp_long$samplepeaknamenum
-
-test1 <- lm(samplepeaknamenum ~ gendercat, data = cp_long)
-summary(test1)
-cp_long$b1 <- 2.6990
-
-cp_long$b2 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ as.factor(female), data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ as.factor(female), data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-samplelopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak), data=cp_long, REML=TRUE)
-summary(samplelopez)
-
 samplesadlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
 summary(samplesadlopez)
 
