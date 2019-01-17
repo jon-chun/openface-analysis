@@ -232,6 +232,14 @@ cp_long$malenum <- as.numeric(cp_long$male)
 cp_long$femalenum <- as.numeric(cp_long$female)
 ```
 
+Now that I'm looking at this, I don't believe that malenum, femalenum, and gendernum are needed anymore.
+
+```{r}
+cp_long$gendernum <- NULL
+cp_long$malenum <- NULL
+cp_long$femalenum <- NULL
+```
+
 ## Centering
 
 ```{r}
