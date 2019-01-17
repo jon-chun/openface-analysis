@@ -68,33 +68,23 @@ cp_long$X <- NULL
 
 ## Introduction
 
-This is the new version of OpenFaceAim2a.rmd, where I'm actually getting closer to doing what I'm supposed to do. The other (_old) rmd file got two big and had too many models called "mod1" and "test2" and "thing123", so creating this file is my way of streamling things. In this file, I do my best to follow the instructions as laid out in Lopez-Duran 2014. I will also try to explain everything I do in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models in as consistent manner as possible.
+This is the new version of OpenFaceAim2a.rmd, where I'm actually getting closer to doing what I'm supposed to do. The other (_old) rmd file got two big and had too many models called "mod1" and "test2" and "thing123", so creating this file is my way of streamling things. In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I will also try to explain everything I do in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models in as consistent manner as possible.
 
-## Outline/Description
-
-This file will be where all the primary data analysis occurs. In previous rmd files, you'll need to convert all the stuff to a long format.
-
-Then, you're going to run a model that looks like this...
-
-mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
-
-...but it's not going to be a lm() model, it's going to be a multilevel growth curve model, so you'll probably need to use the lme4() package with the lmer() command or the nlme() package with the lme() command. This will produce a fixed effects table that represents the parameters of everything that you put in the above model to predict cortisol. Then you need to tell R what your random effects are, which is the intercept and time. 
-
-All the instructions can be found in Lopez-Duran 2014. Do NOT do anything involving AUC!
+Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lmer() command as part of the lme4 package. More information about lmer() can be found here: https://cran.r-project.org/web/packages/SASmixed/vignettes/Usinglmer.pdf
 
 ## Important R Information
 
 https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/
 
-Here, I wanted to explain the difference between certain data types and structures in R. It's important because I'm trying out different kind of models with (essentially) the same variables, but the variables are different "types". First, everything in R is an object.
+Here, I wanted to explain the difference between certain data types and structures in R. It's important because I'm trying out different kind of models with (essentially) the same variables, but the variables are different "types". First, everything in R is an object. Before I conduct any kind of analysis or model-building, I redefine my class types to make sure that I accidentally don't define cortisol values as a character variable. 
 
 There are six types of atomic vector types. Atomic means that the vector only holds data of  asingle type.
 
-    + character: "london", "tokyo", "new york"
-    + numeric: 1, 2, 3
-    + integer: 2a (the "a" tells R to store this as an integer)
-    + logical: TRUE, FALSE
-    + complex: 1+4i (complex numbers with real and imaginary parts)
+* character: "london", "tokyo", "new york"
+* numeric: 1, 2, 3
+* integer: 2a (the "a" tells R to store this as an integer)
+* logical: TRUE, FALSE
+* complex: 1+4i (complex numbers with real and imaginary parts)
 
 The integer class is technically a subset of the numeric class. The main difference is about how the data are stored, not whether you have whole numbers or fractions, etc.
 
@@ -110,12 +100,12 @@ class(cp_long$id)
 
 I have created multiple variables for gender in cp_long.
 
-    + gender: 0 for male, 1 for female
-    + gendercat: "male" for male, "female" for female
-    + male (integer): 1 for male, 0 for female
-    + malecat (character): 1 for male, 0 for female
-    + female: 1 for female, 0 for male
-    + femalecat (character): 1 for female, 0 for male
+* gender: 0 for male, 1 for female
+* gendercat: "male" for male, "female" for female
+* male (integer): 1 for male, 0 for female
+* malecat (character): 1 for male, 0 for female
+* female: 1 for female, 0 for male
+* femalecat (character): 1 for female, 0 for male
     
 ```{r Fixing gender types}
 cp_long$gender <- as.integer(cp_long$gender)
@@ -126,18 +116,27 @@ cp_long$female <- as.integer(cp_long$female)
 
 # Base models
 
-Cortisol = b0 + (b1 x sex) + (b2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 x sex x timebeforepeak) + (b5 x sex x timeafterpeak)
+#### Equation from Lopez-Duran 2014
 
-* b0 <- intercept aka peak
-* b1 <- the impact of sex on levels at the group peak time
-* b2 <- the activation slope for males
-* b3 <- the regulation slope for males
-* b4 <- the impact of sex (females) on the activation slope
-* b5 <- the impact of sex (females) on the regulation slope
+$\begin{aligned}
+Cortisol = \beta_0  
+& + (\beta_1 \cdot Sex) \\
+& + (\beta_2 \cdot TimeBeforePeak) \\
+& + (\beta_3 \cdot TimeAfterPeak) \\
+& + (\beta_4 \cdot Sex \cdot TimeBeforePeak) \\
+& + (\beta_5 \cdot Sex \cdot TimeAfterPeak) \\
+\end{aligned}$
 
-timebeforepeak = the reactivity slope / activation
+#### Definitions
 
-timeafterpeak = the recovery slope / regulation
+* b0 = intercept aka peak
+* b1 = the impact of sex on levels at the group peak time
+* b2 = the activation slope for males
+* b3 = the regulation slope for males
+* b4 = the impact of sex (females) on the activation slope
+* b5 = the impact of sex (females) on the regulation slope
+* timebeforepeak = the reactivity slope / activation
+* timeafterpeak = the recovery slope / regulation
 
 ## Models using actual time values
 
@@ -191,12 +190,16 @@ cp_long$b5 <- NULL
 
 The model "mod1" showcased the following warnings:
 
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
-> Warning messages:
+> fixed-effect model matrix is rank deficient so dropping 12 columns/coefficient
+>
+> Warning messages
+>
 > 1: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
   unable to evaluate scaled gradient
+>
 > 2: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
   Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+>
 
 ```{r Base model with actual time data and peaknamenum as intercept}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
@@ -242,8 +245,10 @@ cp_long$b5 <- NULL
 
 The model "mod2" showcased the following warnings:
 
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns/coefficients
+>
 > Warning message:
+>
 > Model failed to converge with 1 negative eigenvalue: -3.4e-05 
 
 ## Models using "sample" time values
@@ -307,7 +312,7 @@ cp_long$b5 <- NULL
 
 The model "mod3" showcased the following warnings:
 
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns/coefficients
 
 This may be a sign that the third model is best, because it showcased no "fail to converge" warnings like the first and second model.
 
@@ -383,10 +388,13 @@ cp_long$b5 <- NULL
 
 The model "modopt1" showcased the following warnings:
 
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns/coefficients
+>
+> fixed-effect model matrix is rank deficient so dropping 12 columns/coefficients
+>
 > Warning message:
-> Model failed to converge with 1 negative eigenvalue: -1.6e-05 
+>
+> Model failed to converge with 1 negative eigenvalue: -1.6e-05
 
 So unfortunately for "mod1" and "modopt1", optimization doesn't seem to remove the warning. Let's try for "mod2". I am not also 100% sure why it showcases the "dropping 12 columns" warning twice, but I don't think the warning itself is something to be very worried about. 
 
@@ -434,7 +442,8 @@ cp_long$b5 <- NULL
 
 The model "modopt2" showcased the following warnings:
 
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficient
+>
 > fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
 
 Like "modopt1", it shows the same warning twice. Let's try with "mod3".
@@ -483,6 +492,7 @@ cp_long$b5 <- NULL
 The model "modopt3" showcased the following warnings:
 
 > fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+>
 > fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
 
 Again, like with "modopt1" and "modopt2", "modopt3" gives me the same warning twice. 
@@ -955,7 +965,7 @@ BIC(sad)
 
 ## R-squared
 
-```{r}
+```{r, warning=FALSE}
 r.squaredGLMM(base)
 r.squaredGLMM(sad)
 ```
