@@ -29,6 +29,7 @@ editor_options:
 #install.packages("multcomp")
 #install.packages("optimx")
 #install.packages("MuMIn")
+#install.packages("Rmisc")
 
 library(mosaic)
 library(ggplot2)
@@ -51,6 +52,7 @@ library(lmerTest)
 library(multcomp)
 library(optimx)
 library(MuMIn)
+library(Rmisc)
 ```
 
 ## Load in data
@@ -95,7 +97,7 @@ The integer class is technically a subset of the numeric class. The main differe
 
 We can use the class() function to determine the type of an object.
 
-```{r}
+```{r Class example}
 class(cp_long$id)
 ```
 
@@ -107,9 +109,11 @@ I have created multiple variables for gender in cp_long.
 
     + gender: 0 for male, 1 for female
     + gendercat: "male" for male, "female" for female
-    + male: 1 for male, 0 for female
+    + male (integer): 1 for male, 0 for female
+    + malecat (character): 1 for male, 0 for female
     + female: 1 for female, 0 for male
-
+    + femalecat (character): 1 for female, 0 for male
+    
 ```{r Fixing gender types}
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
@@ -117,7 +121,7 @@ cp_long$male <- as.integer(cp_long$male)
 cp_long$female <- as.integer(cp_long$female)
 ```
 
-## Base growth curve models
+# Base growth curve models
 
 Cortisol = b0 + (b1 x sex) + (b2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 x sex x timebeforepeak) + (b5 x sex x timeafterpeak)
 
@@ -139,12 +143,14 @@ The variable "peaknamenum" corresponds to the order in which the sample were tak
 
 Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric.
 
-```{r Confirming object class types for actual time variables}
+```{r Confirming object class types for actual time variables in mod1}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
 cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
 cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
 cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
 cp_long$stimeC <- as.numeric(cp_long$stimeC)
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$female <- as.integer(cp_long$female)
 ```
 
 ```{r Base growth curve model with actual time data and peaktimenumC as intercept}
@@ -183,8 +189,22 @@ cp_long$b5 <- NULL
 
 The model "mod1" showcased the following warnings:
 
-> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients unable to evaluate scaled gradient
-> Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+> fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
+> Warning messages:
+> 1: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  unable to evaluate scaled gradient
+> 2: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+
+```{r Confirming object class types for actual time variables in mod2}
+cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
+cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
+cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
+cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
+cp_long$stimeC <- as.numeric(cp_long$stimeC)
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$female <- as.integer(cp_long$female)
+```
 
 ```{r Base growth curve model with actual time data and peaknamenum as intercept}
 cp_long$b0 <- cp_long$peaknamenum
@@ -223,23 +243,34 @@ cp_long$b5 <- NULL
 The model "mod2" showcased the following warnings:
 
 > fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
-> Model failed to converge with 1 negative eigenvalue: -3.4e-0
+> Warning message:
+> Model failed to converge with 1 negative eigenvalue: -3.4e-05 
 
 ## Models using "sample" time values
 
 In cp_long, "samplepeaknamenum" is the variable that corresponds to the nine samples and the amount of minutes after the cold press task: 0, 3, 15, 25, 30, 35, 40, 45, 60.
 
-Like shown above, alternatives include "stime" or "stimeC" (which is stime but zero-centered), which is the actual amount of minutes between each sample (e.g. 837, 844, 855) or timenum, which is the mostly just the sample number. timenum is 4, 5, 6, 7, 8, 9, 10, 11, and 12, while timenum is "centered" (not really though--it just assumes that the fourth sample is actually the first sample, since we don't care about cortisol levels during the MRI) and is 1, 2, 3, 4, 5, 6, 7, 8, and 9.
+Like shown above, alternatives include "stime" or "stimeC" (which is stime but zero-centered), which is the actual amount of minutes between each sample (e.g. 837, 844, 855, ...) or timenum, which is the mostly just the sample number. timenum is 4, 5, 6, 7, 8, 9, 10, 11, and 12, while timenum is "centered" (not really though--it just assumes that the fourth sample is actually the first sample, since we don't care about cortisol levels during the MRI) and is 1, 2, 3, 4, 5, 6, 7, 8, and 9.
 
 Therefore, any variable that begins with "sample" is based off this 0, 3, 15, etc. sequence: samplepeaknamenum, sampletimetopeak, sampletimebeforepeak, and sampletimeafterpeak. The reason I went with the "sample" version of the time variable is because we would be able to treat time as a factor instead of as an integer or as a numeric variable. 
 
+As opposed to the first and second models, I believe that the third model is the closest to the models in Lopez-Duran 2014 as possible.
+
+![](C:/Users/jrcala/Documents/My Research/RStudio/ld2014table.png)
+
+According to Table 2 in Lopez-Duran 2014, there were no "actual time" values (i.e. 837, 844, 855, ...), just the "minute" values (i.e. 0, 3, 15, ...). 
+
+Additionally, in his table, gender is M/F. So I transformed "gender" and "female" from integers to character variables, which makes them identical to a M/F system. 
+
 Before we start the below model, I want to make sure of the data types.
 
-```{r Confirming object class types for sample time variables}
+```{r Confirming object class types for sample time variables in mod3}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
 ```
  
 ```{r Base growth curve model with sample time data and samplepeaknamenum as intercept}
@@ -247,11 +278,11 @@ cp_long$b0 <- cp_long$samplepeaknamenum
 
 test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
 summary(test1)
-cp_long$b1 <- 2.6990
+cp_long$b1 <- -2.6990
 
-cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$sampletimebeforepeak, 0)
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
 
-cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$sampletimeafterpeak, 0)
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
 
 test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
 summary(test2)
@@ -261,7 +292,7 @@ test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.7182
 
-mod3 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak), data=cp_long, REML=TRUE)
+mod3 <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak), data=cp_long, REML=TRUE)
 summary(mod3)
 
 rm(test1)
@@ -279,7 +310,8 @@ cp_long$b5 <- NULL
 The model "mod3" showcased the following warnings:
 
 > fixed-effect model matrix is rank deficient so dropping 12 columns / coefficients
-> Model failed to converge with 1 negative eigenvalue: -2.0e-06
+
+This may be a sign that the third model is best, because it showcased no "fail to converge" warnings like the first and second model.
 
 ## Base model findings and conclusions
 
@@ -306,6 +338,16 @@ I am still not 100% what this warning means from a statistical standpoint, but t
 This syntax "optimizes" the model by using the L-BFGS-B routine as part of the optimx package. I still need to learn more about this. So, I will duplicate the above three models, but this time I will add the new syntax at the end.
 
 ## Base models with optimization
+
+```{r Confirming object class types for actual time variables in modopt1}
+cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
+cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
+cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
+cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
+cp_long$stimeC <- as.numeric(cp_long$stimeC)
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$female <- as.integer(cp_long$female)
+```
 
 ```{r Optimized base growth curve model with actual time data and peaktimenumC as intercept}
 cp_long$b0 <- cp_long$peaktimenumC
@@ -350,6 +392,16 @@ The model "modopt1" showcased the following warnings:
 
 So unfortunately for "mod1" and "modopt1", optimization doesn't seem to remove the warning. Let's try for "mod2". I am not also 100% sure why it showcases the "dropping 12 columns" warning twice, but I don't think the warning itself is something to be very worried about. 
 
+```{r Confirming object class types for actual time variables in modopt2}
+cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
+cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
+cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
+cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
+cp_long$stimeC <- as.numeric(cp_long$stimeC)
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$female <- as.integer(cp_long$female)
+```
+
 ```{r Optimized base growth curve model with actual time data and peaknamenum as intercept}
 cp_long$b0 <- cp_long$peaknamenum
 
@@ -391,16 +443,25 @@ The model "modopt2" showcased the following warnings:
 
 Like "modopt1", it shows the same warning twice. Let's try with "mod3".
 
+```{r Confirming object class types for sample time variables in modopt3}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+ 
 ```{r Optimized base growth curve model with sample time data and samplepeaknamenum as intercept}
 cp_long$b0 <- cp_long$samplepeaknamenum
 
 test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
 summary(test1)
-cp_long$b1 <- 2.6990
+cp_long$b1 <- -2.6990
 
-cp_long$b2 <- ifelse((cp_long$gender == '0'), cp_long$sampletimebeforepeak, 0)
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
 
-cp_long$b3 <- ifelse((cp_long$gender == '0'), cp_long$sampletimeafterpeak, 0)
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
 
 test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
 summary(test2)
@@ -410,7 +471,7 @@ test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.7182
 
-modopt3 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
+modopt3 <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
 summary(modopt3)
 
 rm(test1)
@@ -432,268 +493,462 @@ The model "modopt3" showcased the following warnings:
 
 Again, like with "modopt1" and "modopt2", "modopt3" gives me the same warning twice. 
 
-# ADDING EMOTIONS
+## Optimized base model findings and conclusions
 
-## Adding emotions in the model that worked
+Adding the optimization syntax recommended by StackExchange removed the "fail to converge" message from "modopt2", but not from "modopt1". Therefore, we should not continue to use "modopt1".
 
-```{r}
-painlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + painC, data=cp_long, REML=TRUE)
-summary(painlopez)
-#Not sig!
-```
+Please note that for "mod2" and "modopt2", the same things were significant. The same things were significant for "mod3" and "modopt3". 
 
-```{r}
-angrylopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + angerC, data=cp_long, REML=TRUE)
-summary(angrylopez)
-#Not sig!
-```
+For the second model, only *b3* and *b3:timeafterpeak* were not significant. *b3* represents the regulation slope for males. For the third model, everything was significant, including *b3*. 
+
+The main difference between the models was that the second model used "actual time" data, while the third model used "sample time" data. Since the third model appears to be the closest replica to Lopez-Duran 2014 and showcased no "fail to converge" warnings even in the non-optimized model, it appears that the third model is the best model out of the three. Using the anova() command, we can see that there is absolutely no difference between "mod3" and "modopt3", so we will continue to use "mod3" at least for visualization
 
 ```{r}
-fearfullopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + fearC, data=cp_long, REML=TRUE)
-summary(fearfullopez)
-#Not sig!
+anova(mod3, modopt3)
 ```
 
-```{r}
-happylopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + happinessC, data=cp_long, REML=TRUE)
-summary(happylopez)
-#Not sig!
-#VERY WEIRD WARNING...
-```
+# Visualization of base growth curve models
 
-```{r}
-sadlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
-summary(sadlopez)
-#SadnessC is the only significant model which is good!
-```
+The object "timeticks" clarifies where the tick marks in the x-axis should be. 
 
-## Running with sadness and adding more stuff
+```{r Figure 1: Averaging by sample peak time}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-```{r}
-ctqlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + ctqsum, data=cp_long, REML=TRUE)
-summary(ctqlopez)
-#CTQ isn't significant in this model
-```
-
-```{r}
-sadctqlopez <- lmer(cortvalue ~ (1|b0) + (1|peaknamenum) + (b1*gender) + (b2*timebeforepeak) + (b3*timeafterpeak) + (b4*gender*timebeforepeak) + (b5*gender*timeafterpeak) + sadnessC + ctqsum, data=cp_long, REML=TRUE)
-summary(sadctqlopez)
-#CTQ still not sig, but SadnessC still is!
-```
-
-```{r}
-cor(cp_long$sadnessC,cp_long$b0) #0.002
-cor(cp_long$sadnessC,cp_long$b1) #NA
-cor(cp_long$sadnessC,cp_long$b2) #0.02
-cor(cp_long$sadnessC,cp_long$b3) #-0.015
-cor(cp_long$sadnessC,cp_long$b4) #NA
-cor(cp_long$sadnessC,cp_long$b5) #NA
-```
-
-```{r}
-anova(lopez, sadlopez, sadctqlopez) #I think this says that the addition of sadness makes the model really good, right? 
-```
-
-## Still trying to recreate plots from Lopez-Duran et al. 2014
-
-```{r}
-ggplot(cp_long, aes(peaknamenum, cortvalue, shape=gendercat)) +
-stat_summary(fun.y=mean, geom="line", size=1) +
-stat_summary(fun.data=mean_se, geom="pointrange", size=1)  + ggtitle ("Trying desperately to plot peaknamenum")
-```
-
-```{r}
-ggplot(cp_long, aes(as.integer(peaknamenum), sadnessC, shape=gendercat)) +
-stat_summary(fun.y=mean, geom="line", size=1) +
-stat_summary(fun.data=mean_se, geom="pointrange", size=1) + ggtitle ("Trying desperately to plot peaknamenum")
-```
-
-```{r}
-cor(cp_long$peaknamenum,cp_long$sadnessC) #0.003
-```
-
-## Model with "samplepeaknamenum"
-
-I admit that I am not very good with naming my variables. "samplepeaknamenum" is the variable that corresponds to the nine samples and the amount of minutes after the cold press task: 0, 3, 15, 25, 30, 35, 40, 45, 60. I think it is best to use these variables compared to alternatives.
-
-Alternatives include "stime" or "stimeC" (which is stime but zero-centered), which is the actual amount of minutes between each sample (e.g. 837, 844, 855) or timenum, which is the mostly just the sample number. timenum is 4, 5, 6, 7, 8, 9, 10, 11, and 12, while timenum is "centered" (not really though--it just assumes that the fourth sample is actually the first sample, since we don't care about cortisol levels during the MRI) and is 1, 2, 3, 4, 5, 6, 7, 8, and 9.
-
-Therefore, any variable that begins with "sample" is based off this 0, 3, 15, etc. sequence: samplepeaknamenum, sampletimetopeak, sampletimebeforepeak, and sampletimeafterpeak. The reason I went with the "sample" version of the time variable is because we would be able to treat time as a factor instead of as an integer or as a numeric variable. 
-
-Before we start the below model, I want to make sure of the data types.
-
-```{r Sample Data Class Checking}
-cp_long$samplepeaknamenum <- as.character(cp_long$samplepeaknamenum)
-cp_long$sampletimetopeak <- as.character(cp_long$sampletimetopeak)
-cp_long$sampletimebeforepeak <- as.character(cp_long$sampletimebeforepeak)
-cp_long$sampletimeafterpeak <- as.character(cp_long$sampletimeafterpeak)
-```
- 
-```{r Base GC Model with Sample Data}
-samplesadlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
-summary(samplesadlopez)
-
-samplesadctqlopez <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE)
-summary(samplesadlopez)
-
-anova(samplelopez, samplesadlopez, samplesadctqlopez)
-rm(test1)
-rm(test2)
-rm(test3)
-```
-
-```{r}
-ggplot(cp_long, aes(samplepeaknamenum, sadnessC, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(samplesadlopez), linetype=gendercat),
-fun.y=mean, geom="line")
-```
-
-```{r Without Sadness}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(samplelopez)),
-fun.y=mean, geom="line")
-```
-
-```{r With Sadness}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(samplesadlopez)),
-fun.y=mean, geom="line")
-```
-
-```{r Without Sadness}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC,
-shape=gendercat, linetype=gendercat)) +
-stat_summary(fun.y=mean, geom="point") +
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gender, shape=gender)) +
+stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(samplelopez)), fun.y=mean, geom="line") +
-scale_shape_manual(values=c(1, 2)) +
-labs(x="Sample Time", y="Centered Cortisol Values",
-linetype="Gender", shape="Gender") +
-theme_bw(base_size=10) +
+stat_summary(aes(y=fitted(mod3)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+scale_shape_manual(values=c(16, 17)) +
+labs(x="Sample Time Peak", y="Cortisol",
+color="Gender", shape="Gender") +
+theme_bw(base_size=18) +
 theme(legend.justification=c(0,1), legend.position=c(0,1),
 legend.background=
-element_rect(fill="white", color="black"))
+element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base growth curve model by peak sample time")
 ```
 
-```{r With Sadness}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC,
-shape=gendercat, linetype=gendercat)) +
-stat_summary(fun.y=mean, geom="point") +
+```{r Figure 2: Averaging by sample time}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+
+ggplot(cp_long, aes(sampletime, cortvalue, color=gender, shape=gender)) +
+stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(samplesadlopez)), fun.y=mean, geom="line") +
-scale_shape_manual(values=c(1, 2)) +
-labs(x="Sample Time", y="Centered Cortisol Values",
-linetype="Gender", shape="Gender") +
-theme_bw(base_size=10) +
+stat_summary(aes(y=fitted(mod3)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+scale_shape_manual(values=c(16, 17)) +
+labs(x="Sample Time", y="Cortisol",
+color="Gender", shape="Gender") +
+theme_bw(base_size=18) +
 theme(legend.justification=c(0,1), legend.position=c(0,1),
 legend.background=
-element_rect(fill="white", color="black"))
+element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base growth curve model by sample time")
 ```
 
-## Creating that good model but without any warnings
+```{r Figure 3: Barplot with error bars}
+cp <- cp_long
+cp$sampletime <- as.factor(cp$sampletime)
 
-```{r}
+data_summary <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+ return(data_sum)
+}
+
+cp1 <- data_summary(cp_long, varname="cortvalue", groupnames=c("gender", "sampletime"))
+cp1$sampletime <- as.factor(cp1$sampletime)
+head(cp1)
+
+ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=gender)) + 
+  geom_bar(stat="identity", color="black", 
+           position=position_dodge()) +
+  geom_errorbar(aes(ymin=cortvalue-sd, ymax=cortvalue+sd), width=.2,
+                 position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars")
+
+rm(cp)
+rm(cp1)
+rm(timeticks)
+rm(data_summary)
+```
+
+# Adding emotion to base model
+
+Now that we know that we want to use the third model, we will add emotion (anger, fear, happiness, sadness, and pain). First, let's remove the old models except for the third model and rename the third model "base".
+
+```{r Object removal}
+rm(mod1)
+rm(mod2)
+rm(modopt1)
+rm(modopt2)
+rm(modopt3)
+base <- mod3
+rm(mod3)
+```
+
+Now, one emotion at a time, we will add an emotion to the base model as a random predictor. This will give us a total of five models. We will use the zero-centered version of the emotions (e.g. angerC).
+
+## Anger
+
+```{r Base model plus anger}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+
 cp_long$b0 <- cp_long$samplepeaknamenum
 
-test1 <- lm(samplepeaknamenum ~ gendercat, data = cp_long)
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
 summary(test1)
-cp_long$b1 <- 2.6990
+cp_long$b1 <- -2.6990
 
-cp_long$b2 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimebeforepeak, 0)
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
 
-cp_long$b3 <- ifelse((cp_long$gendercat == 'male'), cp_long$sampletimeafterpeak, 0)
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
 
-test2 <- lm(sampletimebeforepeak ~ as.factor(female), data=cp_long)
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
 summary(test2)
 cp_long$b4 <-  1.9808
 
-test3 <- lm(sampletimeafterpeak ~ as.factor(female), data=cp_long)
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
 summary(test3)
 cp_long$b5 <- 0.7182
 
-samplelopez2 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak), data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
-summary(samplelopez2)
+anger <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + angerC, data=cp_long, REML=TRUE)
+summary(anger)
 
-samplesadlopez2 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
-summary(samplesadlopez2)
-
-samplesadctqlopez2 <- lmer(cortvalueC ~ (1|b0) + (1|samplepeaknamenum) + (b1*gendercat) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gendercat*sampletimebeforepeak) + (b5*gendercat*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE, control = lmerControl(optimizer ='optimx', optCtrl=list(method='L-BFGS-B')))
-summary(samplesadlopez2)
-
-anova(samplelopez2, samplesadlopez2, samplesadctqlopez2)
 rm(test1)
 rm(test2)
 rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
 ```
 
-#### Finding other important info?
+Anger is not significant.
+
+## Fear
+
+```{r Base model plus fear}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- -2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+fear <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + fearC, data=cp_long, REML=TRUE)
+summary(fear)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+Fear is not significant.
+
+## Happiness
+
+```{r Base model plus happiness}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- -2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+happy <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + happinessC, data=cp_long, REML=TRUE)
+summary(happy)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+Happiness is not significant.
+
+## Sadness
+
+```{r Base model plus sadness}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- -2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+sad <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
+summary(sad)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+Sadness is significant with p = 0.005566.
+
+## Pain
+
+```{r Base model plus pain}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- -2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+pain <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + painC, data=cp_long, REML=TRUE)
+summary(pain)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
+```
+
+Pain is not significant.
+
+## Emotional model findings and conclusions
+
+It looks like the only emotion that is significant is sadness. Therefore, let's examine sadness in depth more. First, let's remove the other emotions.
 
 ```{r}
-#Or at least trying to...
-
-r.squaredGLMM(samplelopez2)
-r.squaredGLMM(samplesadlopez2)
-
-#AIC and BIC are useless when REML is involved, but why not?
-AIC(samplelopez2)
-BIC(samplelopez2)
-AIC(samplesadlopez2)
-BIC(samplesadlopez2)
+rm(anger)
+rm(fear)
+rm(happy)
+rm(pain)
 ```
 
-## ggplot with the new fewer-warning sample models
+In our dataset, we have CTQ Total Sum ("ctqsumC"). Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
 
-```{r Without Sadness}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(samplelopez2)),
-fun.y=mean, geom="line")
+```{r Base model plus sadness and CTQ}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+
+cp_long$b0 <- cp_long$samplepeaknamenum
+
+test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
+summary(test1)
+cp_long$b1 <- -2.6990
+
+cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
+
+cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
+
+test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
+summary(test2)
+cp_long$b4 <-  1.9808
+
+test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
+summary(test3)
+cp_long$b5 <- 0.7182
+
+ctq <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + ctqsumC, data=cp_long, REML=TRUE)
+summary(ctq)
+
+sadctq <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE)
+summary(sadctq)
+
+rm(test1)
+rm(test2)
+rm(test3)
+
+cp_long$b0 <- NULL
+cp_long$b1 <- NULL
+cp_long$b2 <- NULL
+cp_long$b3 <- NULL
+cp_long$b4 <- NULL
+cp_long$b5 <- NULL
 ```
 
-```{r With Sadness}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat)) +
-stat_summary(fun.data=mean_se, geom="pointrange") +
-stat_summary(aes(y=fitted(samplesadlopez2)),
-fun.y=mean, geom="line")
+CTQ is not a significant predictor of cortisol, while sadness remains significant. We can test fit improvement among our models by using anova().
+
+```{r}
+anova(base, sad, ctq, sadctq)
 ```
 
-```{r Without Sadness Edited}
+It shows that "sad" significantly improves upon "base", but "sadctq" does not improve anymore than just "sad". So, CTQ is not a significant predictor.
+
+```{r}
+rm(ctq)
+rm(sadctq)
+```
+
+## Visualization of the sad model
+
+```{r Figure 4: Sad model averaging by sample peak time}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat, shape=gendercat)) +
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gender, shape=gender)) +
 stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(samplelopez2)), fun.y=mean, geom="line", lwd=1.5) +
+stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
 scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time", y="Centered Cortisol Values",
+labs(x="Sample Time Peak", y="Cortisol",
 color="Gender", shape="Gender") +
 theme_bw(base_size=18) +
 theme(legend.justification=c(0,1), legend.position=c(0,1),
 legend.background=
-element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base Model")
+element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by peak sample time")
+
+rm(timeticks)
 ```
 
-```{r With Sadness Edited}
+```{r Figure 5: Sad model averaging by sample time}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-ggplot(cp_long, aes(samplepeaknamenum, cortvalueC, color=gendercat, shape=gendercat)) +
+ggplot(cp_long, aes(sampletime, cortvalue, color=gender, shape=gender)) +
 stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(samplesadlopez2)), fun.y=mean, geom="line", lwd=1.5) +
+stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
 scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time", y="Centered Cortisol Values",
+labs(x="Sample Time", y="Cortisol",
 color="Gender", shape="Gender") +
 theme_bw(base_size=18) +
 theme(legend.justification=c(0,1), legend.position=c(0,1),
 legend.background=
-element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad Model")
+element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by sample time")
+
+rm(timeticks)
+```
+
+# Additional analysis
+
+## AIC
+
+```{r}
+AIC(base)
+AIC(sad)
+```
+
+## BIC
+
+```{r}
+BIC(base)
+BIC(sad)
+```
+
+## R-squared
+
+```{r}
+r.squaredGLMM(base)
+r.squaredGLMM(sad)
 ```
 
 ## Writing out the new cp_long
