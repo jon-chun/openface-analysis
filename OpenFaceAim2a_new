@@ -1,9 +1,13 @@
 ---
-title: "OpenFaceAim2a: The Semi-Successful Version"
+title: 'Current Data Analysis for the Facial Expression/Cortisol Project'
 author: "Julianna Calabrese"
 date: "1/17/2019"
-output: html_document
-editor_options: 
+output:
+  html_document:
+    highlight: tango
+    theme: united
+  pdf_document: default
+editor_options:
   chunk_output_type: console
 ---
 
@@ -55,9 +59,8 @@ library(MuMIn)
 library(Rmisc)
 ```
 
-## Load in data
 
-```{r}
+```{r Load in data}
 cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
 #cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
@@ -121,18 +124,19 @@ cp_long$male <- as.integer(cp_long$male)
 cp_long$female <- as.integer(cp_long$female)
 ```
 
-# Base growth curve models
+# Base models
 
 Cortisol = b0 + (b1 x sex) + (b2 x timebeforepeak) + (b3 x timeafterpeak) + (b4 x sex x timebeforepeak) + (b5 x sex x timeafterpeak)
 
-b0 <- intercept aka peak
-b1 <- the impact of sex on levels at the group peak time
-b2 <- the activation slope for males
-b3 <- the regulation slope for males
-b4 <- the impact of sex (females) on the activation slope
-b5 <- the impact of sex (females) on the regulation slope
+* b0 <- intercept aka peak
+* b1 <- the impact of sex on levels at the group peak time
+* b2 <- the activation slope for males
+* b3 <- the regulation slope for males
+* b4 <- the impact of sex (females) on the activation slope
+* b5 <- the impact of sex (females) on the regulation slope
 
 timebeforepeak = the reactivity slope / activation
+
 timeafterpeak = the recovery slope / regulation
 
 ## Models using actual time values
@@ -143,7 +147,7 @@ The variable "peaknamenum" corresponds to the order in which the sample were tak
 
 Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric.
 
-```{r Confirming object class types for actual time variables in mod1}
+```{r Base model with actual time data and peaktimenumC as intercept}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
 cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
 cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
@@ -151,9 +155,7 @@ cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
 cp_long$stimeC <- as.numeric(cp_long$stimeC)
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$female <- as.integer(cp_long$female)
-```
 
-```{r Base growth curve model with actual time data and peaktimenumC as intercept}
 cp_long$b0 <- cp_long$peaktimenumC
 
 test1 <- lm(peaktimenumC ~ gender, data = cp_long)
@@ -196,7 +198,7 @@ The model "mod1" showcased the following warnings:
 > 2: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
   Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
 
-```{r Confirming object class types for actual time variables in mod2}
+```{r Base model with actual time data and peaknamenum as intercept}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
 cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
 cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
@@ -204,9 +206,7 @@ cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
 cp_long$stimeC <- as.numeric(cp_long$stimeC)
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$female <- as.integer(cp_long$female)
-```
 
-```{r Base growth curve model with actual time data and peaknamenum as intercept}
 cp_long$b0 <- cp_long$peaknamenum
 
 test1 <- lm(peaknamenum ~ gender, data = cp_long)
@@ -264,16 +264,14 @@ Additionally, in his table, gender is M/F. So I transformed "gender" and "female
 
 Before we start the below model, I want to make sure of the data types.
 
-```{r Confirming object class types for sample time variables in mod3}
+```{r Base model with sample time data and samplepeaknamenum as intercept}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
-```
- 
-```{r Base growth curve model with sample time data and samplepeaknamenum as intercept}
+
 cp_long$b0 <- cp_long$samplepeaknamenum
 
 test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
@@ -392,7 +390,7 @@ The model "modopt1" showcased the following warnings:
 
 So unfortunately for "mod1" and "modopt1", optimization doesn't seem to remove the warning. Let's try for "mod2". I am not also 100% sure why it showcases the "dropping 12 columns" warning twice, but I don't think the warning itself is something to be very worried about. 
 
-```{r Confirming object class types for actual time variables in modopt2}
+```{r Optimized base model with actual time data and peaknamenum as intercept}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
 cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
 cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
@@ -400,9 +398,7 @@ cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
 cp_long$stimeC <- as.numeric(cp_long$stimeC)
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$female <- as.integer(cp_long$female)
-```
 
-```{r Optimized base growth curve model with actual time data and peaknamenum as intercept}
 cp_long$b0 <- cp_long$peaknamenum
 
 test1 <- lm(peaknamenum ~ gender, data = cp_long)
@@ -443,16 +439,14 @@ The model "modopt2" showcased the following warnings:
 
 Like "modopt1", it shows the same warning twice. Let's try with "mod3".
 
-```{r Confirming object class types for sample time variables in modopt3}
+```{r Optimized base model with sample time data and samplepeaknamenum as intercept}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
-```
- 
-```{r Optimized base growth curve model with sample time data and samplepeaknamenum as intercept}
+
 cp_long$b0 <- cp_long$samplepeaknamenum
 
 test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
@@ -514,14 +508,17 @@ The object "timeticks" clarifies where the tick marks in the x-axis should be.
 ```{r Figure 1: Averaging by sample peak time}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gender, shape=gender)) +
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
 stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
 stat_summary(aes(y=fitted(mod3)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
 scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time Peak", y="Cortisol",
-color="Gender", shape="Gender") +
+labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") +
 theme_bw(base_size=18) +
 theme(legend.justification=c(0,1), legend.position=c(0,1),
 legend.background=
@@ -531,7 +528,11 @@ element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks
 ```{r Figure 2: Averaging by sample time}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-ggplot(cp_long, aes(sampletime, cortvalue, color=gender, shape=gender)) +
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+ggplot(cp_long, aes(sampletime, cortvalue, color=Sex, shape=Sex)) +
 stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
@@ -893,7 +894,11 @@ rm(sadctq)
 ```{r Figure 4: Sad model averaging by sample peak time}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=gender, shape=gender)) +
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
 stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
@@ -912,7 +917,11 @@ rm(timeticks)
 ```{r Figure 5: Sad model averaging by sample time}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
-ggplot(cp_long, aes(sampletime, cortvalue, color=gender, shape=gender)) +
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+ggplot(cp_long, aes(sampletime, cortvalue, color=Sex, shape=Sex)) +
 stat_summary(fun.y=mean, geom="point", size=5) +
 stat_summary(fun.data=mean_se, geom="errorbar",
 linetype="solid", width=0.6) +
