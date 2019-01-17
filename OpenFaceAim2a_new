@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceAim2a: The Semi-Successful Version"
 author: "Julianna Calabrese"
-date: "12/12/2018"
+date: "1/17/2019"
 output: html_document
 editor_options: 
   chunk_output_type: inline
@@ -53,7 +53,11 @@ library(optimx)
 library(MuMIn)
 ```
 
-### Outline/Description
+## Introduction
+
+This is the new version of OpenFaceAim2a.rmd, where I'm actually getting closer to doing what I'm supposed to do. The other (_old) rmd file got two big and had too many models called "mod1" and "test2" and "thing123", so creating this file is my way of streamling things. In this file, I do my best to follow the instructions as laid out in Lopez-Duran 2014. I will also try to explain everything I do in this file, why I do it, and why things may look weird at times. I will also try to name variables in as consistent manner as possible.
+
+## Outline/Description
 
 This file will be where all the primary data analysis occurs. In previous rmd files, you'll need to convert all the stuff to a long format.
 
@@ -62,8 +66,6 @@ Then, you're going to run a model that looks like this...
 mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2)
 
 ...but it's not going to be a lm() model, it's going to be a multilevel growth curve model, so you'll probably need to use the lme4() package with the lmer() command or the nlme() package with the lme() command. This will produce a fixed effects table that represents the parameters of everything that you put in the above model to predict cortisol. Then you need to tell R what your random effects are, which is the intercept and time. 
-
-Then you do something with landmark registration, but that's kind of already done, so you need to ask someone who ask access to that dataset to share it with you.
 
 All the instructions can be found in Lopez-Duran 2014. Do NOT do anything involving AUC!
 
