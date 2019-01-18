@@ -1,0 +1,5 @@
+lm(Cortisol ~ sex + timebeforepeak + timeafterpeak + 
+
+mod1 <- lm(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2, data=mydata)
+        lmer(cortisol~time+time^2+sex+AU1+AU1*time+AU1*time*time^2+(1|id)
+	lmer(cortisol~(Sex) + (TimeBeforePeak) + (TimeAfterPeak) + (sex * TimeBeforePeak) + (Sex * TimeAfterPeak) + (1|id) + (1|time), data = cp_long)
