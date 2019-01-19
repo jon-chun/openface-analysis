@@ -108,7 +108,7 @@ I have created multiple variables for gender in cp_long.
 * malecat (character): 1 for male, 0 for female
 * female: 1 for female, 0 for male
 * femalecat (character): 1 for female, 0 for male
-    
+
 ```{r Fixing gender types}
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
@@ -159,7 +159,7 @@ cp_long$stimeC <- as.numeric(cp_long$stimeC)
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$female <- as.integer(cp_long$female)
 
-mod1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + (1|id) + (1|stimeC), data = cp_long)
+mod1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 
 summary(mod1)
 ```
@@ -190,7 +190,7 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-mod2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long)
+mod2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
 summary(mod2)
 ```
@@ -215,16 +215,16 @@ cp_long$Sex <- as.factor(cp_long$Sex)
 levels(cp_long$Sex) <- c('Male','Female')
 
 ggplot(cp_long, aes(peaktimenumC, cortvalue, color=Sex, shape=Sex)) +
-stat_summary(fun.y=mean, geom="point", size=5) +
-stat_summary(fun.data=mean_se, geom="errorbar",
-linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(mod1)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-scale_shape_manual(values=c(16, 17)) +
-labs(x="Centered Time Values", y="Cortisol", color="Gender", shape="Gender") +
-theme_bw(base_size=18) +
-theme(legend.justification=c(0,1), legend.position=c(0,1),
-legend.background=
-element_rect(fill="white", color="black")) + ggtitle("Base model with centered peak time values")
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  stat_summary(fun.data=mean_se, geom="errorbar",
+               linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(mod1)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  scale_shape_manual(values=c(16, 17)) +
+  labs(x="Centered Time Values", y="Cortisol", color="Gender", shape="Gender") +
+  theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + ggtitle("Base model with centered peak time values")
 ```
 
 Judging by Figure 1's messiness, I think I did something wrong either with building mod1, visualizing mod1, or both. 
@@ -239,28 +239,17 @@ cp_long$Sex <- as.factor(cp_long$Sex)
 levels(cp_long$Sex) <- c('Male','Female')
 
 ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
-stat_summary(fun.y=mean, geom="point", size=5) +
-stat_summary(fun.data=mean_se, geom="errorbar",
-linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(mod2)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") +
-theme_bw(base_size=18) +
-theme(legend.justification=c(0,1), legend.position=c(0,1),
-legend.background=
-element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
-
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
-stat_summary(fun.y=mean, geom="point", size=5) +
-stat_summary(fun.data=mean_se, geom="errorbar",
-linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(mod2)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") +
-theme_bw(base_size=18) +
-theme(legend.justification=c(0,1), legend.position=c(0,1),
-legend.background=
-element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
+  stat_summary(fun.data=mean_se, geom="errorbar",
+               linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(mod2)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  scale_shape_manual(values=c(16, 17)) +
+  labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") +
+  theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
 ```
 
 ```{r Figure 3: Barplot with error bars}
@@ -277,7 +266,7 @@ data_summary <- function(data, varname, groupnames){
   data_sum<-ddply(data, groupnames, .fun=summary_func,
                   varname)
   data_sum <- rename(data_sum, c("mean" = varname))
- return(data_sum)
+  return(data_sum)
 }
 
 cp1 <- data_summary(cp_long, varname="cortvalue", groupnames=c("gender", "sampletime", "Sex"))
@@ -287,28 +276,12 @@ head(cp1)
 ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) + 
   geom_bar(stat="identity", color="black", 
            position=position_dodge()) +
+  scale_fill_manual("legend", values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
   geom_errorbar(aes(ymin=cortvalue-sd, ymax=cortvalue+sd), width=.2,
-                 position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_discrete(name = "Uncentered cortisol values") + scale_y_continuous(expand = c(0, 0), limits = c(0, 5)) 
-
-
-ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) + geom_bar(stat="identity", color="black", position=position_dodge()) + geom_errorbar(aes(ymin=cortvalue-sd, ymax=cortvalue+sd), width=.2), position=position_dodge(.9) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_discrete(name = "Uncentered cortisol values") 
-
-
-
-ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) + 
-  geom_bar(stat="identity", color="black", 
-           position=position_dodge()) +
-  geom_errorbar(aes(ymin=cortvalue-sd, ymax=cortvalue+sd), width=.2,
-                 position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_discrete(name = "Uncentered cortisol values") 
-
-ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) + 
-  geom_bar(stat="identity", color="black", 
-           position=position_dodge()) +
-  geom_errorbar(aes(ymin=cortvalue-sd, ymax=cortvalue+sd), width=.2,
-                 position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_continuous(name = "Uncentered cortisol values") 
+                position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_continuous(name = "Uncentered cortisol values")
 ```
 
-```{r Object removal}
+```{r Object removal 1}
 rm(cp)
 rm(cp1)
 rm(timeticks)
@@ -317,16 +290,12 @@ rm(data_summary)
 
 # Adding emotion to base model
 
-Now that we know that we want to use the third model, we will add emotion (anger, fear, happiness, sadness, and pain). First, let's remove the old models except for the third model and rename the third model "base".
+After looking at the model summaries and visualizations, I have decided to go with mod2 as the base model.
 
-```{r Object removal}
+```{r Object removal 2}
+base <- mod2
 rm(mod1)
 rm(mod2)
-rm(modopt1)
-rm(modopt2)
-rm(modopt3)
-base <- mod3
-rm(mod3)
 ```
 
 Now, one emotion at a time, we will add an emotion to the base model as a random predictor. This will give us a total of five models. We will use the zero-centered version of the emotions (e.g. angerC).
@@ -341,37 +310,9 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-cp_long$b0 <- cp_long$samplepeaknamenum
+anger <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
-test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- -2.6990
-
-cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-anger <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + angerC, data=cp_long, REML=TRUE)
 summary(anger)
-
-rm(test1)
-rm(test2)
-rm(test3)
-
-cp_long$b0 <- NULL
-cp_long$b1 <- NULL
-cp_long$b2 <- NULL
-cp_long$b3 <- NULL
-cp_long$b4 <- NULL
-cp_long$b5 <- NULL
 ```
 
 Anger is not significant.
@@ -386,37 +327,9 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-cp_long$b0 <- cp_long$samplepeaknamenum
+fear <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
-test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- -2.6990
-
-cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-fear <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + fearC, data=cp_long, REML=TRUE)
 summary(fear)
-
-rm(test1)
-rm(test2)
-rm(test3)
-
-cp_long$b0 <- NULL
-cp_long$b1 <- NULL
-cp_long$b2 <- NULL
-cp_long$b3 <- NULL
-cp_long$b4 <- NULL
-cp_long$b5 <- NULL
 ```
 
 Fear is not significant.
@@ -431,37 +344,9 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-cp_long$b0 <- cp_long$samplepeaknamenum
+happy <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + happinessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
-test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- -2.6990
-
-cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-happy <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + happinessC, data=cp_long, REML=TRUE)
 summary(happy)
-
-rm(test1)
-rm(test2)
-rm(test3)
-
-cp_long$b0 <- NULL
-cp_long$b1 <- NULL
-cp_long$b2 <- NULL
-cp_long$b3 <- NULL
-cp_long$b4 <- NULL
-cp_long$b5 <- NULL
 ```
 
 Happiness is not significant.
@@ -476,40 +361,12 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-cp_long$b0 <- cp_long$samplepeaknamenum
+sad <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
-test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- -2.6990
-
-cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-sad <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + sadnessC, data=cp_long, REML=TRUE)
 summary(sad)
-
-rm(test1)
-rm(test2)
-rm(test3)
-
-cp_long$b0 <- NULL
-cp_long$b1 <- NULL
-cp_long$b2 <- NULL
-cp_long$b3 <- NULL
-cp_long$b4 <- NULL
-cp_long$b5 <- NULL
 ```
 
-Sadness is significant with p = 0.005566.
+Sadness is not significant.
 
 ## Pain
 
@@ -521,37 +378,9 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-cp_long$b0 <- cp_long$samplepeaknamenum
+pain <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + painC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
-test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- -2.6990
-
-cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-pain <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + painC, data=cp_long, REML=TRUE)
 summary(pain)
-
-rm(test1)
-rm(test2)
-rm(test3)
-
-cp_long$b0 <- NULL
-cp_long$b1 <- NULL
-cp_long$b2 <- NULL
-cp_long$b3 <- NULL
-cp_long$b4 <- NULL
-cp_long$b5 <- NULL
 ```
 
 Pain is not significant.
@@ -636,17 +465,17 @@ cp_long$Sex <- as.factor(cp_long$Sex)
 levels(cp_long$Sex) <- c('Male','Female')
 
 ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
-stat_summary(fun.y=mean, geom="point", size=5) +
-stat_summary(fun.data=mean_se, geom="errorbar",
-linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time Peak", y="Cortisol",
-color="Gender", shape="Gender") +
-theme_bw(base_size=18) +
-theme(legend.justification=c(0,1), legend.position=c(0,1),
-legend.background=
-element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by peak sample time")
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  stat_summary(fun.data=mean_se, geom="errorbar",
+               linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  scale_shape_manual(values=c(16, 17)) +
+  labs(x="Sample Time Peak", y="Cortisol",
+       color="Gender", shape="Gender") +
+  theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by peak sample time")
 
 rm(timeticks)
 ```
@@ -659,17 +488,17 @@ cp_long$Sex <- as.factor(cp_long$Sex)
 levels(cp_long$Sex) <- c('Male','Female')
 
 ggplot(cp_long, aes(sampletime, cortvalue, color=Sex, shape=Sex)) +
-stat_summary(fun.y=mean, geom="point", size=5) +
-stat_summary(fun.data=mean_se, geom="errorbar",
-linetype="solid", width=0.6) +
-stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-scale_shape_manual(values=c(16, 17)) +
-labs(x="Sample Time", y="Cortisol",
-color="Gender", shape="Gender") +
-theme_bw(base_size=18) +
-theme(legend.justification=c(0,1), legend.position=c(0,1),
-legend.background=
-element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by sample time")
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  stat_summary(fun.data=mean_se, geom="errorbar",
+               linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  scale_shape_manual(values=c(16, 17)) +
+  labs(x="Sample Time", y="Cortisol",
+       color="Gender", shape="Gender") +
+  theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by sample time")
 
 rm(timeticks)
 ```
