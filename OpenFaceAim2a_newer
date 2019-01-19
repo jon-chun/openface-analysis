@@ -452,42 +452,6 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
           element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
 ```
 
-### Multiple models on one plot
-
-```{r}
-timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
-
-cp_long$Sex <- cp_long$gender
-cp_long$Sex <- as.factor(cp_long$Sex)
-levels(cp_long$Sex) <- c('Male','Female')
-
-cp_long_backup <- cp_long
-
-cp_long$base.fitted <- predict(base, cp_long)
-cp_long$anger.fitted <- predict(anger, cp_long)
-cp_long$fear.fitted <- predict(fear, cp_long)
-cp_long$happy.fitted <- predict(happy, cp_long)
-cp_long$sad.fitted <- predict(sad, cp_long)
-cp_long$pain.fitted <- predict(pain, cp_long)
-
-cp_long <- cp_long %>% gather(var, val, base.fitted:pain.fitted)
-
-ggplot(cp_long, aes(samplepeaknamenum, val, colour=var, shape=var)) + geom_line(position=position_jitter(w=1, h=0))
-```
-
-```{r}
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
-  stat_summary(fun.y=mean, geom="point", size=5) +
-  scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
-  stat_summary(fun.data=mean_se, geom="errorbar", linetype="solid", width=0.6) +
-  stat_summary(aes(y=fitted(base)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-  scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
-  theme(legend.justification=c(0,1), legend.position=c(0,1),
-        legend.background=
-          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
-```
-
-
 ## Adding CTQ to base model
 
 In conclusion, it looks like nothing has reached the alpha < 0.05 threshold. Now let's try adding ctq to see if it makes a difference. Here is the CTQ base model. 
