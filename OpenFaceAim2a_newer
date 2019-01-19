@@ -44,7 +44,6 @@ library(nlme)
 library(plyr)
 library(Hmisc)
 library(rmarkdown)
-library(shiny)
 library(yaml)
 library(rapportools)
 library(lavaan)
@@ -244,7 +243,7 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
   stat_summary(fun.data=mean_se, geom="errorbar",
                linetype="solid", width=0.6) +
   stat_summary(aes(y=fitted(mod2)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-  scale_shape_manual(values=c(16, 17)) +
+scale_shape_manual(values=c(16, 17)) +
   labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") +
   theme_bw(base_size=18) +
   theme(legend.justification=c(0,1), legend.position=c(0,1),
@@ -290,15 +289,7 @@ rm(data_summary)
 
 # Adding emotion to base model
 
-After looking at the model summaries and visualizations, I have decided to go with mod2 as the base model.
-
-```{r Object removal 2}
-base <- mod2
-rm(mod1)
-rm(mod2)
-```
-
-Now, one emotion at a time, we will add an emotion to the base model as a random predictor. This will give us a total of five models. We will use the zero-centered version of the emotions (e.g. angerC).
+Now, one emotion at a time, we will add an emotion to the base model as a random predictor. This will give us a total of five models. We will use the zero-centered version of the emotions (e.g. angerC). I will see what results come from mod1 and mod2 (i.e. anger1 and anger2).
 
 ## Anger
 
@@ -310,12 +301,16 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-anger <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+anger1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + angerC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
+summary(anger1)
 
-summary(anger)
+anger2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(anger2)
+
+anova(anger1, anger2)
 ```
 
-Anger is not significant.
+Anger is not significant. anger2 has better fit than anger1. 
 
 ## Fear
 
@@ -327,12 +322,16 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-fear <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+fear1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + fearC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
+summary(fear1)
 
-summary(fear)
+fear2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(fear2)
+
+anova(fear1, fear2)
 ```
 
-Fear is not significant.
+Fear is not significant. fear2 has better fit than fear1. 
 
 ## Happiness
 
@@ -344,12 +343,16 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-happy <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + happinessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+happy1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + happinessC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
+summary(happy1)
 
-summary(happy)
+happy2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + happinessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(happy2)
+
+anova(happy1, happy2)
 ```
 
-Happiness is not significant.
+Happiness is not significant. happy2 has better fit than happy1. 
 
 ## Sadness
 
@@ -361,12 +364,16 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-sad <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+sad1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + sadnessC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
+summary(sad1)
 
-summary(sad)
+sad2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(sad2)
+
+anova(sad1, sad2)
 ```
 
-Sadness is not significant.
+Sadness is not significant. sad2 has better fit than sad1.
 
 ## Pain
 
@@ -378,22 +385,116 @@ cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 
-pain <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + painC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+pain1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + painC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
+summary(pain1)
 
-summary(pain)
+pain2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + painC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(pain2)
+
+anova(pain1, pain2)
 ```
 
-Pain is not significant.
+Pain is not significant. pain2 has better fit than pain1. 
 
-## Emotional model findings and conclusions
+## Emotion model conclusions
 
-It looks like the only emotion that is significant is sadness. Therefore, let's examine sadness in depth more. First, let's remove the other emotions.
+First, it looks like none of the emotions have reached the alpha < 0.05 threshold. It also appears that the mod2 models fit the data better than the mod1 models, so I will abandon the mod1 models altogether. I will rename the mod2 models and remove the mod1 models.
 
 ```{r}
-rm(anger)
-rm(fear)
-rm(happy)
-rm(pain)
+base <- mod2
+anger <- anger2
+fear <- fear2
+happy <- happy2
+sad <- sad2
+pain <- pain2
+
+rm(mod1)
+rm(mod2)
+rm(anger1)
+rm(anger2)
+rm(fear1)
+rm(fear2)
+rm(happy1)
+rm(happy2)
+rm(sad1)
+rm(sad2)
+rm(pain1)
+rm(pain2)
+```
+
+Now I will compared which models have better fit than the others.
+
+```{r}
+anova(base, anger, fear, happy, sad, pain)
+
+summary(sad)
+```
+
+Even though sadnessC is not significant in the sad model, its presence somehow makes the model fit better compared to the base model and other emotion models.
+
+## Visualization for the emotion models
+
+```{r Figure 4: Base Model}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
+  stat_summary(fun.data=mean_se, geom="errorbar", linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(base)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
+```
+
+### Multiple models on one plot
+
+```{r}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+cp_long_backup <- cp_long
+
+cp_long$base.fitted <- predict(base, cp_long)
+cp_long$anger.fitted <- predict(anger, cp_long)
+cp_long$fear.fitted <- predict(fear, cp_long)
+cp_long$happy.fitted <- predict(happy, cp_long)
+cp_long$sad.fitted <- predict(sad, cp_long)
+cp_long$pain.fitted <- predict(pain, cp_long)
+
+cp_long <- cp_long %>% gather(var, val, base.fitted:pain.fitted)
+
+ggplot(cp_long, aes(samplepeaknamenum, val, colour=var, shape=var)) + geom_line(position=position_jitter(w=1, h=0))
+```
+
+```{r}
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
+  stat_summary(fun.data=mean_se, geom="errorbar", linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(base)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
+```
+
+
+## Adding CTQ to base model
+
+In conclusion, it looks like nothing has reached the alpha < 0.05 threshold. Now let's try adding ctq to see if it makes a difference. Here is the CTQ base model. 
+
+```{r}
+ctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsum + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(ctq)
 ```
 
 In our dataset, we have CTQ Total Sum ("ctqsumC"). Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
@@ -429,17 +530,6 @@ summary(ctq)
 
 sadctq <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE)
 summary(sadctq)
-
-rm(test1)
-rm(test2)
-rm(test3)
-
-cp_long$b0 <- NULL
-cp_long$b1 <- NULL
-cp_long$b2 <- NULL
-cp_long$b3 <- NULL
-cp_long$b4 <- NULL
-cp_long$b5 <- NULL
 ```
 
 CTQ is not a significant predictor of cortisol, while sadness remains significant. We can test fit improvement among our models by using anova().
@@ -489,7 +579,7 @@ levels(cp_long$Sex) <- c('Male','Female')
 
 ggplot(cp_long, aes(sampletime, cortvalue, color=Sex, shape=Sex)) +
   stat_summary(fun.y=mean, geom="point", size=5) +
-  stat_summary(fun.data=mean_se, geom="errorbar",
+stat_summary(fun.data=mean_se, geom="errorbar",
                linetype="solid", width=0.6) +
   stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
   scale_shape_manual(values=c(16, 17)) +
