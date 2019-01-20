@@ -46,7 +46,17 @@ editor_options:
 #install.packages("kableExtra")
 #install.packages("broom")
 #install.packages("xtable")
+#install.packages("sjPlot")
+#install.packages("sjstats")
+#install.packages("sjlabelled")
+#install.packages("sjmisc")
+#install.packages("ggeffects")
+#install.packages("glmmTMB")
+#install.packages("bindrcpp")
+#install.packages("pbkrtest")
+#install.packages("devtools")
 #devtools::install_github('sfraundorf/psycholing')
+#install.packages("pander")
 
 library(mosaic)
 library(ggplot2)
@@ -87,6 +97,7 @@ library(bindrcpp)
 library(pbkrtest)
 library(devtools)
 library(psycholing)
+library(pander)
 ```
 
 ```{r Load in data, include=FALSE}
@@ -152,7 +163,7 @@ cp_long$gender <- as.integer(cp_long$gender)
 cp_long$female <- as.integer(cp_long$female)
 ```
 
-```{r Base model with actual time data, eval=FALSE}
+```{r Base model with actual time data, results = 'hide'}
 mod1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 summary(mod1)
 ```
@@ -192,7 +203,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model with sample time data}
+```{r Base model with sample time data, results = 'hide'}
 mod2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(mod2)
 ```
@@ -213,13 +224,18 @@ Both mod1 and mod2 have significant results.
 
 In mod1, intercept (aka peak), timebeforepeak, and timeafterpeak are significant, while gender has a p-value of 0.0835. In mod2, intercept (aka peak), sampletimebeforepeak, and sampletimeafterpeak are significant. Gender is even "less significant" with a p-value of 0.1245. 
 
-```{r}
-anova(mod1, mod2)
+```{r warning=FALSE, message=FALSE}
+pander(anova(mod1, mod2))
 ```
 
 However, it looks like mod2 has the better fit, so I will abandon mod1 and rename mod2 to 'base'.
 
-```{r}
+```{r echo=FALSE, results = 'hide'}
+class(mod1) <- "lmerModLmerTest"
+class(mod2) <- "lmerModLmerTest"
+```
+
+```{r echo=FALSE}
 rm(mod1)
 base <- mod2
 rm(mod2)
@@ -240,7 +256,7 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
   scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
   stat_summary(fun.data=mean_se, geom="errorbar",
                linetype="solid", width=0.6) +
-  stat_summary(aes(y=fitted(mod2)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  stat_summary(aes(y=fitted(base)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
 scale_shape_manual(values=c(16, 17)) +
   labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") +
   theme_bw(base_size=18) +
@@ -251,6 +267,9 @@ scale_shape_manual(values=c(16, 17)) +
 
 ```{r Figure 2: Barplot with error bars, echo=FALSE}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
 cp <- cp_long
 cp$sampletime <- as.factor(cp$sampletime)
 data_summary <- function(data, varname, groupnames){
@@ -266,13 +285,12 @@ data_summary <- function(data, varname, groupnames){
 }
 cp1 <- data_summary(cp_long, varname="cortvalue", groupnames=c("gender", "sampletime", "Sex"))
 cp1$sampletime <- as.factor(cp1$sampletime)
-head(cp1)
 ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) + 
   geom_bar(stat="identity", color="black", 
            position=position_dodge()) +
   scale_fill_manual("legend", values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
   geom_errorbar(aes(ymin=cortvalue-sd, ymax=cortvalue+sd), width=.2,
-                position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_continuous(name = "Uncentered cortisol values")
+                position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_continuous(name = "Uncentered cortisol values") + theme_set(theme_gray(base_size = 18))
 ```
 
 ```{r Object removal 1, include=FALSE}
@@ -297,7 +315,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus anger, eval=FALSE}
+```{r Base model plus anger, results = 'hide'}
 anger <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(anger)
 ```
@@ -325,7 +343,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus fear}
+```{r Base model plus fear, results = 'hide'}
 fear <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(fear)
 ```
@@ -337,7 +355,7 @@ labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Fear", "S
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(anger, title = "Fear Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(fear, title = "Fear Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
 Fear is not significant.
@@ -353,7 +371,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus happiness}
+```{r Base model plus happiness, results = 'hide'}
 happy <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + happinessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(happy)
 ```
@@ -365,7 +383,7 @@ labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Happiness
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(anger, title = "Happy Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(happy, title = "Happy Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
 Happiness is not significant.
@@ -381,7 +399,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus sadness}
+```{r Base model plus sadness, results = 'hide'}
 sad <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(sad)
 ```
@@ -393,7 +411,7 @@ labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sadness",
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(anger, title = "Sad Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(sad, title = "Sad Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
 Sadness is not significant.
@@ -409,7 +427,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus pain}
+```{r Base model plus pain, results = 'hide'}
 pain <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + painC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(pain)
 ```
@@ -421,16 +439,16 @@ labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Pain", "S
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(anger, title = "Pain Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(pain, title = "Pain Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
 ## Emotion model conclusions
 
 First, it looks like none of the emotions have reached the alpha < 0.05 threshold. It also appears that the mod2 models fit the data better than the mod1 models, so I will abandon the mod1 models altogether. I will rename the mod2 models and remove the mod1 models.
 
-Now I will compared which models have better fit than the others. Unfortunately, we can't use the anova() command to compare more than two models, so I should come back to this later once I've discovered a better solution or if I can figure out how to use lmer.compare().
+Now I will compared which models have better fit than the others.
 
-```{r Model comparisons, include=FALSE}
+```{r Model comparisons, include=FALSE, hide = 'results'}
 class(base) <- "lmerMod"
 class(anger) <- "lmerMod"
 class(fear) <- "lmerMod"
@@ -439,31 +457,32 @@ class(sad) <- "lmerMod"
 class(pain) <- "lmerMod"
 ```
 
-```{r}
-anova(base, anger, fear, happy, sad, pain)
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, anger, fear, happy, sad, pain))
 ```
 
-```{r}
-anova(base, anger)
-anova(base, fear)
-anova(base, happy)
-anova(base, sad)
-anova(base, pain)
+```{r warning=FALSE, message=FALSE, eval=FALSE, hide='results'}
+#anova(base, anger)
+#anova(base, fear)
+#anova(base, happy)
+#anova(base, sad)
+#anova(base, pain)
+#Unfortunately, we can't use the anova() command to compare more than two models, so I should come back to this later once I've discovered a better solution or if I can figure out how to use lmer.compare().
 ```
 
 None of the emotion models significantly fit better than the base model.
 
-```{r}
-anova(base, sad)
-anova(anger, sad)
-anova(fear, sad)
-anova(happy, sad)
-anova(pain, sad)
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, sad))
+pander(anova(anger, sad))
+pander(anova(fear, sad))
+pander(anova(happy, sad))
+pander(anova(pain, sad))
 ```
 
 However, excluding base, it appears that the sad model fits way better than any of the other emotion models. Why? 
 
-```{r Model comparisons, include=FALSE}
+```{r Model reclassifying, include=FALSE}
 class(base) <- "lmerModLmerTest"
 class(anger) <- "lmerModLmerTest"
 class(fear) <- "lmerModLmerTest"
@@ -472,22 +491,30 @@ class(sad) <- "lmerModLmerTest"
 class(pain) <- "lmerModLmerTest"
 ```
 
-### Tables of Comparisons
+```{r echo=FALSE, hide = 'results'}
+#class(base) <- "lmerMod"
+#class(anger) <- "lmerMod"
+#class(fear) <- "lmerMod"
+#class(happy) <- "lmerMod"
+#class(sad) <- "lmerMod"
+#class(pain) <- "lmerMod"
 
-```{r echo=FALSE}
-all.labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Anger", "Fear", "Happiness", "Sadness", "Pain")
+#all.labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Anger", "Fear", "Happiness", "Sadness", "Pain")
 
-colorder <- c("est", "df", "se", "p")
+#colorder <- c("est", "df", "se", "p")
 
-tab_model(base, anger, fear, happy, sad, pain, title = "Model with all emotions", pred.labels = all.labels, dv.labels = c("Base", "Anger", "Fear", "Happiness", "Sadness", "Pain"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+#tab_model(base, anger, fear, happy, sad, pain, title = "Model with all emotions", pred.labels = all.labels, dv.labels = c("Base", "Anger", "Fear", "Happiness", "Sadness", "Pain"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
 ```{r results = 'asis', echo=FALSE}
+class(base) <- "lmerMod"
+class(sad) <- "lmerMod"
+
 labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness")
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(base, sad, title = "Base model vs. sad model", pred.labels = labels, dv.labels = c("Base", "Sadness"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(base, sad, title = "Base model vs. sad model", pred.labels = labels, dv.labels = c("Base", "Sadness"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
 Even though sadnessC is not significant in the sad model, its presence somehow makes the model fit better compared to the base model and other emotion models. But by just comparing it to the base model, sad does not significantly improve model fit. 
@@ -516,12 +543,12 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
 
 Although nothing so far has definitively reached the alpha < 0.05 threshold, let's try adding ctq to see if it makes a difference. Here is the CTQ base model. 
 
-```{r Base model plus CTQ, eval=FALSE}
+```{r Base model plus CTQ, results = 'hide'}
 ctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(ctq)
 ```
 
-```{r}
+```{r echo=FALSE}
 class(ctq) <- "lmerMod"
 
 labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "CTQ Total Sum", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
@@ -531,8 +558,8 @@ colorder <- c("est", "df", "se", "p")
 tab_model(ctq, title = "Base Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-```{r}
-anova(base, ctq)
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, ctq))
 ```
 
 Addding CTQ Total Sum to the base model does not make any difference. Let's now add CTQ to the sad model. 
@@ -544,7 +571,7 @@ sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterp
 summary(sadctq)
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, hide = 'results'}
 class(base) <- "lmerMod"
 class(sad) <- "lmerMod"
 class(sadctq) <- "lmerMod"
@@ -556,11 +583,11 @@ colorder <- c("est", "df", "se", "p")
 tab_model(base, sad, sadctq, title = "Base vs. Sad vs. Sad-CTQ", pred.labels = labels, dv.labels = c("Base", "Sad", "Sad-CTQ"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
 ```
 
-```{r}
-anova(base, sad, sadctq)
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, sad, sadctq))
 ```
 
-CTQ is not a significant predictor of cortisol. At the last anova() command, it looks like no model is significantly better than another. 
+CTQ is not a significant predictor of cortisol. However, when you compare the base, sad, ctq, and sadctq models, it appears that the ctq model has the best fit. Why? 
 
 ```{r Writing out the new cp_long dataset, include=FALSE}
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
