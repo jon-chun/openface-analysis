@@ -4,8 +4,12 @@ author: "Julianna Calabrese"
 date: "1/19/2019"
 output:
   html_document:
-    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
     theme: united
+    highlight: tango
   pdf_document: default
 editor_options:
   chunk_output_type: console
@@ -58,8 +62,7 @@ library(MuMIn)
 library(Rmisc)
 ```
 
-
-```{r Load in data}
+```{r Load in data, include=FALSE}
 #cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
 cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
@@ -67,13 +70,11 @@ cp_long$X <- NULL
 
 ## Introduction
 
-This is the new version of OpenFaceAim2a.rmd, where I'm actually getting closer to doing what I'm supposed to do. The other (_old) rmd file got two big and had too many models called "mod1" and "test2" and "thing123", so creating this file is my way of streamling things. In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I will also try to explain everything I do in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models in as consistent manner as possible.
-
-As of 1/19/2019 after a CSCAR appointment, this file has underwent radical changes. 
+In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models in as consistent manner as possible. On 1/18/2019, I received advice from CSCAR and made radical changes to this file.
 
 Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lmer() command as part of the lme4 package. More information about lmer() can be found here: https://cran.r-project.org/web/packages/SASmixed/vignettes/Usinglmer.pdf
 
-## Important R Information
+### Important R Information
 
 https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/
 
@@ -95,9 +96,9 @@ We can use the class() function to determine the type of an object.
 class(cp_long$id)
 ```
 
-## Correcting Object Class Types
+### Correcting Object Class Types
 
-### Gender
+#### Gender
 
 I have created multiple variables for gender in cp_long.
 
@@ -117,9 +118,9 @@ cp_long$female <- as.integer(cp_long$female)
 
 However, I tend to reclass all variables before model-building to ensure that I'm using the correct variables.
 
-# Base models
+## Model building
 
-#### Equation from Lopez-Duran 2014
+### Equation from Lopez-Duran 2014
 
 $\begin{aligned}
 Cortisol = \beta_0  
@@ -130,7 +131,7 @@ Cortisol = \beta_0
 & + (\beta_5 \cdot Sex \cdot TimeAfterPeak) \\
 \end{aligned}$
 
-#### Definitions
+### Definitions
 
 * b0 = intercept aka peak
 * b1 = the impact of sex on levels at the group peak time
@@ -143,11 +144,11 @@ Cortisol = \beta_0
 
 ## Model using actual time values
 
-The model below use variables that were made using the variables "stimeC" and "peaktimenumC". "stime" is the actual time variable (e.g. 837, 844, 855) and "peaktimenum" is the time when the participant's cortisol value ("cortvalue") was highest. Therefore, for all the rows that have ID 10003, each row has a different "stime" value (e.g. 837, 844, 855, ...), but each row has the same "peaktimenum" value (e.g. 844, 844, 844, ...). "stimeC" is the zero-centered version of "stime" and "peaktimenumC" is the zero-centered version of "peaktimenum". 
+The model below use variables that were made using the variables "stimeC" and "peaktimenumC". "stime" is the actual time variable (e.g. 837, 844, 855) and "peaktimenum" is the time when the participant's cortisol value ("cortvalue") was highest. Therefore, for all the rows that have ID 10003, each row has a different "stime" value (e.g. 837, 844, 855, ...), but each row has the same "peaktimenum" value (e.g. 844, 844, 844, ...), indicating that the highest cortisol value was observed at stime 844. "stimeC" is the zero-centered version of "stime" and "peaktimenumC" is the zero-centered version of "peaktimenum". 
 
 The variable "peaknamenum" corresponds to the order in which the sample were taken. For example, for ID 10003, the time at which his cortisol peaked was 844, which was the second sample taken (out of the nine samples related to the SECPT). Therefore, for ID 10003, his "peaknamenum" is "2". 
 
-Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric.
+Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric or an integer. 
 
 ```{r Base model with actual time data}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
@@ -173,7 +174,7 @@ Therefore, any variable that begins with "sample" is based off this 0, 3, 15, et
 
 As opposed to the first model, I believe that the second model is the closest to the model in Lopez-Duran 2014 as possible.
 
-![](C:/Users/jrcala/Documents/My Research/RStudio/ld2014table.png)
+![](/Users/Julianna/Desktop/data/ld2014table.png)
 
 According to Table 2 in Lopez-Duran 2014, there were no "actual time" values (i.e. 837, 844, 855, ...), just the "minute" values (i.e. 0, 3, 15, ...). 
 
@@ -194,7 +195,7 @@ mod2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpea
 summary(mod2)
 ```
 
-## Base model findings and conclusions
+## Base model findings
 
 Both mod1 and mod2 have significant results. 
 
@@ -204,7 +205,7 @@ In mod2, intercept (aka peak), sampletimebeforepeak, and sampletimeafterpeak are
 
 I am still unsure which model will be more valuable to analysis, so I will conduct visualizations on both models.
 
-# Visualization of base models
+## Base model visualizations
 
 The object "timeticks" clarifies where the tick marks in the x-axis should be. 
 
@@ -255,7 +256,6 @@ scale_shape_manual(values=c(16, 17)) +
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 cp <- cp_long
 cp$sampletime <- as.factor(cp$sampletime)
-
 data_summary <- function(data, varname, groupnames){
   require(plyr)
   summary_func <- function(x, col){
@@ -267,11 +267,9 @@ data_summary <- function(data, varname, groupnames){
   data_sum <- rename(data_sum, c("mean" = varname))
   return(data_sum)
 }
-
 cp1 <- data_summary(cp_long, varname="cortvalue", groupnames=c("gender", "sampletime", "Sex"))
 cp1$sampletime <- as.factor(cp1$sampletime)
 head(cp1)
-
 ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) + 
   geom_bar(stat="identity", color="black", 
            position=position_dodge()) +
@@ -287,11 +285,11 @@ rm(timeticks)
 rm(data_summary)
 ```
 
-# Adding emotion to base model
+## Adding emotion to base model
 
 Now, one emotion at a time, we will add an emotion to the base model as a random predictor. This will give us a total of five models. We will use the zero-centered version of the emotions (e.g. angerC). I will see what results come from mod1 and mod2 (i.e. anger1 and anger2).
 
-## Anger
+### Anger
 
 ```{r Base model plus anger}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -312,7 +310,7 @@ anova(anger1, anger2)
 
 Anger is not significant. anger2 has better fit than anger1. 
 
-## Fear
+### Fear
 
 ```{r Base model plus fear}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -333,7 +331,7 @@ anova(fear1, fear2)
 
 Fear is not significant. fear2 has better fit than fear1. 
 
-## Happiness
+### Happiness
 
 ```{r Base model plus happiness}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -354,7 +352,7 @@ anova(happy1, happy2)
 
 Happiness is not significant. happy2 has better fit than happy1. 
 
-## Sadness
+### Sadness
 
 ```{r Base model plus sadness}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -375,7 +373,7 @@ anova(sad1, sad2)
 
 Sadness is not significant. sad2 has better fit than sad1.
 
-## Pain
+### Pain
 
 ```{r Base model plus pain}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -400,7 +398,7 @@ Pain is not significant. pain2 has better fit than pain1.
 
 First, it looks like none of the emotions have reached the alpha < 0.05 threshold. It also appears that the mod2 models fit the data better than the mod1 models, so I will abandon the mod1 models altogether. I will rename the mod2 models and remove the mod1 models.
 
-```{r}
+```{r Object removal 2}
 base <- mod2
 anger <- anger2
 fear <- fear2
@@ -424,17 +422,17 @@ rm(pain2)
 
 Now I will compared which models have better fit than the others.
 
-```{r}
+```{r Model comparisons}
 anova(base, anger, fear, happy, sad, pain)
-
+anova(base, sad)
 summary(sad)
 ```
 
-Even though sadnessC is not significant in the sad model, its presence somehow makes the model fit better compared to the base model and other emotion models.
+Even though sadnessC is not significant in the sad model, its presence somehow makes the model fit better compared to the base model and other emotion models. But by just comparing it to the base model, sad does not significantly improve model fit. 
 
-## Visualization for the emotion models
+## Emotional model visualization
 
-```{r Figure 4: Base Model}
+```{r Figure 4: Base model plus sadness}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
 cp_long$Sex <- cp_long$gender
@@ -445,7 +443,7 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
   stat_summary(fun.y=mean, geom="point", size=5) +
   scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
   stat_summary(fun.data=mean_se, geom="errorbar", linetype="solid", width=0.6) +
-  stat_summary(aes(y=fitted(base)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
   scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
   theme(legend.justification=c(0,1), legend.position=c(0,1),
         legend.background=
@@ -454,135 +452,50 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
 
 ## Adding CTQ to base model
 
-In conclusion, it looks like nothing has reached the alpha < 0.05 threshold. Now let's try adding ctq to see if it makes a difference. Here is the CTQ base model. 
+Although nothing so far has reached the alpha < 0.05 threshold, let's try adding ctq to see if it makes a difference. Here is the CTQ base model. 
 
-```{r}
-ctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsum + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+```{r Base model plus CTQ}
+ctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(ctq)
+anova(base, ctq)
 ```
+
+Addding CTQ Total Sum to the base model does not make any difference. Let's now add CTQ to the sad model. 
 
 In our dataset, we have CTQ Total Sum ("ctqsumC"). Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
 
 ```{r Base model plus sadness and CTQ}
-cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
-cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
-cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
-cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
-cp_long$gender <- as.character(cp_long$gender)
-cp_long$female <- as.character(cp_long$female)
-
-cp_long$b0 <- cp_long$samplepeaknamenum
-
-test1 <- lm(samplepeaknamenum ~ gender, data = cp_long)
-summary(test1)
-cp_long$b1 <- -2.6990
-
-cp_long$b2 <- ifelse((cp_long$gender == "0"), cp_long$sampletimebeforepeak, 0)
-
-cp_long$b3 <- ifelse((cp_long$gender == "0"), cp_long$sampletimeafterpeak, 0)
-
-test2 <- lm(sampletimebeforepeak ~ female, data=cp_long)
-summary(test2)
-cp_long$b4 <-  1.9808
-
-test3 <- lm(sampletimeafterpeak ~ female, data=cp_long)
-summary(test3)
-cp_long$b5 <- 0.7182
-
-ctq <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + ctqsumC, data=cp_long, REML=TRUE)
-summary(ctq)
-
-sadctq <- lmer(cortvalue ~ (1|b0) + (1|samplepeaknamenum) + (b1*gender) + (b2*sampletimebeforepeak) + (b3*sampletimeafterpeak) + (b4*gender*sampletimebeforepeak) + (b5*gender*sampletimeafterpeak) + sadnessC + ctqsumC, data=cp_long, REML=TRUE)
+sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(sadctq)
+anova(base, ctq, sad, sadctq)
 ```
 
-CTQ is not a significant predictor of cortisol, while sadness remains significant. We can test fit improvement among our models by using anova().
+CTQ is not a significant predictor of cortisol. At the last anova() command, it looks like no model is significantly better than another. 
 
-```{r}
-anova(base, sad, ctq, sadctq)
-```
+## Additional analysis
 
-It shows that "sad" significantly improves upon "base", but "sadctq" does not improve anymore than just "sad". So, CTQ is not a significant predictor.
+### AIC
 
-```{r}
-rm(ctq)
-rm(sadctq)
-```
-
-## Visualization of the sad model
-
-```{r Figure 4: Sad model averaging by sample peak time}
-timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
-
-cp_long$Sex <- cp_long$gender
-cp_long$Sex <- as.factor(cp_long$Sex)
-levels(cp_long$Sex) <- c('Male','Female')
-
-ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
-  stat_summary(fun.y=mean, geom="point", size=5) +
-  stat_summary(fun.data=mean_se, geom="errorbar",
-               linetype="solid", width=0.6) +
-  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-  scale_shape_manual(values=c(16, 17)) +
-  labs(x="Sample Time Peak", y="Cortisol",
-       color="Gender", shape="Gender") +
-  theme_bw(base_size=18) +
-  theme(legend.justification=c(0,1), legend.position=c(0,1),
-        legend.background=
-          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by peak sample time")
-
-rm(timeticks)
-```
-
-```{r Figure 5: Sad model averaging by sample time}
-timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
-
-cp_long$Sex <- cp_long$gender
-cp_long$Sex <- as.factor(cp_long$Sex)
-levels(cp_long$Sex) <- c('Male','Female')
-
-ggplot(cp_long, aes(sampletime, cortvalue, color=Sex, shape=Sex)) +
-  stat_summary(fun.y=mean, geom="point", size=5) +
-stat_summary(fun.data=mean_se, geom="errorbar",
-               linetype="solid", width=0.6) +
-  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
-  scale_shape_manual(values=c(16, 17)) +
-  labs(x="Sample Time", y="Cortisol",
-       color="Gender", shape="Gender") +
-  theme_bw(base_size=18) +
-  theme(legend.justification=c(0,1), legend.position=c(0,1),
-        legend.background=
-          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad growth curve model by sample time")
-
-rm(timeticks)
-```
-
-# Additional analysis
-
-## AIC
-
-```{r}
+```{r AIC}
 AIC(base)
 AIC(sad)
 ```
 
-## BIC
+### BIC
 
-```{r}
+```{r BIC}
 BIC(base)
 BIC(sad)
 ```
 
-## R-squared
+### R-squared
 
-```{r, warning=FALSE}
+```{r R-squared, warning=FALSE}
 r.squaredGLMM(base)
 r.squaredGLMM(sad)
 ```
 
-## Writing out the new cp_long
-
-```{r}
+```{r Writing out the new cp_long dataset}
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
 #write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
 ```
