@@ -38,6 +38,11 @@ editor_options:
 #install.packages("optimx")
 #install.packages("MuMIn")
 #install.packages("Rmisc")
+#install.packages("jsonlite")
+#install.packages("knitr")
+#install.packages("taRifx")
+#install.packages("papeR")
+#install.packages("stargazer")
 
 library(mosaic)
 library(ggplot2)
@@ -52,7 +57,7 @@ library(yaml)
 library(rapportools)
 library(lavaan)
 library(lme4)
-library(corrr)
+#library(corrr, libloc = "LibraryLocation")
 library(corrplot)
 library(reshape2)
 library(lmerTest)
@@ -60,6 +65,11 @@ library(multcomp)
 library(optimx)
 library(MuMIn)
 library(Rmisc)
+library(jsonlite)
+library(knitr)
+library(taRifx)
+library(papeR)
+library(stargazer)
 ```
 
 ```{r Load in data, include=FALSE}
@@ -74,49 +84,12 @@ In this file, I do my best to follow the instructions as laid out in Lopez-Duran
 
 Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lmer() command as part of the lme4 package. More information about lmer() can be found here: https://cran.r-project.org/web/packages/SASmixed/vignettes/Usinglmer.pdf
 
-### Important R Information
-
-https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/
-
-Here, I wanted to explain the difference between certain data types and structures in R. It's important because I'm trying out different kind of models with (essentially) the same variables, but the variables are different "types". First, everything in R is an object. Before I conduct any kind of analysis or model-building, I redefine my class types to make sure that I accidentally don't define cortisol values as a character variable. 
-
-There are six types of atomic vector types. Atomic means that the vector only holds data of  asingle type.
-
-* character: "london", "tokyo", "new york"
-* numeric: 1, 2, 3
-* integer: 2a (the "a" tells R to store this as an integer)
-* logical: TRUE, FALSE
-* complex: 1+4i (complex numbers with real and imaginary parts)
-
-The integer class is technically a subset of the numeric class. The main difference is about how the data are stored, not whether you have whole numbers or fractions, etc.
-
-We can use the class() function to determine the type of an object.
-
-```{r Class example}
-class(cp_long$id)
-```
-
-### Correcting Object Class Types
-
-#### Gender
-
-I have created multiple variables for gender in cp_long.
-
-* gender: 0 for male, 1 for female
-* gendercat: "male" for male, "female" for female
-* male (integer): 1 for male, 0 for female
-* malecat (character): 1 for male, 0 for female
-* female: 1 for female, 0 for male
-* femalecat (character): 1 for female, 0 for male
-
-```{r Fixing gender types}
+```{r Fixing gender types, include=FALSE}
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
 cp_long$male <- as.integer(cp_long$male)
 cp_long$female <- as.integer(cp_long$female)
 ```
-
-However, I tend to reclass all variables before model-building to ensure that I'm using the correct variables.
 
 ## Model building
 
@@ -142,6 +115,8 @@ Cortisol = \beta_0
 * timebeforepeak = the reactivity slope / activation
 * timeafterpeak = the recovery slope / regulation
 
+The variable "gender" is a binary variable of 0 = male and 1 = female. 
+
 ## Model using actual time values
 
 The model below use variables that were made using the variables "stimeC" and "peaktimenumC". "stime" is the actual time variable (e.g. 837, 844, 855) and "peaktimenum" is the time when the participant's cortisol value ("cortvalue") was highest. Therefore, for all the rows that have ID 10003, each row has a different "stime" value (e.g. 837, 844, 855, ...), but each row has the same "peaktimenum" value (e.g. 844, 844, 844, ...), indicating that the highest cortisol value was observed at stime 844. "stimeC" is the zero-centered version of "stime" and "peaktimenumC" is the zero-centered version of "peaktimenum". 
@@ -150,7 +125,7 @@ The variable "peaknamenum" corresponds to the order in which the sample were tak
 
 Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric or an integer. 
 
-```{r Base model with actual time data}
+```{r include=FALSE}
 cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
 cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
 cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
@@ -158,10 +133,18 @@ cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
 cp_long$stimeC <- as.numeric(cp_long$stimeC)
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$female <- as.integer(cp_long$female)
+```
 
+```{r Base model with actual time data}
 mod1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
-
 summary(mod1)
+```
+
+```{r echo=FALSE}
+class(mod1) <- "lmerMod"
+pretty_mod1 <- prettify(summary(mod1))
+kable(pretty_mod1)
+stargazer(mod1, title="mod1 results", align=TRUE, header=FALSE, type='latex')
 ```
 
 ## Model using "sample" time values
@@ -182,14 +165,16 @@ Additionally, in his table, gender is M/F. So I transformed "gender" and "female
 
 Before we start the below model, I want to make sure of the data types.
 
-```{r Base model with sample time data}
+```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
+```
 
+```{r Base model with sample time data}
 mod2 <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 
 summary(mod2)
@@ -207,9 +192,8 @@ I am still unsure which model will be more valuable to analysis, so I will condu
 
 ## Base model visualizations
 
-The object "timeticks" clarifies where the tick marks in the x-axis should be. 
-
-```{r Figure 1: Averaging by centered peak time for mod1}
+```{r Figure 1: Averaging by centered peak time for mod1, echo=FALSE}
+#The object "timeticks" clarifies where the tick marks in the x-axis should be.
 cp_long$Sex <- cp_long$gender
 cp_long$Sex <- as.factor(cp_long$Sex)
 levels(cp_long$Sex) <- c('Male','Female')
@@ -229,9 +213,8 @@ ggplot(cp_long, aes(peaktimenumC, cortvalue, color=Sex, shape=Sex)) +
 
 Judging by Figure 1's messiness, I think I did something wrong either with building mod1, visualizing mod1, or both. 
 
-For the below graph, the object "timeticks" clarifies where the tick marks in the x-axis should be. 
-
-```{r Figure 2: Averaging by sample peak time for mod2}
+```{r Figure 2: Averaging by sample peak time for mod2, echo=FALSE}
+#The object "timeticks" clarifies where the tick marks in the x-axis should be.
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
 cp_long$Sex <- cp_long$gender
@@ -252,7 +235,7 @@ scale_shape_manual(values=c(16, 17)) +
           element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
 ```
 
-```{r Figure 3: Barplot with error bars}
+```{r Figure 3: Barplot with error bars, echo=FALSE}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 cp <- cp_long
 cp$sampletime <- as.factor(cp$sampletime)
@@ -278,7 +261,7 @@ ggplot(cp1, aes(x=sampletime, y=cortvalue, fill=Sex)) +
                 position=position_dodge(.9)) + ggtitle("Barplot by gender with error bars") + scale_x_discrete(name = "Time") + scale_y_continuous(name = "Uncentered cortisol values")
 ```
 
-```{r Object removal 1}
+```{r Object removal 1, include=FALSE}
 rm(cp)
 rm(cp1)
 rm(timeticks)
@@ -291,14 +274,16 @@ Now, one emotion at a time, we will add an emotion to the base model as a random
 
 ### Anger
 
-```{r Base model plus anger}
+```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
+```
 
+```{r Base model plus anger}
 anger1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + angerC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 summary(anger1)
 
@@ -312,14 +297,16 @@ Anger is not significant. anger2 has better fit than anger1.
 
 ### Fear
 
-```{r Base model plus fear}
+```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
+```
 
+```{r Base model plus fear}
 fear1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + fearC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 summary(fear1)
 
@@ -333,14 +320,16 @@ Fear is not significant. fear2 has better fit than fear1.
 
 ### Happiness
 
-```{r Base model plus happiness}
+```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
+```
 
+```{r Base model plus happiness}
 happy1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + happinessC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 summary(happy1)
 
@@ -354,14 +343,16 @@ Happiness is not significant. happy2 has better fit than happy1.
 
 ### Sadness
 
-```{r Base model plus sadness}
+```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
+```
 
+```{r Base model plus sadness}
 sad1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + sadnessC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 summary(sad1)
 
@@ -375,14 +366,16 @@ Sadness is not significant. sad2 has better fit than sad1.
 
 ### Pain
 
-```{r Base model plus pain}
+```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
 cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
 cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
 cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
 cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
+```
 
+```{r Base model plus pain}
 pain1 <- lmer(cortvalue ~ (gender) + (timebeforepeak) + (timeafterpeak) + (gender*timebeforepeak) + (gender*timeafterpeak) + painC + (1|id) + (1|stimeC), data = cp_long, REML=TRUE)
 summary(pain1)
 
@@ -398,7 +391,7 @@ Pain is not significant. pain2 has better fit than pain1.
 
 First, it looks like none of the emotions have reached the alpha < 0.05 threshold. It also appears that the mod2 models fit the data better than the mod1 models, so I will abandon the mod1 models altogether. I will rename the mod2 models and remove the mod1 models.
 
-```{r Object removal 2}
+```{r Object removal 2, include=FALSE}
 base <- mod2
 anger <- anger2
 fear <- fear2
@@ -432,7 +425,7 @@ Even though sadnessC is not significant in the sad model, its presence somehow m
 
 ## Emotional model visualization
 
-```{r Figure 4: Base model plus sadness}
+```{r Figure 4: Base model plus sadness, echo=FALSE}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
 
 cp_long$Sex <- cp_long$gender
@@ -447,7 +440,7 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
   scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
   theme(legend.justification=c(0,1), legend.position=c(0,1),
         legend.background=
-          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Base model by peak sample time")
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad model by peak sample time")
 ```
 
 ## Adding CTQ to base model
@@ -495,7 +488,7 @@ r.squaredGLMM(base)
 r.squaredGLMM(sad)
 ```
 
-```{r Writing out the new cp_long dataset}
+```{r Writing out the new cp_long dataset, include=FALSE}
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
 #write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long_aim2a.csv")
 ```
