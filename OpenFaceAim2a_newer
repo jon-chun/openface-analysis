@@ -101,8 +101,8 @@ library(pander)
 ```
 
 ```{r Load in data, include=FALSE}
-#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
 ```
 
@@ -188,7 +188,7 @@ Therefore, any variable that begins with "sample" is based off this 0, 3, 15, et
 
 As opposed to the first model, I believe that the second model is the closest to the model in Lopez-Duran 2014 as possible.
 
-![](/Users/Julianna/Desktop/data/ld2014table.png)
+![](C:/Users/jrcala/Documents/My Research/RStudio/ld2014table.png)
 
 According to Table 2 in Lopez-Duran 2014, there were no "actual time" values (i.e. 837, 844, 855, ...), just the "minute" values (i.e. 0, 3, 15, ...). 
 
@@ -228,7 +228,7 @@ In mod1, intercept (aka peak), timebeforepeak, and timeafterpeak are significant
 pander(anova(mod1, mod2))
 ```
 
-However, it looks like mod2 has the better fit, so I will abandon mod1 and rename mod2 to 'base'.
+However, it like mod2 has the better fit, so I will abandon mod1 and rename mod2 to 'base'.
 
 ```{r echo=FALSE, results = 'hide'}
 class(mod1) <- "lmerModLmerTest"
@@ -302,7 +302,7 @@ rm(data_summary)
 
 ## Adding emotion to base model
 
-Now, one emotion at a time, we will add an emotion to the base model as a random predictor. This will give us a total of five models. We will use the zero-centered version of the emotions (e.g. angerC).
+Now, one emotion at a time, I will add an emotion to the base model as a random predictor. This will give us a total of five models. I will use the zero-centered version of the emotions (e.g. angerC).
 
 ### Anger
 
@@ -446,7 +446,7 @@ Pain is not significant.
 
 ## Emotion model conclusions
 
-From first glance, looks like none of the emotions have reached the alpha < 0.05 threshold. Now I will compared which models have better fit than the others.
+From first glance, it looks like none of the emotions have reached the alpha < 0.05 threshold. Now I will compare which models have better fit than the others.
 
 ```{r Model comparisons, include=FALSE, hide = 'results'}
 class(base) <- "lmerMod"
@@ -530,11 +530,11 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
 
 ## Adding CTQ to base model
 
-Although nothing so far has definitively reached the alpha < 0.05 threshold, let's try adding ctq to see if it makes a difference. Here is the CTQ base model. 
+Although nothing so far has definitively reached the alpha < 0.05 threshold, l will add CTQ Total Sum (centered) to see if it makes a difference. Here is the CTQ base model. 
 
 ```{r Base model plus CTQ, results = 'hide'}
 ctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
-summary(ctq)
+#summary(ctq)
 ```
 
 ```{r echo=FALSE}
@@ -557,7 +557,7 @@ In our dataset, we have CTQ Total Sum ("ctqsumC"). Let's see if adding CTQ to "s
 
 ```{r Base model plus sadness and CTQ, echo=FALSE, hide = 'results'}
 sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
-summary(sadctq)
+#summary(sadctq)
 ```
 
 ```{r echo=FALSE, hide = 'results'}
