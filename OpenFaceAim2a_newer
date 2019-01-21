@@ -108,7 +108,7 @@ cp_long$X <- NULL
 
 ## Introduction
 
-In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models in as consistent manner as possible. On 1/18/2019, I received advice from CSCAR and made radical changes to this file.
+In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models as consistently as possible.
 
 Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lmer() command as part of the lme4 package. More information about lmer() can be found here: https://cran.r-project.org/web/packages/SASmixed/vignettes/Usinglmer.pdf
 
@@ -147,7 +147,7 @@ The variable "gender" is a binary variable of 0 = male and 1 = female.
 
 ## Model using actual time values
 
-The model below use variables that were made using the variables "stimeC" and "peaktimenumC". "stime" is the actual time variable (e.g. 837, 844, 855) and "peaktimenum" is the time when the participant's cortisol value ("cortvalue") was highest. Therefore, for all the rows that have ID 10003, each row has a different "stime" value (e.g. 837, 844, 855, ...), but each row has the same "peaktimenum" value (e.g. 844, 844, 844, ...), indicating that the highest cortisol value was observed at stime 844. "stimeC" is the zero-centered version of "stime" and "peaktimenumC" is the zero-centered version of "peaktimenum". 
+The model below (aka "mod1") uses variables that were made using the variables "stimeC" and "peaktimenumC". "stime" is the actual time variable (e.g. 837, 844, 855) and "peaktimenum" is the time when the participant's cortisol value ("cortvalue") was highest. Therefore, for all the rows that have ID 10003, each row has a different "stime" value (e.g. 837, 844, 855, ...), but each row has the same "peaktimenum" value (e.g. 844, 844, 844, ...), indicating that the highest cortisol value was observed at stime 844. "stimeC" is the zero-centered version of "stime" and "peaktimenumC" is the zero-centered version of "peaktimenum". 
 
 The variable "peaknamenum" corresponds to the order in which the sample were taken. For example, for ID 10003, the time at which his cortisol peaked was 844, which was the second sample taken (out of the nine samples related to the SECPT). Therefore, for ID 10003, his "peaknamenum" is "2". 
 
@@ -442,11 +442,11 @@ colorder <- c("est", "df", "se", "p")
 tab_model(pain, title = "Pain Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
+Pain is not significant.
+
 ## Emotion model conclusions
 
-First, it looks like none of the emotions have reached the alpha < 0.05 threshold. It also appears that the mod2 models fit the data better than the mod1 models, so I will abandon the mod1 models altogether. I will rename the mod2 models and remove the mod1 models.
-
-Now I will compared which models have better fit than the others.
+From first glance, looks like none of the emotions have reached the alpha < 0.05 threshold. Now I will compared which models have better fit than the others.
 
 ```{r Model comparisons, include=FALSE, hide = 'results'}
 class(base) <- "lmerMod"
@@ -461,26 +461,15 @@ class(pain) <- "lmerMod"
 pander(anova(base, anger, fear, happy, sad, pain))
 ```
 
-```{r warning=FALSE, message=FALSE, eval=FALSE, hide='results'}
-#anova(base, anger)
-#anova(base, fear)
-#anova(base, happy)
-#anova(base, sad)
-#anova(base, pain)
-#Unfortunately, we can't use the anova() command to compare more than two models, so I should come back to this later once I've discovered a better solution or if I can figure out how to use lmer.compare().
-```
-
-None of the emotion models significantly fit better than the base model.
+Compared to the base model, the sad model significantly fits better, with the anger model bordering on significance.
 
 ```{r warning=FALSE, message=FALSE}
 pander(anova(base, sad))
-pander(anova(anger, sad))
-pander(anova(fear, sad))
-pander(anova(happy, sad))
-pander(anova(pain, sad))
+pander(anova(base, anger))
+pander(anova(anger, fear, happy, sad, pain))
 ```
 
-However, excluding base, it appears that the sad model fits way better than any of the other emotion models. Why? 
+However, when you just compared sad to base, sad loses its significance. However, anger's p-value doesn't change. Additionally, when you compared all the emotions excluding base, sad remains significant.
 
 ```{r Model reclassifying, include=FALSE}
 class(base) <- "lmerModLmerTest"
@@ -566,7 +555,7 @@ Addding CTQ Total Sum to the base model does not make any difference. Let's now 
 
 In our dataset, we have CTQ Total Sum ("ctqsumC"). Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
 
-```{r Base model plus sadness and CTQ, echo=FALSE}
+```{r Base model plus sadness and CTQ, echo=FALSE, hide = 'results'}
 sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(sadctq)
 ```
@@ -584,7 +573,7 @@ tab_model(base, sad, sadctq, title = "Base vs. Sad vs. Sad-CTQ", pred.labels = l
 ```
 
 ```{r warning=FALSE, message=FALSE}
-pander(anova(base, sad, sadctq))
+pander(anova(base, sad, ctq, sadctq))
 ```
 
 CTQ is not a significant predictor of cortisol. However, when you compare the base, sad, ctq, and sadctq models, it appears that the ctq model has the best fit. Why? 
