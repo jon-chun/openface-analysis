@@ -57,6 +57,9 @@ editor_options:
 #install.packages("devtools")
 #devtools::install_github('sfraundorf/psycholing')
 #install.packages("pander")
+#install.packages("coefplot")
+#devtools::install_github("cardiomoon/ggiraphExtra")
+#install.packages("languageR")
 
 library(mosaic)
 library(ggplot2)
@@ -98,6 +101,9 @@ library(pbkrtest)
 library(devtools)
 library(psycholing)
 library(pander)
+library(coefplot)
+library(ggiraphExtra)
+library(languageR)
 ```
 
 ```{r Load in data, include=FALSE}
@@ -182,7 +188,7 @@ In mod1, intercept (aka peak) is significant, as well as TimeBeforePeak and Time
 
 ## Model using "sample" time values
 
-In cp_long, "samplepeaknamenum" is the variable that corresponds to the nine samples and the amount of minutes after the cold press task: 0, 3, 15, 25, 30, 35, 40, 45, 60.
+In my dataset, "samplepeaknamenum" is the variable that corresponds to the nine samples and the amount of minutes after the cold press task: 0, 3, 15, 25, 30, 35, 40, 45, 60.
 
 Like shown above, alternatives include "stime" or "stimeC" (which is stime but zero-centered), which is the actual amount of minutes between each sample (e.g. 837, 844, 855, ...) or timenum, which is the mostly just the sample number. timenum is 4, 5, 6, 7, 8, 9, 10, 11, and 12, while timenum is "centered" (not really though--it just assumes that the fourth sample is actually the first sample, since we don't care about cortisol levels during the MRI) and is 1, 2, 3, 4, 5, 6, 7, 8, and 9.
 
@@ -327,11 +333,6 @@ anger <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpe
 summary(anger)
 ```
 
-```{r Base model plus anger and interaction, results = 'hide'}
-anger_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (angerC*gender) + (angerC*sampletimebeforepeak) + (angerC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
-summary(anger_x)
-```
-
 ```{r echo=FALSE}
 class(anger) <- "lmerMod"
 
@@ -456,34 +457,9 @@ tab_model(pain, title = "Pain Model Summary Output", pred.labels = labels, dv.la
 
 Pain is not significant.
 
-## Emotion model conclusions
+## Basic emotion model conclusions
 
-From first glance, it looks like none of the emotions have reached the alpha < 0.05 threshold. Now I will compare which models have better fit than the others.
-
-```{r Model comparisons, include=FALSE, hide = 'results'}
-class(base) <- "lmerMod"
-class(anger) <- "lmerMod"
-class(fear) <- "lmerMod"
-class(happy) <- "lmerMod"
-class(sad) <- "lmerMod"
-class(pain) <- "lmerMod"
-```
-
-```{r warning=FALSE, message=FALSE}
-pander(anova(base, anger, fear, happy, sad, pain))
-```
-
-Compared to the base model, the sad model significantly fits better, with the anger model bordering on significance.
-
-```{r warning=FALSE, message=FALSE}
-pander(anova(base, sad))
-pander(anova(base, anger))
-pander(anova(anger, fear, happy, sad, pain))
-```
-
-However, when you just compared sad to base, sad loses its significance. However, anger's p-value doesn't change. Additionally, when you compared all the emotions excluding base, sad remains significant.
-
-```{r Model reclassifying, include=FALSE}
+```{r Model reclassifying 1, include=FALSE}
 class(base) <- "lmerModLmerTest"
 class(anger) <- "lmerModLmerTest"
 class(fear) <- "lmerModLmerTest"
@@ -492,21 +468,35 @@ class(sad) <- "lmerModLmerTest"
 class(pain) <- "lmerModLmerTest"
 ```
 
-```{r echo=FALSE, hide = 'results'}
-#class(base) <- "lmerMod"
-#class(anger) <- "lmerMod"
-#class(fear) <- "lmerMod"
-#class(happy) <- "lmerMod"
-#class(sad) <- "lmerMod"
-#class(pain) <- "lmerMod"
+From first glance, it looks like none of the emotions have reached the alpha < 0.05 threshold as predictors. Now I will compare which models have better fit than the others.
 
-#all.labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Anger", "Fear", "Happiness", "Sadness", "Pain")
-
-#colorder <- c("est", "df", "se", "p")
-
-#tab_model(base, anger, fear, happy, sad, pain, title = "Model with all emotions", pred.labels = all.labels, dv.labels = c("Base", "Anger", "Fear", "Happiness", "Sadness", "Pain"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```{r include=FALSE}
+anova(base, anger, fear, happy, sad, pain)
 ```
 
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, anger, fear, happy, sad, pain))
+```
+
+Compared to the base model, the sad model significantly fits better. The only other model that comes close is anger with p = 0.5957.
+
+```{r include=FALSE}
+anova(base, sad)
+anova(anger, fear, happy, sad, pain)
+```
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, sad))
+```
+
+If the basic sad model is compared to the base model, sad loses its significance.
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(anger, fear, happy, sad, pain))
+```
+
+If you remove the base model and only compare the basic emotion models with each (i.e. anger, fear, happy, sad, and pain), sad remains significant.
+ 
 ```{r results = 'asis', echo=FALSE}
 class(base) <- "lmerMod"
 class(sad) <- "lmerMod"
@@ -515,12 +505,12 @@ labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBe
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(base, sad, title = "Base model vs. sad model", pred.labels = labels, dv.labels = c("Base", "Sadness"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(base, sad, title = "Base Model vs. Basic Sad Model", pred.labels = labels, dv.labels = c("Base", "Sadness"), show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-Even though sadnessC is not significant in the sad model, its presence somehow makes the model fit better compared to the base model and other emotion models. But by just comparing it to the base model, sad does not significantly improve model fit. 
+Even though sadness is not significant in the sad model, its presence somehow makes the model fit better compared to the base model and other emotion models. But by just comparing it to the base model, sad does not significantly improve model fit. 
 
-## Sad model visualization
+### Basic sad model visualization
 
 ```{r Figure 3: Base model plus sadness, echo=FALSE}
 timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
@@ -533,7 +523,7 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
   stat_summary(fun.y=mean, geom="point", size=5) +
   scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
   stat_summary(fun.data=mean_se, geom="errorbar", linetype="solid", width=0.6) +
-  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="gray") +
+  stat_summary(aes(y=fitted(sad)), fun.y=mean, geom="line", lwd=1.5, col="darkslategray4") +
   scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
   theme(legend.justification=c(0,1), legend.position=c(0,1),
         legend.background=
@@ -542,7 +532,7 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
 
 ## Emotion models with interaction
 
-As suggested by Dr. Lopez-Duran on 1/22/19, I should add interaction to the emotion models, i.e. Anger x TimeBeforePeak and Anger x TimeAfterPeak. When creating the below models, I also tried adding Anger x TimeBeforePeak x TimeAfterPeak but that ended up being redunant/non-significant, so that idea was dropped.
+As suggested by Dr. Lopez-Duran on 1/22/19, I should add interaction to the emotion models, i.e. Anger x TimeBeforePeak and Anger x TimeAfterPeak. When creating the below models, I also tried adding Emotion x TimeBeforePeak x TimeAfterPeak, but since that ended up being redunant/non-significant, the idea was dropped.
 
 ### Anger with Interaction
 
@@ -598,7 +588,7 @@ colorder <- c("est", "df", "se", "p")
 tab_model(fear_x, title = "FearX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-Fear is not significant.
+Fear and its interactions are not significant.
 
 ### Happiness with Interaction
 
@@ -626,9 +616,9 @@ colorder <- c("est", "df", "se", "p")
 tab_model(happy_x, title = "HappyX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-The interaction between HappinessC and TimeAfterPeak is significant!
+In the happy interaction model, the interaction between gender and TimeAfterPeak is significant, as well as the interaction between happiness and TimeAfterPeak with = 0.0218.
 
-### Sadness
+### Sadness with Interaction
 
 ```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -654,9 +644,9 @@ colorder <- c("est", "df", "se", "p")
 tab_model(sad_x, title = "SadX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-Sadness is not significant.
+Sadness and its interactions are not significant.
 
-### Pain
+### Pain with Interaction
 
 ```{r include=FALSE}
 cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
@@ -682,7 +672,78 @@ colorder <- c("est", "df", "se", "p")
 tab_model(pain_x, title = "PainX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-Pain is not significant.
+Pain and its interactions are not significant.
+
+## Emotion models with interactions conclusions
+
+```{r Model reclassifying 2, include=FALSE}
+class(base) <- "lmerModLmerTest"
+class(anger) <- "lmerModLmerTest"
+class(fear) <- "lmerModLmerTest"
+class(happy) <- "lmerModLmerTest"
+class(sad) <- "lmerModLmerTest"
+class(pain) <- "lmerModLmerTest"
+class(anger_x) <- "lmerModLmerTest"
+class(fear_x) <- "lmerModLmerTest"
+class(happy_x) <- "lmerModLmerTest"
+class(sad_x) <- "lmerModLmerTest"
+class(pain_x) <- "lmerModLmerTest"
+```
+
+In the basic emotion models (without interactions), the only interesting predictor was sadness, which was not a significant predictor in its model, but demonstrated better fit compared to the other models with the anova() function. However, when I solely compared the basic sad model with the base model, sadness lost its significance.
+
+In the above tables, the most interesting predictor was happiness. In the happy interaction model, happiness was not a significant predictor (p = 0.3273), but the interaction between happiness and TimeAfterPeak was significant (p = 0.0218). There was also an interaction between gender and TimeAfterPeak, which was not seen in previous models, although the interaction between gender and happiness was not observed (p = 0.2870).
+
+```{r include=FALSE}
+anova(anger, anger_x)
+anova(fear, fear_x)
+anova(happy, happy_x)
+anova(sad, sad_x)
+anova(pain, pain_x)
+```
+
+```{r include=FALSE}
+anova(base, happy_x)
+anova(base, happy, happy_x)
+```
+
+```{r}
+pander(anova(base, happy_x))
+```
+
+When you solely compared the happy interaction model to base, neither models have significantly better fit.
+
+```{r}
+pander(anova(anger, anger_x))
+pander(anova(fear, fear_x))
+pander(anova(happy, happy_x))
+pander(anova(sad, sad_x))
+pander(anova(pain, pain_x))
+```
+
+However, when you compare a basic emotion model to its version with interactions, the only comparison that borders significance in happy with p = 0.08494.
+
+### Interaction model visualizations
+
+## Happy interaction model visualization
+
+```{r Figure 4: Happy interaction model, echo=FALSE}
+timeticks <- c(0, 3, 15, 25, 30, 35, 40, 45, 60)
+
+cp_long$Sex <- cp_long$gender
+cp_long$Sex <- as.factor(cp_long$Sex)
+levels(cp_long$Sex) <- c('Male','Female')
+
+ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
+  stat_summary(fun.y=mean, geom="point", size=5) +
+  scale_color_manual(values = c("Male" = "deepskyblue", "Female" = "palevioletred")) +
+  stat_summary(fun.data=mean_se, geom="errorbar", linetype="solid", width=0.6) +
+  stat_summary(aes(y=fitted(happy_x)), fun.y=mean, geom="line", lwd=1.5, col="gold") +
+  scale_shape_manual(values=c(16, 17)) + labs(x="Sample Time Peak", y="Cortisol", color="Gender", shape="Gender") + theme_bw(base_size=18) +
+  theme(legend.justification=c(0,1), legend.position=c(0,1),
+        legend.background=
+          element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Happy interaction model by peak sample time")
+```
 
 ## Adding CTQ to models with and without interaction
 
@@ -714,6 +775,8 @@ colorder <- c("est", "df", "se", "p")
 tab_model(ctq, title = "Basic CTQ Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
+When CTQ is added, Sex X TimeBeforePeak and Sex X TimeAfterPeak remain close to significance, but not quiet yet. Let's now add CTQ interactions to the above model.
+
 ```{r, include=FALSE}
 anova(base, ctq)
 ```
@@ -722,7 +785,7 @@ anova(base, ctq)
 pander(anova(base, ctq))
 ```
 
-When CTQ is added, Sex X TimeBeforePeak and Sex X TimeAfterPeak get a little bit closer to significance, but not quiet yet. Let's now add CTQ interactions to the above model.
+The basic CTQ model isn't that much better than the base model. 
 
 ### CTQ interaction model
 
@@ -750,7 +813,7 @@ colorder <- c("est", "df", "se", "p")
 tab_model(ctq_x, title = "CTQX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-When CTQ Total Sum and the interactions between CTQ and TimeBeforePeak/TimeAfterPeak are added to the base model, the following pieces become significant:
+When CTQ Total Sum and its interactions are added to the base model, the following pieces become significant:
 
 * TimeBeforePeak
 * TimeAfterPeak
@@ -767,34 +830,176 @@ anova(base, ctq, ctq_x)
 pander(anova(base, ctq, ctq_x))
 ```
 
-According to the anova() function, adding the CTQ interactions improves model fit better than the base model and the CTQ model with interactions. 
+According to the anova() function, adding the CTQ interactions improves model fit better compared than the base model and the CTQ model without interactions. 
 
-## CTQ and emotion models
+## CTQ and emotion models plus interaction
 
-Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
+Let's see if combining emotion and CTQ into one model will make a difference.
 
-```{r Base model plus sadness and CTQ, echo=FALSE, hide = 'results'}
-sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
-#summary(sadctq)
+### Anger, CTQ, and their interactions
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus anger and CTQ, echo=FALSE, hide = 'results'}
+angerctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + ctqsumC + (angerC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (angerC*gender) + (angerC*sampletimebeforepeak) + (angerC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(angerctq_x)
+```
+
+```{r echo=FALSE, results = 'hide'}
+class(base) <- "lmerMod"
+class(anger) <- "lmerMod"
+class(anger_x) <- "lmerMod"
+class(angerctq_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Anger", "CTQ", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Anger * CTQ", "Gender * CTQ", "TimeBeforePeak * CTQ", "TimeAfterPeak * CTQ", "Sex * Anger", "TimeBeforePeak * Anger", "TimeAfterPeak * Anger")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(angerctq_x, title = "Anger-CTQ Interaction Model Output", pred.labels = labels, dv.labels = c("Cortisol"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
+```
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, anger, anger_x, angerctq_x))
+```
+
+### Fear, CTQ, and their interactions
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus fear and CTQ, echo=FALSE, hide = 'results'}
+fearctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + ctqsumC + (fearC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (fearC*gender) + (fearC*sampletimebeforepeak) + (fearC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(fearctq_x)
+```
+
+```{r echo=FALSE, results = 'hide'}
+class(base) <- "lmerMod"
+class(fear) <- "lmerMod"
+class(fear_x) <- "lmerMod"
+class(fearctq_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Fear", "CTQ", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Fear * CTQ", "Gender * CTQ", "TimeBeforePeak * CTQ", "TimeAfterPeak * CTQ", "Sex * Fear", "TimeBeforePeak * Fear", "TimeAfterPeak * Fear")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(fearctq_x, title = "Fear-CTQ Interaction Model Output", pred.labels = labels, dv.labels = c("Cortisol"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
+```
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, fear, fear_x, fearctq_x))
+```
+
+### Happiness, CTQ, and their interactions
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus happiness and CTQ, echo=FALSE, results = 'hide'}
+happyctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + happinessC + ctqsumC + (happinessC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (happinessC*gender) + (happinessC*sampletimebeforepeak) + (happinessC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(happyctq_x)
+```
+
+```{r echo=FALSE, hide = 'results'}
+class(base) <- "lmerMod"
+class(happy) <- "lmerMod"
+class(happy_x) <- "lmerMod"
+class(happyctq_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Happiness", "CTQ", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Happiness * CTQ", "Gender * CTQ", "TimeBeforePeak * CTQ", "TimeAfterPeak * CTQ", "Sex * Happiness", "TimeBeforePeak * Happiness", "TimeAfterPeak * Happiness")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(happyctq_x, title = "Happiness-CTQ Interaction Model Output", pred.labels = labels, dv.labels = c("Cortisol"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
+```
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, happy, happy_x, happyctq_x))
+```
+
+### Sadness, CTQ, and their interactions
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus sadness and CTQ, echo=FALSE, results = 'hide'}
+sadctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (sadnessC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (sadnessC*gender) + (sadnessC*sampletimebeforepeak) + (sadnessC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(sadctq_x)
 ```
 
 ```{r echo=FALSE, hide = 'results'}
 class(base) <- "lmerMod"
 class(sad) <- "lmerMod"
-class(sadctq) <- "lmerMod"
+class(sad_x) <- "lmerMod"
+class(sadctq_x) <- "lmerMod"
 
-labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness", "CTQ Total Sum")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sadness", "CTQ", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness * CTQ", "Gender * CTQ", "TimeBeforePeak * CTQ", "TimeAfterPeak * CTQ", "Sex * Sadness", "TimeBeforePeak * Sadness", "TimeAfterPeak * Sadness")
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(base, sad, sadctq, title = "Base vs. Sad vs. Sad-CTQ", pred.labels = labels, dv.labels = c("Base", "Sad", "Sad-CTQ"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
+tab_model(sadctq_x, title = "Sadness-CTQ Interaction Model Output", pred.labels = labels, dv.labels = c("Cortisol"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
 ```
 
 ```{r warning=FALSE, message=FALSE}
-pander(anova(base, sad, ctq, sadctq))
+pander(anova(base, sad, sad_x, sadctq_x))
 ```
 
-CTQ is not a significant predictor of cortisol. However, when you compare the base, sad, ctq, and sadctq models, it appears that the ctq model has the best fit. Why? 
+### Pain, CTQ, and their interactions
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus pain and CTQ, echo=FALSE, results = 'hide'}
+painctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + painC + ctqsumC + (painC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (painC*gender) + (painC*sampletimebeforepeak) + (painC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(painctq_x)
+```
+
+```{r echo=FALSE, hide = 'results'}
+class(base) <- "lmerMod"
+class(pain) <- "lmerMod"
+class(pain_x) <- "lmerMod"
+class(painctq_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Pain", "CTQ", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Pain * CTQ", "Gender * CTQ", "TimeBeforePeak * CTQ", "TimeAfterPeak * CTQ", "Sex * Pain", "TimeBeforePeak * Pain", "TimeAfterPeak * Pain")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(painctq_x, title = "Pain-CTQ Interaction Model Output", pred.labels = labels, dv.labels = c("Cortisol"), p.val="kr", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.r2=TRUE, show.df = TRUE, string.df="DF", col.order=colorder)
+```
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, pain, pain_x, painctq_x))
+```
 
 ```{r Writing out the new cp_long dataset, include=FALSE}
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long_aim2a.csv")
