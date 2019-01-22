@@ -1,7 +1,7 @@
 ---
 title: 'Current Data Analysis for the Facial Expression/Cortisol Project'
 author: "Julianna Calabrese"
-date: "1/19/2019"
+date: "Last updated 1/22/2019"
 output:
   html_document:
     toc: true
@@ -171,12 +171,14 @@ summary(mod1)
 ```{r echo=FALSE, results = 'asis'}
 class(mod1) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
 tab_model(mod1, title = "Base Model Summary Output (mod1)", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
+
+In mod1, intercept (aka peak) is significant, as well as TimeBeforePeak and TimeAfterPeak.
 
 ## Model using "sample" time values
 
@@ -211,18 +213,23 @@ summary(mod2)
 ```{r echo=FALSE, results= 'asis'}
 class(mod2) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
 tab_model(mod2, title = "Base Model Summary Output (mod2)", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
+In mod2, the intercept, TimeBeforePeak, and TimeAfterPeak are significant. The interactions between gender and slope are bordering significance at p = 0.0579 and 0-.0694 respectively. However, compared to mod1, gender in mod2 is "less significant". 
+
 ## Base model findings
 
-Both mod1 and mod2 have significant results. 
+Both mod1 and mod2 have significant results, so I will use the anova() function to compare the fit.
 
-In mod1, intercept (aka peak), timebeforepeak, and timeafterpeak are significant, while gender has a p-value of 0.0835. In mod2, intercept (aka peak), sampletimebeforepeak, and sampletimeafterpeak are significant. Gender is even "less significant" with a p-value of 0.1245. 
+```{r, include=FALSE}
+anova(mod1, mod2)
+anova(mod2, mod1)
+```
 
 ```{r warning=FALSE, message=FALSE}
 pander(anova(mod1, mod2))
@@ -300,7 +307,7 @@ rm(timeticks)
 rm(data_summary)
 ```
 
-## Adding emotion to base model
+## Basic emotional models
 
 Now, one emotion at a time, I will add an emotion to the base model as a random predictor. This will give us a total of five models. I will use the zero-centered version of the emotions (e.g. angerC).
 
@@ -320,10 +327,15 @@ anger <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpe
 summary(anger)
 ```
 
+```{r Base model plus anger and interaction, results = 'hide'}
+anger_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (angerC*gender) + (angerC*sampletimebeforepeak) + (angerC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(anger_x)
+```
+
 ```{r echo=FALSE}
 class(anger) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Anger", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Anger", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
@@ -351,7 +363,7 @@ summary(fear)
 ```{r echo=FALSE}
 class(fear) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Fear", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Fear", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
@@ -379,7 +391,7 @@ summary(happy)
 ```{r echo=FALSE}
 class(happy) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Happiness", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Happiness", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
@@ -407,7 +419,7 @@ summary(sad)
 ```{r echo=FALSE}
 class(sad) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sadness", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sadness", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
@@ -435,7 +447,7 @@ summary(pain)
 ```{r echo=FALSE}
 class(pain) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Pain", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Pain", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
@@ -488,7 +500,7 @@ class(pain) <- "lmerModLmerTest"
 #class(sad) <- "lmerMod"
 #class(pain) <- "lmerMod"
 
-#all.labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Anger", "Fear", "Happiness", "Sadness", "Pain")
+#all.labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Anger", "Fear", "Happiness", "Sadness", "Pain")
 
 #colorder <- c("est", "df", "se", "p")
 
@@ -499,7 +511,7 @@ class(pain) <- "lmerModLmerTest"
 class(base) <- "lmerMod"
 class(sad) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness")
 
 colorder <- c("est", "df", "se", "p")
 
@@ -528,35 +540,241 @@ ggplot(cp_long, aes(samplepeaknamenum, cortvalue, color=Sex, shape=Sex)) +
           element_rect(fill="white", color="black")) + scale_x_continuous(breaks=timeticks) + ggtitle("Sad model by peak sample time")
 ```
 
-## Adding CTQ to base model
+## Emotion models with interaction
 
-Although nothing so far has definitively reached the alpha < 0.05 threshold, l will add CTQ Total Sum (centered) to see if it makes a difference. Here is the CTQ base model. 
+As suggested by Dr. Lopez-Duran on 1/22/19, I should add interaction to the emotion models, i.e. Anger x TimeBeforePeak and Anger x TimeAfterPeak. When creating the below models, I also tried adding Anger x TimeBeforePeak x TimeAfterPeak but that ended up being redunant/non-significant, so that idea was dropped.
+
+### Anger with Interaction
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus anger and interaction, results = 'hide'}
+anger_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + (angerC*gender) + (angerC*sampletimebeforepeak) + (angerC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(anger_x)
+```
+
+```{r echo=FALSE}
+class(anger_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Anger", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sex * Anger", "TimeBeforePeak * Anger", "TimeAfterPeak * Anger")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(anger_x, title = "AngerX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+Anger and its interactions are not significant.
+
+### Fear with Interaction
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus fear and interaction, results = 'hide'}
+fear_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + (fearC*gender) + (fearC*sampletimebeforepeak) + (fearC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(fear_x)
+```
+
+```{r echo=FALSE}
+class(fear_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Fear", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sex * Fear", "TimeBeforePeak * Fear", "TimeAfterPeak * Fear")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(fear_x, title = "FearX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+Fear is not significant.
+
+### Happiness with Interaction
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus happiness and interaction, results = 'hide'}
+happy_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + happinessC + (happinessC*gender) + (happinessC*sampletimebeforepeak) + (happinessC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(happy_x)
+```
+
+```{r echo=FALSE}
+class(happy_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Happiness", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sex * Happiness", "TimeBeforePeak * Happiness", "TimeAfterPeak * Happiness")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(happy_x, title = "HappyX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+The interaction between HappinessC and TimeAfterPeak is significant!
+
+### Sadness
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus sadness and interaction, results = 'hide'}
+sad_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + (sadnessC*gender) + (sadnessC*sampletimebeforepeak) + (sadnessC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(sad_x)
+```
+
+```{r echo=FALSE}
+class(sad_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sadness", "Sex * TimeBeforePeak", "Sadness * TimeAfterPeak", "Sex * Sadness", "TimeBeforePeak * Sadness", "TimeAfterPeak * Sadness")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(sad_x, title = "SadX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+Sadness is not significant.
+
+### Pain
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus pain and interaction, results = 'hide'}
+pain_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + painC + (painC*gender) + (painC*sampletimebeforepeak) + (painC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(pain_x)
+```
+
+```{r echo=FALSE}
+class(pain_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Pain", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sex * Pain", "TimeBeforePeak * Pain", "TimeAfterPeak * Pain")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(pain_x, title = "PainX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+Pain is not significant.
+
+## Adding CTQ to models with and without interaction
+
+Since the original proposal references the importance of trauma, l will add CTQ Total Sum (centered) to see if it makes a difference. Here is the CTQ base model. 
+
+### CTQ base model
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
 
 ```{r Base model plus CTQ, results = 'hide'}
 ctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
-#summary(ctq)
+summary(ctq)
 ```
 
 ```{r echo=FALSE}
 class(ctq) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "CTQ Total Sum", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "CTQ Total Sum", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak")
 
 colorder <- c("est", "df", "se", "p")
 
-tab_model(ctq, title = "Base Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+tab_model(ctq, title = "Basic CTQ Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+```{r, include=FALSE}
+anova(base, ctq)
 ```
 
 ```{r warning=FALSE, message=FALSE}
 pander(anova(base, ctq))
 ```
 
-Addding CTQ Total Sum to the base model does not make any difference. Let's now add CTQ to the sad model. 
+When CTQ is added, Sex X TimeBeforePeak and Sex X TimeAfterPeak get a little bit closer to significance, but not quiet yet. Let's now add CTQ interactions to the above model.
 
-In our dataset, we have CTQ Total Sum ("ctqsumC"). Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
+### CTQ interaction model
+
+```{r include=FALSE}
+cp_long$samplepeaknamenum <- as.integer(cp_long$samplepeaknamenum)
+cp_long$sampletimetopeak <- as.integer(cp_long$sampletimetopeak)
+cp_long$sampletimebeforepeak <- as.integer(cp_long$sampletimebeforepeak)
+cp_long$sampletimeafterpeak <- as.integer(cp_long$sampletimeafterpeak)
+cp_long$gender <- as.character(cp_long$gender)
+cp_long$female <- as.character(cp_long$female)
+```
+
+```{r Base model plus CTQ and interaction, results = 'hide'}
+ctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + ctqsumC + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+summary(ctq_x)
+```
+
+```{r echo=FALSE}
+class(ctq_x) <- "lmerMod"
+
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "CTQ Total Sum", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sex * CTQ", "TimeBeforePeak * CTQ", "TimeAfterPeak * CTQ")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(ctq_x, title = "CTQX Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value",show.ci=FALSE,show.se=TRUE,string.se="Standard Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+When CTQ Total Sum and the interactions between CTQ and TimeBeforePeak/TimeAfterPeak are added to the base model, the following pieces become significant:
+
+* TimeBeforePeak
+* TimeAfterPeak
+* Sex X TimeBeforePeak
+* Sex X TimeAfterPeak
+* CTQ X TimeBeforePeak
+* CTQ X TimeAfterPeak
+
+```{r, include=FALSE}
+anova(base, ctq, ctq_x)
+```
+
+```{r warning=FALSE, message=FALSE}
+pander(anova(base, ctq, ctq_x))
+```
+
+According to the anova() function, adding the CTQ interactions improves model fit better than the base model and the CTQ model with interactions. 
+
+## CTQ and emotion models
+
+Let's see if adding CTQ to "sad" will make any difference. We will use the zero-centered version of CTQ Total Sum. 
 
 ```{r Base model plus sadness and CTQ, echo=FALSE, hide = 'results'}
-sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
+sadctq <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + sadnessC + ctqsumC + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 #summary(sadctq)
 ```
 
@@ -565,7 +783,7 @@ class(base) <- "lmerMod"
 class(sad) <- "lmerMod"
 class(sadctq) <- "lmerMod"
 
-labels <- c("Intercept", "Gender", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness", "CTQ Total Sum")
+labels <- c("Intercept", "Sex", "TimeBeforePeak", "TimeAfterPeak", "Sex * TimeBeforePeak", "Sex * TimeAfterPeak", "Sadness", "CTQ Total Sum")
 
 colorder <- c("est", "df", "se", "p")
 
