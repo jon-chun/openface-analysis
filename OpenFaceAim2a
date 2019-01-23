@@ -1,7 +1,7 @@
 ---
 title: 'Current Data Analysis for the Facial Expression/Cortisol Project'
 author: "Julianna Calabrese"
-date: "Last updated 1/22/2019"
+date: "Last updated 1/23/2019"
 output:
   html_document:
     toc: true
@@ -847,7 +847,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus anger and CTQ, echo=FALSE, hide = 'results'}
+```{r Base model plus anger and CTQ, echo=FALSE, results = 'hide'}
 angerctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + angerC + ctqsumC + (angerC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (angerC*gender) + (angerC*sampletimebeforepeak) + (angerC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(angerctq_x)
 ```
@@ -880,7 +880,7 @@ cp_long$gender <- as.character(cp_long$gender)
 cp_long$female <- as.character(cp_long$female)
 ```
 
-```{r Base model plus fear and CTQ, echo=FALSE, hide = 'results'}
+```{r Base model plus fear and CTQ, echo=FALSE, results = 'hide'}
 fearctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafterpeak) + (gender*sampletimebeforepeak) + (gender*sampletimeafterpeak) + fearC + ctqsumC + (fearC*ctqsumC) + (ctqsumC*gender) + (ctqsumC*sampletimebeforepeak) + (ctqsumC*sampletimeafterpeak) + (fearC*gender) + (fearC*sampletimebeforepeak) + (fearC*sampletimeafterpeak) + (1|id) + (1|sampletime), data = cp_long, REML=TRUE)
 summary(fearctq_x)
 ```
@@ -918,7 +918,7 @@ happyctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeaf
 summary(happyctq_x)
 ```
 
-```{r echo=FALSE, hide = 'results'}
+```{r echo=FALSE, results = 'hide'}
 class(base) <- "lmerMod"
 class(happy) <- "lmerMod"
 class(happy_x) <- "lmerMod"
@@ -951,7 +951,7 @@ sadctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeafte
 summary(sadctq_x)
 ```
 
-```{r echo=FALSE, hide = 'results'}
+```{r echo=FALSE, results = 'hide'}
 class(base) <- "lmerMod"
 class(sad) <- "lmerMod"
 class(sad_x) <- "lmerMod"
@@ -984,7 +984,7 @@ painctq_x <- lmer(cortvalue ~ (gender) + (sampletimebeforepeak) + (sampletimeaft
 summary(painctq_x)
 ```
 
-```{r echo=FALSE, hide = 'results'}
+```{r echo=FALSE, results = 'hide'}
 class(base) <- "lmerMod"
 class(pain) <- "lmerMod"
 class(pain_x) <- "lmerMod"
