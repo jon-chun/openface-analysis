@@ -114,15 +114,7 @@ library(brms)
 cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
 #cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
-```
 
-## Introduction
-
-In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models as consistently as possible.
-
-Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lmer() command as part of the lme4 package. More information about lmer() can be found here: https://cran.r-project.org/web/packages/SASmixed/vignettes/Usinglmer.pdf
-
-```{r Fixing variables, include=FALSE}
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
 cp_long$male <- as.integer(cp_long$male)
@@ -133,6 +125,12 @@ cp_long$baselineC <- as.numeric(cp_long$cort_baseline_WinC)
 cp_long$cort_baseline_Win <- NULL
 cp_long$cort_baseline_WinC <- NULL
 ```
+
+## Introduction
+
+In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models as consistently as possible.
+
+Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lmer() command as part of the lme4 package. More information about lmer() can be found here: https://cran.r-project.org/web/packages/SASmixed/vignettes/Usinglmer.pdf
 
 ## Differences between lme4 and nlme
 
@@ -149,6 +147,12 @@ https://stats.stackexchange.com/questions/29617/differences-between-proc-mixed-a
 https://stat.ethz.ch/pipermail/r-help/2003-October/040798.html
 
 https://folk.uib.no/nzlkj/psychR/day4/04_lme.pdf
+
+http://rcompanion.org/handbook/G_03.html
+
+https://biostatmatt.com/archives/2718
+
+https://stats.stackexchange.com/questions/13166/rs-lmer-cheat-sheet
 
 ## Model building
 
@@ -184,16 +188,6 @@ The variable "peaknamenum" corresponds to the order in which the sample were tak
 
 Therefore, we want "peaknamenum" to be a character, but we want almost everything else to be numeric or an integer. 
 
-```{r include=FALSE}
-cp_long$peaknamenum <- as.character(cp_long$peaknamenum)
-cp_long$timetopeak <- as.numeric(cp_long$timetopeak)
-cp_long$timebeforepeak <- as.numeric(cp_long$timebeforepeak)
-cp_long$timeafterpeak <- as.numeric(cp_long$timeafterpeak)
-cp_long$stimeC <- as.numeric(cp_long$stimeC)
-cp_long$gender <- as.integer(cp_long$gender)
-cp_long$female <- as.integer(cp_long$female)
-```
-
 ```{r Base model with actual time data, results = 'hide'}
 base1 <- lmer(cortvalue ~ timebeforepeak + timeafterpeak + baseline + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data = cp_long, REML=TRUE)
 summary(base1)
@@ -208,35 +202,67 @@ summary(base2)
 ```
 
 ```{r}
-new2 <- lme(cortvalue ~ baseline + timebeforepeak + timeafterpeak, 
-          random=~1|id + timebeforepeak + timeafterpeak, 
+base3 <- lme(cortvalue ~ baseline + timebeforepeak + timeafterpeak, 
+          random=~1|id, timebeforepeak, timeafterpeak, 
           correlation=corAR1(),
           data = cp_long)
-summary(new2)
+summary(base3)
 ```
 
-http://rcompanion.org/handbook/G_03.html
+# here!!
 
 ```{r}
-ctq3 <- lme(cortvalue ~ timebeforepeak + timeafterpeak + ctqsum + ctqsum*timebeforepeak + ctqsum*timeafterpeak,
-        random = ~ timebeforepeak | timeafterpeak | id,
+cp_long$dummy1 <- factor(1)
+cp_long <- groupedData(cortvalue ~ 1 | dummy1, cp_long)
+
+base4 <- lme(cortvalue ~ 1, data=cp_long,
+    random=pdBlocked(list(pdIdent(~ 0 + id),
+                          pdIdent(~ 0 + timebeforepeak),
+                          pdIdent(~ 0 + timeafterpeak))))
+summary(base4)
+
+https://biostatmatt.com/archives/2718
+```
+
+```{r}
+list1 <- c(cp_long$id, cp_long$timebeforepeak, cp_long$timeafterpeak)
+list <- as.matrix(list1)
+
+base4.5 <- lme(cortvalue ~ timebeforepeak + timeafterpeak + baseline, 
+        random = ~ 1 | list, 
         correlation = corAR1(),
         data=cp_long)
-summary(ctq3)
+summary(base4.5)
+```
+
+
+```{r}
+base5 <- glmmTMB(cortvalue ~ timebeforepeak + timeafterpeak + baseline 
+              + (1|id) + (1|timebeforepeak) + (1|timeafterpeak),
+              data = cp_long, REML=TRUE)
+summary(base5)
 ```
 
 ```{r}
-modsymm <- lme(cortvalue ~ timebeforepeak + timeafterpeak, 
-        random = ~ id,
-        correlation = corSymm(),
-        data=cp_long)
-#summary(modsymm)
+base5.5 <- glmmTMB(cortvalue ~ timebeforepeak + timeafterpeak + baseline
+                   + (1|id) + (1|timebeforepeak) + (1|timeafterpeak),
+                   correlation = corAR1(),
+              data = cp_long, REML=TRUE)
+summary(base5.5)
 ```
 
 ```{r}
-mod6 <- lmer(cortvalue ~ (timebeforepeak) + (timeafterpeak) + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data = cp_long, REML=TRUE)
-summary(mod6)
+base6 <- glmmTMB(cortvalue ~ timebeforepeak + timeafterpeak + baseline + ar1(1|id) + (1|timebeforepeak) + (1|timeafterpeak), data=cp_long, family=gaussian)
 ```
+
+```{r}
+https://stats.stackexchange.com/questions/58669/specifying-multiple-separate-random-effects-in-lme
+
+base7 <- lme(cortvalue ~ timebeforepeak + timeafterpeak + baseline, random=list(year=~1, date=~time), data=cp_long, weights=varIdent(form=~1|id))
+```
+
+
+http://rcompanion.org/handbook/G_03.html
 
 ```{r echo=FALSE, results = 'asis'}
 class(mod1) <- "lmerMod"
@@ -348,9 +374,6 @@ summary(sad_x)
 ctq_x <- lmer(cortvalue ~ (timebeforepeak) + (timeafterpeak) + ctqsumC + (ctqsumC*timebeforepeak) + (ctqsumC*timeafterpeak) + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data = cp_long, REML=TRUE)
 summary(ctq_x)
 ```
-
-
-
 
 ```{r echo=FALSE}
 class(anger_x) <- "lmerMod"
