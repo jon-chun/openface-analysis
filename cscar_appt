@@ -1,0 +1,96 @@
+---
+title: "CSCAR Appointment"
+author: "Julianna Calabrese"
+date: "February 6, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(rmarkdown)
+library(yaml)
+library(rapportools)
+library(lavaan)
+library(lme4)
+library(corrr)
+library(corrplot)
+library(reshape2)
+library(lmerTest)
+library(multcomp)
+library(optimx)
+library(MuMIn)
+library(Rmisc)
+library(jsonlite)
+library(knitr)
+library(taRifx)
+library(papeR)
+library(stargazer)
+library(kableExtra)
+library(broom)
+library(xtable)
+library(sjPlot)
+library(sjstats)
+library(sjlabelled)
+library(sjmisc)
+library(ggeffects)
+library(glmmTMB)
+library(bindrcpp)
+library(pbkrtest)
+library(devtools)
+library(psycholing)
+library(pander)
+library(coefplot)
+library(ggiraphExtra)
+library(languageR)
+library(mlVAR)
+library(brms)
+```
+
+```{r Load in data, include=FALSE}
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long$X <- NULL
+
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$gendercat <- as.character(cp_long$gendercat)
+cp_long$male <- as.integer(cp_long$male)
+cp_long$female <- as.integer(cp_long$female)
+cp_long$genderold <- NULL
+cp_long$baseline <- as.numeric(cp_long$cort_baseline_Win)
+cp_long$baselineC <- as.numeric(cp_long$cort_baseline_WinC)
+cp_long$cort_baseline_Win <- NULL
+cp_long$cort_baseline_WinC <- NULL
+```
+
+## lmer() in the lme4 package
+
+```{r}
+base.lmer <- lmer(cortvalue ~ timebeforepeak + timeafterpeak + baseline + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data = cp_long, REML=TRUE)
+summary(base.lmer)
+```
+
+lmer() allows me to have multiple non-nested random effects (e.g. timebeforepeak, timeafterpeak) but I can't specify a correlation structure.
+
+## lme in the nlme package
+
+```{r}
+base.lme <- lme(cortvalue ~ timebeforepeak + timeafterpeak + baseline, 
+        random = ~ 1 | id, 
+        correlation = corAR1(),
+        data=cp_long)
+summary(base.lme)
+```
+
+I need to be able to put multiple non-nested random effects in this above model: timebeforepeak and timeafterpeak. 
+
+List of random effects:
+* timebeforepeak
+* timeafterpeak
+* id
