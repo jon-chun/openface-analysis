@@ -69,6 +69,8 @@ cp_long$cort_baseline_Win <- NULL
 cp_long$cort_baseline_WinC <- NULL
 ```
 
+Remember that baseline always needs to be a predictor!
+
 ## lmer() in the lme4 package
 
 ```{r}
@@ -94,3 +96,14 @@ List of random effects:
 * timebeforepeak
 * timeafterpeak
 * id
+
+## failed nlme model
+
+```{r}
+base.lme2 <- lme(cortvalue ~ baseline + timebeforepeak + timeafterpeak, 
+          random=~1|id, timebeforepeak, timeafterpeak, 
+          correlation=corAR1(),
+          data = cp_long)
+summary(base.lme2)
+```
+
