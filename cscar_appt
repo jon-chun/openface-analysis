@@ -54,8 +54,8 @@ library(brms)
 ```
 
 ```{r Load in data, include=FALSE}
-cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
 
 cp_long$gender <- as.integer(cp_long$gender)
@@ -67,6 +67,7 @@ cp_long$baseline <- as.numeric(cp_long$cort_baseline_Win)
 cp_long$baselineC <- as.numeric(cp_long$cort_baseline_WinC)
 cp_long$cort_baseline_Win <- NULL
 cp_long$cort_baseline_WinC <- NULL
+cp_long$id <- as.factor(cp_long$id)
 ```
 
 Remember that baseline always needs to be a predictor!
@@ -75,6 +76,9 @@ Remember that baseline always needs to be a predictor!
 
 ```{r}
 base.lmer <- lmer(cortvalue ~ timebeforepeak + timeafterpeak + baseline + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data = cp_long, REML=TRUE)
+
+base.lmer <- lmer(cortvalue ~ baseline + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data = cp_long, REML=TRUE)
+
 summary(base.lmer)
 ```
 
@@ -107,3 +111,79 @@ base.lme2 <- lme(cortvalue ~ baseline + timebeforepeak + timeafterpeak,
 summary(base.lme2)
 ```
 
+## new
+
+```{r}
+mod1 <- lmer(cortvalue ~ baseline + 1|id + timebeforepeak|id + timeafterpeak|id, data = cp_long)
+```
+
+1|id --> the intercept which is allowed to vary for each id
+
+Use glmmTMB! 
+
+use need a third time variable --> use stime as a random effect
+
+when you use corAR1, ypou specifu corAR1 with respect to stime
+
+use lme4 as a starting point, then start doing things in glmmTMB by specifying corAR1
+
+```{r}
+mod1 <- glmmTMB(cortvalue ~ baseline + 1|id + timebeforepeak|id + timeafterpeak|id + ar1(stime|id), data=cp_long)
+
+mod1 <- glmmTMB(cortvalue ~ baseline + 1|id , data=cp_long)
+
+mod2 <- lme4::lmer(cortvalue ~ baseline + timebeforepeak + timeafterpeak + 1|id + timebeforepeak|id + timeafterpeak|id, data=cp_long)
+
+mod2 <- glmmTMB(cortvalue ~ baseline + timebeforepeak + timeafterpeak + 1|id + timebeforepeak|id + timeafterpeak|id, data=cp_long)
+
+mod2 <- lme4::lmer(cortvalue ~ baseline + timebeforepeak + timeafterpeak + 1|id, data=cp_long)
+
+mod2 <- lme4::lmer(cortvalue ~ peaktimenum + baseline + timebeforepeak + timeafterpeak + 1|id, data=cp_long)
+
+mod3 <- lme4::lmer(cortvalue ~ peaktimenum + baseline + timebeforepeak + timeafterpeak + 1|id, data=cp_long)
+```
+
+```{r}
+class(cp_long$baseline)
+class(cp_long$timeafterpeak)
+class(cp_long$baseline)
+```
+
+```{r}
+mod5 <- lmer(cortvalue ~ 0 + timebeforepeak + timeafterpeak + timebeforepeak|id + timeafterpeak|id, data = cp_long) #no 1|id #no baseline?
+```
+
+```{r}
+mod5 <- lmer(cortvalue ~ 1 + timebeforepeak + timeafterpeak + (timebeforepeak|id) + (1|id), data = cp_long)
+summary(mod5)
+```
+
+```{r}
+mod6 <- lmer(cortvalue ~ 0 + timebeforepeak + timeafterpeak + (1|id), data = cp_long)
+summary(mod6)
+```
+
+```{r}
+goodmod <- lmer(cort2 ~ 0 + timebeforepeak + timeafterpeak + baseline + (timebeforepeak|id) + (timeafterpeak|id) + (1|id), data = cp_long)
+
+goodmod <- lmer(cort2 ~ 0 + timebeforepeak + timeafterpeak + baseline + (1|id), data = cp_long)
+summary(goodmod)
+
+goodmod <- lmer(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + anger + (1|id), data = cp_long)
+summary(goodmod)
+
+glmmmod <- glmmTMB(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + ar1(stime|id), data=cp_long)
+```
+
+## cort2?
+
+```{r}
+cort2 <- cortvalue - cortvaluethattheypeakedat #how far are they from that peak
+#this should be the thing that u predict
+```
+
+```{r}
+cp_long$cort2 <- cp_long$cortvalue - (cp_long$cortvalue == cp_long$)
+```
+
+openfacereformat has been double checked and fixed, try out this code now!!!!
