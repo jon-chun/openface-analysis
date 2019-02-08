@@ -459,5 +459,5 @@ hist(cp_long$sampletimeafterpeak, main = "Histogram of sampletimeafterpeak",col=
 #write.csv(cp_long, file="/Users/Julianna/Desktop/data/cp_long.csv")
 write.csv(cp_long, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv")
 
-#cp_long has 1665 observations and 44 variables.
+#cp_long has 1665 observations and 51 variables.
 ```
