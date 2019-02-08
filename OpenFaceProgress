@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceProgress"
 author: "Julianna Calabrese"
-date: "12/7/2018"
+date: "Last edited 2/8/2019"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -35,7 +35,6 @@ library(yaml)
 library(rapportools)
 ```
 
-
 ## Read in video AU data
 
 ```{r}
@@ -45,7 +44,6 @@ cp_full <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_full.
 
 cp_full$X <- NULL
 ```
-
 
 ## Read in survey measures and demographic data
 
@@ -67,7 +65,6 @@ medication <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/medic
 #medication <- read.csv(file="/Users/Julianna/Desktop/data/medication.csv", header=TRUE, sep=",")
 ```
 
-
 ## Read in cortisol data
 
 ```{r Read in cortisol data}
@@ -78,12 +75,23 @@ cortisol <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cortiso
 cortisol$X <- NULL
 ```
 
+## Read in threatdep data
+
+```{r}
+threatdep <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/threatdep.csv", header=TRUE, sep=",")
+
+#threatdep <- read.csv(file="/Users/Julianna/Desktop/data/threatdep.csv", header=TRUE, sep=",")
+
+threatdep$X <- NULL
+```
+
 ## Rename variables
 
 ```{r}
 names(cp_full)[names(cp_full) == "FF_ID"] <- "id"
 names(ctq)[names(ctq) == "ï..id"] <- "id"
 names(medication)[names(medication) == "ï..id"] <- "id"
+names(threatdep)[names(threatdep) == "ff_id"] <- "id"
 ```
 
 ## Merge the survey, cortisol, and video data
@@ -182,7 +190,7 @@ join5 <- join4[!is.na(join4$frame),]
 ## Merge cp_joined with medication
 
 ```{r}
-#Merge join32 and medication
+#Merge join5 and medication
 join6 <- merge(join5,medication,all=TRUE,by='id')
 #join6 has 237 observations.
 
@@ -196,10 +204,27 @@ join7 <- join6[!is.na(join6$frame),]
 #join7 has 185 observations.
 ```
 
+## Merge with threatdep
+
+```{r}
+#Merge join7 and threatdep
+join8 <- merge(join7,threatdep,all=TRUE,by='id')
+#join8 has 237 observations.
+
+which( colnames(join8)=="frame") #2 #Which column is "frame"?
+options(max.print=10000000)
+
+join8[which(is.na(join8[,2])),] #Which rows are NA for the "frame" column?
+
+#Remove rows if frame is NA
+join9 <- join8[!is.na(join8$frame),]
+#join9 has 185 observations.
+```
+
 ## Cleaning up
 
 ```{r}
-cp_joined <- join7
+cp_joined <- join9
 
 rm(join1)
 rm(join2)
@@ -208,8 +233,9 @@ rm(join4)
 rm(join5)
 rm(join6)
 rm(join7)
+rm(join8)
+rm(join9)
 ```
-
 
 ## Write cp_joined
 
