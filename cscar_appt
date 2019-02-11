@@ -3,6 +3,8 @@ title: "CSCAR Appointment"
 author: "Julianna Calabrese"
 date: "February 6, 2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -49,13 +51,12 @@ library(pander)
 library(coefplot)
 library(ggiraphExtra)
 library(languageR)
-library(mlVAR)
 library(brms)
 ```
 
 ```{r Load in data, include=FALSE}
-#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
 
 cp_long$gender <- as.integer(cp_long$gender)
@@ -183,7 +184,195 @@ cort2 <- cortvalue - cortvaluethattheypeakedat #how far are they from that peak
 ```
 
 ```{r}
-cp_long$cort2 <- cp_long$cortvalue - (cp_long$cortvalue == cp_long$)
+#cp_long$cort2 <- cp_long$cortvalue - (cp_long$cortvalue == cp_long$)
 ```
 
 openfacereformat has been double checked and fixed, try out this code now!!!!
+
+## Feb 11 2019
+
+```{r}
+mod1 <- lmer(cortvalue ~ 0 + timebeforepeak + timeafterpeak + (1|id), data=cp_long)
+summary(mod1)
+
+mod2 <- lmer(cortvalue ~ 1 + timebeforepeak + timeafterpeak + (1|id), data=cp_long)
+summary(mod2)
+```
+
+I think the 0 allows the intercept to vary by person, which is what we want because everyone has a different peak cortisol value.
+
+For anything with a |, put it in parentheses! 
+
+tilda thing: (formula for random terms | unit for which these terms apply)
+
+```{r}
+mod3 <- lmer(cortvalue ~ 1 + timebeforepeak + timeafterpeak + (1|id) + (timebeforepeak|id) + (timeafterpeak|id), data=cp_long)
+summary(mod3)
+
+#(1|id) allows everyone to have a random intercept
+```
+
+```{r}
+mod4 <- lmer(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + (1|timebeforepeak) + (1|timeafterpeak), data=cp_long)
+summary(mod4)
+#I like this model
+```
+
+Please note that thed default covariance structure for lmer is unstructured. According to Corey Powell, specifying a covariance structure of AR1 isn't needed when we have for timebefore/afterpeak as random AND fixed effects. 
+
+You gotta do the corAR1 thing...
+
+```{r}
+mod5 <- glmmTMB(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + ar1(1|timebeforepeak) + ar1(1|timeafterpeak), data=cp_long)
+summary(mod5)
+```
+
+```{r}
+mod6 <- glmmTMB(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + ar1(stime + 0|id), data=cp_long)
+summary(mod6)
+```
+
+```{r}
+mod7 <- glmmTMB(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + ar1(stime|id), data=cp_long)
+summary(mod7)
+```
+
+```{r}
+mod8 <- glmmTMB(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + ar1(1|stime), data=cp_long)
+summary(mod8)
+```
+
+## going back to lmer, kind of starting from mod4
+
+```{r}
+mod9 <- lmer(cortvalue ~ 1 + timebeforepeak + timeafterpeak + baseline + (1|id) + (0 + timebeforepeak|id) + (0 + timeafterpeak|id), data=cp_long)
+summary(mod9)
+
+anova(mod4, mod9)
+anova(mod9, mod4)
+```
+
+## starting over!
+
+https://stats.stackexchange.com/questions/13166/rs-lmer-cheat-sheet
+
+```{r}
+mod1 <- lmer(cortvalue ~ 
+               1 # Random intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id (i.e., for each level of id, that level's
+                      # intercept's deviation from the global intercept)
+             + (1|timebeforepeak) # Random effect intercepts for timebeforepeak
+             + (1|timeafterpeak), # Random effect intercepts for timeafterpeak
+             data=cp_long, REML=TRUE)
+summary(mod1)
+# No warnings
+```
+
+```{r}
+mod1.5 <- lmer(cortvalue ~ 
+               0 # Fixed? intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id (i.e., for each level of id, that level's
+                      # intercept's deviation from the global intercept)
+             + (1|timebeforepeak) # Random effect intercepts for timebeforepeak
+             + (1|timeafterpeak), # Random effect intercepts for timeafterpeak
+             data=cp_long, REML=TRUE)
+summary(mod1.5)
+# No warnings
+```
+
+```{r}
+mod2 <- lmer(cortvalue ~ 
+               1 # Random intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id
+             + (0 + timebeforepeak|id) # The effect of timebeforepeak within each level of id
+             + (0 + timeafterpeak|id), # The effect of timeafterpeak within each level of id
+             data=cp_long, REML=TRUE)
+summary(mod2)
+# No warnings
+```
+
+```{r}
+mod2.5 <- lmer(cortvalue ~ 
+               0 # Fixed? intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id
+             + (0 + timebeforepeak|id) # The effect of timebeforepeak within each level of id
+             + (0 + timeafterpeak|id), # The effect of timeafterpeak within each level of id
+             data=cp_long, REML=TRUE)
+summary(mod2.5)
+# No warnings
+```
+
+## trying out glmmtmb again!
+
+```{r}
+mod3 <- glmmTMB(cortvalue ~ 
+               1 # Random intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id (i.e., for each level of id, that level's
+                      # intercept's deviation from the global intercept)
+             + ar1(1|timebeforepeak) # Random effect intercepts for timebeforepeak
+             + ar1(1|timeafterpeak), # Random effect intercepts for timeafterpeak
+             data=cp_long, REML=TRUE)
+summary(mod3)
+# Warning
+```
+
+```{r}
+mod3.1 <- glmmTMB(cortvalue ~ 
+               1 # Random intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + ar1(1|id) # Random effect intercepts for id (i.e., for each level of id, that level's
+                      # intercept's deviation from the global intercept)
+             + (1|timebeforepeak) # Random effect intercepts for timebeforepeak
+             + (1|timeafterpeak), # Random effect intercepts for timeafterpeak
+             data=cp_long, REML=TRUE)
+summary(mod3)
+# Warning
+```
+
+```{r}
+mod3.2 <- glmmTMB(cortvalue ~ 
+               1 # Random intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id
+             + ar1(0 + timebeforepeak|id) # The effect of timebeforepeak within each level of id
+             + ar1(0 + timeafterpeak|id), # The effect of timeafterpeak within each level of id
+             data=cp_long, REML=TRUE)
+summary(mod3.2)
+# Warning
+```
+
+```{r}
+mod3.3 <- glmmTMB(cortvalue ~ 
+               1 # Random intercept for each person
+             + timebeforepeak # Fixed effect
+             + timeafterpeak # Fixed effect
+             + baseline # Fixed effect
+             + (1|id) # Random effect intercepts for id
+             + (0 + timebeforepeak|id) # The effect of timebeforepeak within each level of id
+             + (0 + timeafterpeak|id) # The effect of timeafterpeak within each level of id
+             + ar1(0 + stime|id), # ???
+             data=cp_long, REML=TRUE)
+summary(mod3.3)
+# Warning
+```
+
+Conclusion: There is no need to specify a covariance structure of ar1. lmer does just fine. 
