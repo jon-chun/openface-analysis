@@ -1,0 +1,116 @@
+---
+title: 'Update on the Facial Expression/Cortisol Project'
+author: "Julianna Calabrese"
+date: "Last updated 2/18/2019"
+output:
+  html_document:
+    toc: true
+    theme: united
+    highlight: tango
+  pdf_document: default
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(rmarkdown)
+library(yaml)
+library(rapportools)
+library(lavaan)
+library(lme4)
+library(corrr)
+library(corrplot)
+library(reshape2)
+library(lmerTest)
+library(multcomp)
+library(optimx)
+library(MuMIn)
+library(Rmisc)
+library(jsonlite)
+library(knitr)
+library(taRifx)
+library(papeR)
+library(stargazer)
+library(kableExtra)
+library(broom)
+library(xtable)
+library(sjPlot)
+library(sjstats)
+library(sjlabelled)
+library(sjmisc)
+library(ggeffects)
+library(glmmTMB)
+library(bindrcpp)
+library(pbkrtest)
+library(devtools)
+library(psycholing)
+library(pander)
+library(coefplot)
+library(ggiraphExtra)
+library(languageR)
+```
+
+```{r}
+cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
+#cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
+cp_master$X <- NULL
+names(cp_master)[names(cp_master) == "FF_ID"] <- "id"
+```
+
+```{r Load in data, include=FALSE}
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long$X <- NULL
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$gendercat <- as.character(cp_long$gendercat)
+cp_long$male <- as.integer(cp_long$male)
+cp_long$female <- as.integer(cp_long$female)
+cp_long$genderold <- NULL
+cp_long$baseline <- as.numeric(cp_long$cort_baseline_Win)
+cp_long$baselineC <- as.numeric(cp_long$cort_baseline_WinC)
+cp_long$cort_baseline_Win <- NULL
+cp_long$cort_baseline_WinC <- NULL
+cp_long$id <- as.factor(cp_long$id)
+cp_long$timebeforepeak <- as.integer(cp_long$timebeforepeak)
+cp_long$timeafterpeak <- as.integer(cp_long$timeafterpeak)
+```
+
+Okay... let's try to do something and maybe it won't get too mad at us.
+
+```{r}
+#plot(cp_master$frame,cp_master$AU12_r,xlab="Frame",ylab="AU 12 Intensity", main="Average AU 12 Intensity Over Time")
+
+plot(cp_master$frame,cp_master$happiness,xlab="Frame",ylab="AU 12 Intensity", main="Happy Intensity Over Time")
+
+mod1 <- lm(happiness ~ frame, data=cp_master)
+```
+
+```{r}
+cp_master$id <- as.factor(cp_master$id)
+f <- ggplot(cp_master, aes(frame, happiness))
+f + geom_line(aes(color = id), position=position_dodge(width=0.2)) + theme(legend.position = "none")
+```
+
+```{r}
+base <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline, # Fixed Effect
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            # but what does that "-1" do specifically?
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+#summary(base) # Is there a reason that all the p-values are zero?
+summary(base)$tTable[,]
+```
+
