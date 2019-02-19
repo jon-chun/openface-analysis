@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceProgress"
 author: "Julianna Calabrese"
-date: "Last edited 2/8/2019"
+date: "Last edited 2/19/2019"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -246,9 +246,6 @@ rm(threatdep)
 
 ## Do the same with cp_master!
 
-## Load in cp_master
-
-
 ## Read in video AU data
 
 ```{r}
@@ -452,7 +449,7 @@ cp_joined_master <- join9
 rm(join9)
 ```
 
-## Write cp_joined
+## Write cp_joined_master
 
 ```{r}
 write.csv(cp_joined_master, "C:/Users/jrcala/Documents/My Research/RStudio/cp_joined_master.csv")
