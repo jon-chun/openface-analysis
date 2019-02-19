@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceEmotion"
 author: "Julianna Calabrese"
-date: "12/12/2018"
+date: "Updated 2/19/19"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -55,6 +55,12 @@ cp_full <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_full.
 cp_full$X <- NULL
 ```
 
+```{r}
+cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
+#cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
+cp_master$X <- NULL
+```
+
 ## Pain
 
 This is a formula from Lucey et al. 2011 (one of Cohn's IEEE papers) that uses AUs to calculate painful expressions. It is called the Prkachin and Solomon pain scale:
@@ -80,6 +86,20 @@ cp_full$pain <- cp_full$AU04_r + cp_full$pain2 + cp_full$pain3
 cp_full$pain2 <- NULL
 cp_full$pain3 <- NULL
 ```
+
+Now do it for cp_master.
+
+```{r}
+cp_master$pain2 <- 0
+cp_master$pain2 <- ifelse(cp_master$AU06_r > cp_master$AU07_r, cp_master$AU06_r, cp_master$AU07_r)
+cp_master$pain3 <- 0
+cp_master$pain3 <- ifelse(cp_master$AU09_r > cp_master$AU10_r, cp_master$AU09_r, cp_master$AU10_r)
+cp_master$pain <- 0
+cp_master$pain <- cp_master$AU04_r + cp_master$pain2 + cp_master$pain3
+cp_master$pain2 <- NULL
+cp_master$pain3 <- NULL
+```
+
 
 ## Anger
 
@@ -110,6 +130,10 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 cp_full$anger <- cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU23_r
 ```
 
+```{r}
+cp_master$anger <- cp_master$AU04_r + cp_master$AU05_r + cp_master$AU07_r + cp_master$AU23_r
+```
+
 
 ## Fear
 
@@ -130,6 +154,10 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 
 ```{r}
 cp_full$fear <- cp_full$AU01_r + cp_full$AU02_r + cp_full$AU04_r + cp_full$AU05_r + cp_full$AU07_r + cp_full$AU20_r + cp_full$AU26_r
+```
+
+```{r}
+cp_master$fear <- cp_master$AU01_r + cp_master$AU02_r + cp_master$AU04_r + cp_master$AU05_r + cp_master$AU07_r + cp_master$AU20_r + cp_master$AU26_r
 ```
 
 
@@ -155,6 +183,9 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 cp_full$happiness <- cp_full$AU06_r + cp_full$AU12_r
 ```
 
+```{r}
+cp_master$happiness <- cp_master$AU06_r + cp_master$AU12_r
+```
 
 ## Sadness
 
@@ -182,6 +213,9 @@ According to Affectiva (https://imotions.com/blog/facial-action-coding-system/).
 cp_full$sadness <- cp_full$AU01_r + cp_full$AU04_r + cp_full$AU15_r
 ```
 
+```{r}
+cp_master$sadness <- cp_master$AU01_r + cp_master$AU04_r + cp_master$AU15_r
+```
 
 ## CURRENT ISSUE
 
@@ -193,4 +227,8 @@ Also here is the link/citation for EMFACS that I used: https://www.worldcat.org/
 
 ```{r}
 write.csv(cp_full, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_full.csv")
+```
+
+```{r}
+write.csv(cp_master, file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv")
 ```
