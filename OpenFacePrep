@@ -9,16 +9,6 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-#install.packages("mosaic")
-#install.packages("ggplot2")
-#install.packages("tidyr")
-#install.packages("dplyr")
-#install.packages("psych")
-#install.packages("nlme")
-#install.packages("apaTables")
-#install.packages("plyr")
-
 library(mosaic)
 library(ggplot2)
 library(tidyr)
@@ -44,7 +34,9 @@ colclass2 <- list(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NU
 
 colclass <- append(colclass1, colclass2)
 
-colclass <- as.character(colclass)
+#colclass <- as.character(colclass)
+rm(colclass1)
+rm(colclass2)
 ```
 
 ```{r}
@@ -1389,7 +1381,6 @@ rm(cp_10152)
 rm(cp_10218)
 ```
 
-
 ```{r Very Long Videos}
 #Very long is defined as longer than nine minutes.
 #10022, 10036, 10094, 10109, 10142
@@ -1415,443 +1406,687 @@ rm(cp_10203)
 
 ## Aggregating the datasets
 
+https://stackoverflow.com/questions/26476652/how-do-i-interpret-this-error-from-aggregate-function-in-r
+
 ```{r}
-#cp_10002agg <- aggregate(cp_10002, by=list(cp_10002$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10002agg <- aggregate(cp_10002, by=list(cp_10002$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10003agg <- aggregate(cp_10003, by=list(cp_10003$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10003aggtest <- aggregate(cp_10003, by=list(cp_10003$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10004agg <- aggregate(cp_10004, by=list(cp_10004$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10003agg <- aggregate(cp_10003, by=list(cp_10003$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10005agg <- aggregate(cp_10005, by=list(cp_10005$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10004agg <- aggregate(cp_10004, by=list(cp_10004$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10006agg <- aggregate(cp_10006, by=list(cp_10006$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10005agg <- aggregate(cp_10005, by=list(cp_10005$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10008agg <- aggregate(cp_10008, by=list(cp_10008$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10006agg <- aggregate(cp_10006, by=list(cp_10006$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10009agg <- aggregate(cp_10009, by=list(cp_10009$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10008agg <- aggregate(cp_10008, by=list(cp_10008$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10010agg <- aggregate(cp_10010, by=list(cp_10010$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10009agg <- aggregate(cp_10009, by=list(cp_10009$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10011agg <- aggregate(cp_10011, by=list(cp_10011$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10010agg <- aggregate(cp_10010, by=list(cp_10010$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10012agg <- aggregate(cp_10012, by=list(cp_10012$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10011agg <- aggregate(cp_10011, by=list(cp_10011$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10013agg <- aggregate(cp_10013, by=list(cp_10013$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10012agg <- aggregate(cp_10012, by=list(cp_10012$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10014agg <- aggregate(cp_10014, by=list(cp_10014$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10013agg <- aggregate(cp_10013, by=list(cp_10013$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10015agg <- aggregate(cp_10015, by=list(cp_10015$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10014agg <- aggregate(cp_10014, by=list(cp_10014$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10016agg <- aggregate(cp_10016, by=list(cp_10016$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10015agg <- aggregate(cp_10015, by=list(cp_10015$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10017agg <- aggregate(cp_10017, by=list(cp_10017$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10016agg <- aggregate(cp_10016, by=list(cp_10016$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10018agg <- aggregate(cp_10018, by=list(cp_10018$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10017agg <- aggregate(cp_10017, by=list(cp_10017$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10019agg <- aggregate(cp_10019, by=list(cp_10019$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10018agg <- aggregate(cp_10018, by=list(cp_10018$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10020agg <- aggregate(cp_10020, by=list(cp_10020$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10019agg <- aggregate(cp_10019, by=list(cp_10019$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10021agg <- aggregate(cp_10021, by=list(cp_10021$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10020agg <- aggregate(cp_10020, by=list(cp_10020$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10022agg <- aggregate(cp_10022, by=list(cp_10022$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10021agg <- aggregate(cp_10021, by=list(cp_10021$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10023agg <- aggregate(cp_10023, by=list(cp_10023$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10022agg <- aggregate(cp_10022, by=list(cp_10022$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10024agg <- aggregate(cp_10024, by=list(cp_10024$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10023agg <- aggregate(cp_10023, by=list(cp_10023$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10025agg <- aggregate(cp_10025, by=list(cp_10025$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10024agg <- aggregate(cp_10024, by=list(cp_10024$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10026agg <- aggregate(cp_10026, by=list(cp_10026$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10025agg <- aggregate(cp_10025, by=list(cp_10025$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10027agg <- aggregate(cp_10027, by=list(cp_10027$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10026agg <- aggregate(cp_10026, by=list(cp_10026$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10028agg <- aggregate(cp_10028, by=list(cp_10028$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10027agg <- aggregate(cp_10027, by=list(cp_10027$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10029agg <- aggregate(cp_10029, by=list(cp_10029$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10028agg <- aggregate(cp_10028, by=list(cp_10028$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10030agg <- aggregate(cp_10030, by=list(cp_10030$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10029agg <- aggregate(cp_10029, by=list(cp_10029$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10031agg <- aggregate(cp_10031, by=list(cp_10031$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10030agg <- aggregate(cp_10030, by=list(cp_10030$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10032agg <- aggregate(cp_10032, by=list(cp_10032$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10031agg <- aggregate(cp_10031, by=list(cp_10031$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10033agg <- aggregate(cp_10033, by=list(cp_10033$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10032agg <- aggregate(cp_10032, by=list(cp_10032$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10034agg <- aggregate(cp_10034, by=list(cp_10034$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10033agg <- aggregate(cp_10033, by=list(cp_10033$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10035agg <- aggregate(cp_10035, by=list(cp_10035$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10034agg <- aggregate(cp_10034, by=list(cp_10034$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10036agg <- aggregate(cp_10036, by=list(cp_10036$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10035agg <- aggregate(cp_10035, by=list(cp_10035$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10037agg <- aggregate(cp_10037, by=list(cp_10037$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10036agg <- aggregate(cp_10036, by=list(cp_10036$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10038agg <- aggregate(cp_10038, by=list(cp_10038$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10037agg <- aggregate(cp_10037, by=list(cp_10037$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10040agg <- aggregate(cp_10040, by=list(cp_10040$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10038agg <- aggregate(cp_10038, by=list(cp_10038$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10041agg <- aggregate(cp_10041, by=list(cp_10041$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10040agg <- aggregate(cp_10040, by=list(cp_10040$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10042agg <- aggregate(cp_10042, by=list(cp_10042$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10041agg <- aggregate(cp_10041, by=list(cp_10041$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10043agg <- aggregate(cp_10043, by=list(cp_10043$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10042agg <- aggregate(cp_10042, by=list(cp_10042$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10044agg <- aggregate(cp_10044, by=list(cp_10044$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10043agg <- aggregate(cp_10043, by=list(cp_10043$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10045agg <- aggregate(cp_10045, by=list(cp_10045$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10044agg <- aggregate(cp_10044, by=list(cp_10044$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10046agg <- aggregate(cp_10046, by=list(cp_10046$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10045agg <- aggregate(cp_10045, by=list(cp_10045$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10047agg <- aggregate(cp_10047, by=list(cp_10047$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10046agg <- aggregate(cp_10046, by=list(cp_10046$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10048agg <- aggregate(cp_10048, by=list(cp_10048$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10047agg <- aggregate(cp_10047, by=list(cp_10047$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10049agg <- aggregate(cp_10049, by=list(cp_10049$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10048agg <- aggregate(cp_10048, by=list(cp_10048$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10050agg <- aggregate(cp_10050, by=list(cp_10050$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10049agg <- aggregate(cp_10049, by=list(cp_10049$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10051agg <- aggregate(cp_10051, by=list(cp_10051$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10050agg <- aggregate(cp_10050, by=list(cp_10050$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10052agg <- aggregate(cp_10052, by=list(cp_10052$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10051agg <- aggregate(cp_10051, by=list(cp_10051$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10053agg <- aggregate(cp_10053, by=list(cp_10053$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10052agg <- aggregate(cp_10052, by=list(cp_10052$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10054agg <- aggregate(cp_10054, by=list(cp_10054$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10053agg <- aggregate(cp_10053, by=list(cp_10053$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10055agg <- aggregate(cp_10055, by=list(cp_10055$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10054agg <- aggregate(cp_10054, by=list(cp_10054$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10056agg <- aggregate(cp_10056, by=list(cp_10056$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10055agg <- aggregate(cp_10055, by=list(cp_10055$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10057agg <- aggregate(cp_10057, by=list(cp_10057$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10056agg <- aggregate(cp_10056, by=list(cp_10056$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10058agg <- aggregate(cp_10058, by=list(cp_10058$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10057agg <- aggregate(cp_10057, by=list(cp_10057$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10059agg <- aggregate(cp_10059, by=list(cp_10059$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10058agg <- aggregate(cp_10058, by=list(cp_10058$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10060agg <- aggregate(cp_10060, by=list(cp_10060$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10059agg <- aggregate(cp_10059, by=list(cp_10059$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10061agg <- aggregate(cp_10061, by=list(cp_10061$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10060agg <- aggregate(cp_10060, by=list(cp_10060$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10062agg <- aggregate(cp_10062, by=list(cp_10062$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10061agg <- aggregate(cp_10061, by=list(cp_10061$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10063agg <- aggregate(cp_10063, by=list(cp_10063$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10062agg <- aggregate(cp_10062, by=list(cp_10062$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10064agg <- aggregate(cp_10064, by=list(cp_10064$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10063agg <- aggregate(cp_10063, by=list(cp_10063$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10065agg <- aggregate(cp_10065, by=list(cp_10065$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10064agg <- aggregate(cp_10064, by=list(cp_10064$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10066agg <- aggregate(cp_10066, by=list(cp_10066$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10065agg <- aggregate(cp_10065, by=list(cp_10065$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10067agg <- aggregate(cp_10067, by=list(cp_10067$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10066agg <- aggregate(cp_10066, by=list(cp_10066$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10068agg <- aggregate(cp_10068, by=list(cp_10068$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10067agg <- aggregate(cp_10067, by=list(cp_10067$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10070agg <- aggregate(cp_10070, by=list(cp_10070$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10068agg <- aggregate(cp_10068, by=list(cp_10068$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10071agg <- aggregate(cp_10071, by=list(cp_10071$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10070agg <- aggregate(cp_10070, by=list(cp_10070$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10072agg <- aggregate(cp_10072, by=list(cp_10072$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10071agg <- aggregate(cp_10071, by=list(cp_10071$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10073agg <- aggregate(cp_10073, by=list(cp_10073$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10072agg <- aggregate(cp_10072, by=list(cp_10072$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10075agg <- aggregate(cp_10075, by=list(cp_10075$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10073agg <- aggregate(cp_10073, by=list(cp_10073$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10076agg <- aggregate(cp_10076, by=list(cp_10076$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10075agg <- aggregate(cp_10075, by=list(cp_10075$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10077agg <- aggregate(cp_10077, by=list(cp_10077$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10076agg <- aggregate(cp_10076, by=list(cp_10076$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10078agg <- aggregate(cp_10078, by=list(cp_10078$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10077agg <- aggregate(cp_10077, by=list(cp_10077$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10079agg <- aggregate(cp_10079, by=list(cp_10079$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10078agg <- aggregate(cp_10078, by=list(cp_10078$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10080agg <- aggregate(cp_10080, by=list(cp_10080$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10079agg <- aggregate(cp_10079, by=list(cp_10079$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10081agg <- aggregate(cp_10081, by=list(cp_10081$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10080agg <- aggregate(cp_10080, by=list(cp_10080$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10082agg <- aggregate(cp_10082, by=list(cp_10082$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10081agg <- aggregate(cp_10081, by=list(cp_10081$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10083agg <- aggregate(cp_10083, by=list(cp_10083$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10082agg <- aggregate(cp_10082, by=list(cp_10082$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10084agg <- aggregate(cp_10084, by=list(cp_10084$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10083agg <- aggregate(cp_10083, by=list(cp_10083$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10085agg <- aggregate(cp_10085, by=list(cp_10085$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10084agg <- aggregate(cp_10084, by=list(cp_10084$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10086agg <- aggregate(cp_10086, by=list(cp_10086$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10085agg <- aggregate(cp_10085, by=list(cp_10085$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10087agg <- aggregate(cp_10087, by=list(cp_10087$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10086agg <- aggregate(cp_10086, by=list(cp_10086$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10088agg <- aggregate(cp_10088, by=list(cp_10088$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10087agg <- aggregate(cp_10087, by=list(cp_10087$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10089agg <- aggregate(cp_10089, by=list(cp_10089$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10088agg <- aggregate(cp_10088, by=list(cp_10088$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10090agg <- aggregate(cp_10090, by=list(cp_10090$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10089agg <- aggregate(cp_10089, by=list(cp_10089$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10091agg <- aggregate(cp_10091, by=list(cp_10091$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10090agg <- aggregate(cp_10090, by=list(cp_10090$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10092agg <- aggregate(cp_10092, by=list(cp_10092$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10091agg <- aggregate(cp_10091, by=list(cp_10091$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10093agg <- aggregate(cp_10093, by=list(cp_10093$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10092agg <- aggregate(cp_10092, by=list(cp_10092$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10094agg <- aggregate(cp_10094, by=list(cp_10094$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10093agg <- aggregate(cp_10093, by=list(cp_10093$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10095agg <- aggregate(cp_10095, by=list(cp_10095$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10094agg <- aggregate(cp_10094, by=list(cp_10094$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10096agg <- aggregate(cp_10096, by=list(cp_10096$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10095agg <- aggregate(cp_10095, by=list(cp_10095$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10097agg <- aggregate(cp_10097, by=list(cp_10097$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10096agg <- aggregate(cp_10096, by=list(cp_10096$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10099agg <- aggregate(cp_10099, by=list(cp_10099$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10097agg <- aggregate(cp_10097, by=list(cp_10097$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10100agg <- aggregate(cp_10100, by=list(cp_10100$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10099agg <- aggregate(cp_10099, by=list(cp_10099$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10102agg <- aggregate(cp_10102, by=list(cp_10102$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10100agg <- aggregate(cp_10100, by=list(cp_10100$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10103agg <- aggregate(cp_10103, by=list(cp_10103$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10102agg <- aggregate(cp_10102, by=list(cp_10102$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10104agg <- aggregate(cp_10104, by=list(cp_10104$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10103agg <- aggregate(cp_10103, by=list(cp_10103$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10105agg <- aggregate(cp_10105, by=list(cp_10105$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10104agg <- aggregate(cp_10104, by=list(cp_10104$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10106agg <- aggregate(cp_10106, by=list(cp_10106$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10105agg <- aggregate(cp_10105, by=list(cp_10105$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10108agg <- aggregate(cp_10108, by=list(cp_10108$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10106agg <- aggregate(cp_10106, by=list(cp_10106$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10109agg <- aggregate(cp_10109, by=list(cp_10109$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10108agg <- aggregate(cp_10108, by=list(cp_10108$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10110agg <- aggregate(cp_10110, by=list(cp_10110$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10109agg <- aggregate(cp_10109, by=list(cp_10109$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10111agg <- aggregate(cp_10111, by=list(cp_10111$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10110agg <- aggregate(cp_10110, by=list(cp_10110$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10112agg <- aggregate(cp_10112, by=list(cp_10112$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10111agg <- aggregate(cp_10111, by=list(cp_10111$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10113agg <- aggregate(cp_10113, by=list(cp_10113$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10112agg <- aggregate(cp_10112, by=list(cp_10112$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10114agg <- aggregate(cp_10114, by=list(cp_10114$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10113agg <- aggregate(cp_10113, by=list(cp_10113$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10115agg <- aggregate(cp_10115, by=list(cp_10115$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10114agg <- aggregate(cp_10114, by=list(cp_10114$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10116agg <- aggregate(cp_10116, by=list(cp_10116$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10115agg <- aggregate(cp_10115, by=list(cp_10115$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10117agg <- aggregate(cp_10117, by=list(cp_10117$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10116agg <- aggregate(cp_10116, by=list(cp_10116$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10118agg <- aggregate(cp_10118, by=list(cp_10118$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10117agg <- aggregate(cp_10117, by=list(cp_10117$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10119agg <- aggregate(cp_10119, by=list(cp_10119$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10118agg <- aggregate(cp_10118, by=list(cp_10118$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10120agg <- aggregate(cp_10120, by=list(cp_10120$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10119agg <- aggregate(cp_10119, by=list(cp_10119$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10121agg <- aggregate(cp_10121, by=list(cp_10121$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10120agg <- aggregate(cp_10120, by=list(cp_10120$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10123agg <- aggregate(cp_10123, by=list(cp_10123$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10121agg <- aggregate(cp_10121, by=list(cp_10121$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10124agg <- aggregate(cp_10124, by=list(cp_10124$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10123agg <- aggregate(cp_10123, by=list(cp_10123$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10125agg <- aggregate(cp_10125, by=list(cp_10125$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10124agg <- aggregate(cp_10124, by=list(cp_10124$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10126agg <- aggregate(cp_10126, by=list(cp_10126$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10125agg <- aggregate(cp_10125, by=list(cp_10125$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10127agg <- aggregate(cp_10127, by=list(cp_10127$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10126agg <- aggregate(cp_10126, by=list(cp_10126$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10128agg <- aggregate(cp_10128, by=list(cp_10128$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10127agg <- aggregate(cp_10127, by=list(cp_10127$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10130agg <- aggregate(cp_10130, by=list(cp_10130$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10128agg <- aggregate(cp_10128, by=list(cp_10128$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10131agg <- aggregate(cp_10131, by=list(cp_10131$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10130agg <- aggregate(cp_10130, by=list(cp_10130$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10132agg <- aggregate(cp_10132, by=list(cp_10132$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10131agg <- aggregate(cp_10131, by=list(cp_10131$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10133agg <- aggregate(cp_10133, by=list(cp_10133$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10132agg <- aggregate(cp_10132, by=list(cp_10132$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10134agg <- aggregate(cp_10134, by=list(cp_10134$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10133agg <- aggregate(cp_10133, by=list(cp_10133$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10135agg <- aggregate(cp_10135, by=list(cp_10135$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10134agg <- aggregate(cp_10134, by=list(cp_10134$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10136agg <- aggregate(cp_10136, by=list(cp_10136$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10135agg <- aggregate(cp_10135, by=list(cp_10135$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10137agg <- aggregate(cp_10137, by=list(cp_10137$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10136agg <- aggregate(cp_10136, by=list(cp_10136$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10138agg <- aggregate(cp_10138, by=list(cp_10138$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10137agg <- aggregate(cp_10137, by=list(cp_10137$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10139agg <- aggregate(cp_10139, by=list(cp_10139$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10138agg <- aggregate(cp_10138, by=list(cp_10138$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10140agg <- aggregate(cp_10140, by=list(cp_10140$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10139agg <- aggregate(cp_10139, by=list(cp_10139$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10141agg <- aggregate(cp_10141, by=list(cp_10141$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10140agg <- aggregate(cp_10140, by=list(cp_10140$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10142agg <- aggregate(cp_10142, by=list(cp_10142$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10141agg <- aggregate(cp_10141, by=list(cp_10141$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10143agg <- aggregate(cp_10143, by=list(cp_10143$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10142agg <- aggregate(cp_10142, by=list(cp_10142$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10144agg <- aggregate(cp_10144, by=list(cp_10144$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10143agg <- aggregate(cp_10143, by=list(cp_10143$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10145agg <- aggregate(cp_10145, by=list(cp_10145$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10144agg <- aggregate(cp_10144, by=list(cp_10144$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10146agg <- aggregate(cp_10146, by=list(cp_10146$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10145agg <- aggregate(cp_10145, by=list(cp_10145$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10148agg <- aggregate(cp_10148, by=list(cp_10148$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10146agg <- aggregate(cp_10146, by=list(cp_10146$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10149agg <- aggregate(cp_10149, by=list(cp_10149$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10148agg <- aggregate(cp_10148, by=list(cp_10148$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10150agg <- aggregate(cp_10150, by=list(cp_10150$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10149agg <- aggregate(cp_10149, by=list(cp_10149$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10151agg <- aggregate(cp_10151, by=list(cp_10151$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10150agg <- aggregate(cp_10150, by=list(cp_10150$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10152agg <- aggregate(cp_10152, by=list(cp_10152$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10151agg <- aggregate(cp_10151, by=list(cp_10151$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10153agg <- aggregate(cp_10153, by=list(cp_10153$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10152agg <- aggregate(cp_10152, by=list(cp_10152$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10154agg <- aggregate(cp_10154, by=list(cp_10154$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10153agg <- aggregate(cp_10153, by=list(cp_10153$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10155agg <- aggregate(cp_10155, by=list(cp_10155$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10154agg <- aggregate(cp_10154, by=list(cp_10154$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10156agg <- aggregate(cp_10156, by=list(cp_10156$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10155agg <- aggregate(cp_10155, by=list(cp_10155$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10157agg <- aggregate(cp_10157, by=list(cp_10157$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10156agg <- aggregate(cp_10156, by=list(cp_10156$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10158agg <- aggregate(cp_10158, by=list(cp_10158$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10157agg <- aggregate(cp_10157, by=list(cp_10157$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10159agg <- aggregate(cp_10159, by=list(cp_10159$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10158agg <- aggregate(cp_10158, by=list(cp_10158$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10160agg <- aggregate(cp_10160, by=list(cp_10160$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10159agg <- aggregate(cp_10159, by=list(cp_10159$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10161agg <- aggregate(cp_10161, by=list(cp_10161$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10160agg <- aggregate(cp_10160, by=list(cp_10160$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10162agg <- aggregate(cp_10162, by=list(cp_10162$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10161agg <- aggregate(cp_10161, by=list(cp_10161$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10163agg <- aggregate(cp_10163, by=list(cp_10163$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10162agg <- aggregate(cp_10162, by=list(cp_10162$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10164agg <- aggregate(cp_10164, by=list(cp_10164$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10163agg <- aggregate(cp_10163, by=list(cp_10163$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10165agg <- aggregate(cp_10165, by=list(cp_10165$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10164agg <- aggregate(cp_10164, by=list(cp_10164$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10166agg <- aggregate(cp_10166, by=list(cp_10166$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10165agg <- aggregate(cp_10165, by=list(cp_10165$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10167agg <- aggregate(cp_10167, by=list(cp_10167$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10166agg <- aggregate(cp_10166, by=list(cp_10166$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10169agg <- aggregate(cp_10169, by=list(cp_10169$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10167agg <- aggregate(cp_10167, by=list(cp_10167$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10170agg <- aggregate(cp_10170, by=list(cp_10170$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10169agg <- aggregate(cp_10169, by=list(cp_10169$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10171agg <- aggregate(cp_10171, by=list(cp_10171$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10170agg <- aggregate(cp_10170, by=list(cp_10170$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10172agg <- aggregate(cp_10172, by=list(cp_10172$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10171agg <- aggregate(cp_10171, by=list(cp_10171$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10173agg <- aggregate(cp_10173, by=list(cp_10173$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10172agg <- aggregate(cp_10172, by=list(cp_10172$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10174agg <- aggregate(cp_10174, by=list(cp_10174$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10173agg <- aggregate(cp_10173, by=list(cp_10173$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10176agg <- aggregate(cp_10176, by=list(cp_10176$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10174agg <- aggregate(cp_10174, by=list(cp_10174$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10178agg <- aggregate(cp_10178, by=list(cp_10178$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10176agg <- aggregate(cp_10176, by=list(cp_10176$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10179agg <- aggregate(cp_10179, by=list(cp_10179$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10178agg <- aggregate(cp_10178, by=list(cp_10178$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10180agg <- aggregate(cp_10180, by=list(cp_10180$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10179agg <- aggregate(cp_10179, by=list(cp_10179$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10181agg <- aggregate(cp_10181, by=list(cp_10181$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10180agg <- aggregate(cp_10180, by=list(cp_10180$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10182agg <- aggregate(cp_10182, by=list(cp_10182$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10181agg <- aggregate(cp_10181, by=list(cp_10181$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10183agg <- aggregate(cp_10183, by=list(cp_10183$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10182agg <- aggregate(cp_10182, by=list(cp_10182$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10184agg <- aggregate(cp_10184, by=list(cp_10184$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10183agg <- aggregate(cp_10183, by=list(cp_10183$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10185agg <- aggregate(cp_10185, by=list(cp_10185$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10184agg <- aggregate(cp_10184, by=list(cp_10184$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10186agg <- aggregate(cp_10186, by=list(cp_10186$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10185agg <- aggregate(cp_10185, by=list(cp_10185$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10187agg <- aggregate(cp_10187, by=list(cp_10187$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10186agg <- aggregate(cp_10186, by=list(cp_10186$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10188agg <- aggregate(cp_10188, by=list(cp_10188$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10187agg <- aggregate(cp_10187, by=list(cp_10187$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10190agg <- aggregate(cp_10190, by=list(cp_10190$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10188agg <- aggregate(cp_10188, by=list(cp_10188$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10192agg <- aggregate(cp_10192, by=list(cp_10192$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10190agg <- aggregate(cp_10190, by=list(cp_10190$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10193agg <- aggregate(cp_10193, by=list(cp_10193$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10192agg <- aggregate(cp_10192, by=list(cp_10192$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10194agg <- aggregate(cp_10194, by=list(cp_10194$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10193agg <- aggregate(cp_10193, by=list(cp_10193$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10195agg <- aggregate(cp_10195, by=list(cp_10195$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10194agg <- aggregate(cp_10194, by=list(cp_10194$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10196agg <- aggregate(cp_10196, by=list(cp_10196$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10195agg <- aggregate(cp_10195, by=list(cp_10195$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10197agg <- aggregate(cp_10197, by=list(cp_10197$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10196agg <- aggregate(cp_10196, by=list(cp_10196$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10198agg <- aggregate(cp_10198, by=list(cp_10198$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10197agg <- aggregate(cp_10197, by=list(cp_10197$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10200agg <- aggregate(cp_10200, by=list(cp_10200$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10198agg <- aggregate(cp_10198, by=list(cp_10198$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10201agg <- aggregate(cp_10201, by=list(cp_10201$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10200agg <- aggregate(cp_10200, by=list(cp_10200$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10202agg <- aggregate(cp_10202, by=list(cp_10202$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10201agg <- aggregate(cp_10201, by=list(cp_10201$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10203agg <- aggregate(cp_10203, by=list(cp_10203$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10202agg <- aggregate(cp_10202, by=list(cp_10202$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10205agg <- aggregate(cp_10205, by=list(cp_10205$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10203agg <- aggregate(cp_10203, by=list(cp_10203$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10206agg <- aggregate(cp_10206, by=list(cp_10206$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10205agg <- aggregate(cp_10205, by=list(cp_10205$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10207agg <- aggregate(cp_10207, by=list(cp_10207$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10206agg <- aggregate(cp_10206, by=list(cp_10206$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10208agg <- aggregate(cp_10208, by=list(cp_10208$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10207agg <- aggregate(cp_10207, by=list(cp_10207$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10209agg <- aggregate(cp_10209, by=list(cp_10209$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10208agg <- aggregate(cp_10208, by=list(cp_10208$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10210agg <- aggregate(cp_10210, by=list(cp_10210$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10209agg <- aggregate(cp_10209, by=list(cp_10209$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10211agg <- aggregate(cp_10211, by=list(cp_10211$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10210agg <- aggregate(cp_10210, by=list(cp_10210$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10212agg <- aggregate(cp_10212, by=list(cp_10212$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10211agg <- aggregate(cp_10211, by=list(cp_10211$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10213agg <- aggregate(cp_10213, by=list(cp_10213$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10212agg <- aggregate(cp_10212, by=list(cp_10212$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10214agg <- aggregate(cp_10214, by=list(cp_10214$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10213agg <- aggregate(cp_10213, by=list(cp_10213$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10215agg <- aggregate(cp_10215, by=list(cp_10215$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10214agg <- aggregate(cp_10214, by=list(cp_10214$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10216agg <- aggregate(cp_10216, by=list(cp_10216$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10215agg <- aggregate(cp_10215, by=list(cp_10215$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10217agg <- aggregate(cp_10217, by=list(cp_10217$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10216agg <- aggregate(cp_10216, by=list(cp_10216$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10218agg <- aggregate(cp_10218, by=list(cp_10218$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10217agg <- aggregate(cp_10217, by=list(cp_10217$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-#cp_10219agg <- aggregate(cp_10219, by=list(cp_10219$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10218agg <- aggregate(cp_10218, by=list(cp_10218$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10220agg <- aggregate(cp_10220, by=list(cp_10220$FF_ID), FUN=mean, na.rm=TRUE)
+#cp_10219agg <- aggregate(cp_10219, by=list(cp_10219$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10221agg <- aggregate(cp_10221, by=list(cp_10221$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10220agg <- aggregate(cp_10220, by=list(cp_10220$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10222agg <- aggregate(cp_10222, by=list(cp_10222$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10221agg <- aggregate(cp_10221, by=list(cp_10221$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10223agg <- aggregate(cp_10223, by=list(cp_10223$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10222agg <- aggregate(cp_10222, by=list(cp_10222$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10224agg <- aggregate(cp_10224, by=list(cp_10224$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10223agg <- aggregate(cp_10223, by=list(cp_10223$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10225agg <- aggregate(cp_10225, by=list(cp_10225$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10224agg <- aggregate(cp_10224, by=list(cp_10224$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10226agg <- aggregate(cp_10226, by=list(cp_10226$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10225agg <- aggregate(cp_10225, by=list(cp_10225$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10227agg <- aggregate(cp_10227, by=list(cp_10227$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10226agg <- aggregate(cp_10226, by=list(cp_10226$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10228agg <- aggregate(cp_10228, by=list(cp_10228$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10227agg <- aggregate(cp_10227, by=list(cp_10227$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10229agg <- aggregate(cp_10229, by=list(cp_10229$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10228agg <- aggregate(cp_10228, by=list(cp_10228$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10230agg <- aggregate(cp_10230, by=list(cp_10230$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10229agg <- aggregate(cp_10229, by=list(cp_10229$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10231agg <- aggregate(cp_10231, by=list(cp_10231$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10230agg <- aggregate(cp_10230, by=list(cp_10230$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10232agg <- aggregate(cp_10232, by=list(cp_10232$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10231agg <- aggregate(cp_10231, by=list(cp_10231$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10235agg <- aggregate(cp_10235, by=list(cp_10235$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10232agg <- aggregate(cp_10232, by=list(cp_10232$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10236agg <- aggregate(cp_10236, by=list(cp_10236$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10235agg <- aggregate(cp_10235, by=list(cp_10235$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 
-cp_10237agg <- aggregate(cp_10237, by=list(cp_10237$FF_ID), FUN=mean, na.rm=TRUE)
+cp_10236agg <- aggregate(cp_10236, by=list(cp_10236$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
+
+cp_10237agg <- aggregate(cp_10237, by=list(cp_10237$FF_ID), FUN = function(x) mean(as.numeric(as.character(x))))
 ```
 
-  
+## Getting rid of "Group.1"
+
+```{r}
+cp_10001agg$Group.1 <- NULL
+cp_10002agg$Group.1 <- NULL
+cp_10003agg$Group.1 <- NULL
+cp_10004agg$Group.1 <- NULL
+cp_10005agg$Group.1 <- NULL
+cp_10006agg$Group.1 <- NULL
+cp_10007agg$Group.1 <- NULL
+cp_10008agg$Group.1 <- NULL
+cp_10009agg$Group.1 <- NULL
+cp_10010agg$Group.1 <- NULL
+cp_10011agg$Group.1 <- NULL
+cp_10012agg$Group.1 <- NULL
+cp_10013agg$Group.1 <- NULL
+cp_10014agg$Group.1 <- NULL
+cp_10015agg$Group.1 <- NULL
+cp_10016agg$Group.1 <- NULL
+cp_10017agg$Group.1 <- NULL
+cp_10018agg$Group.1 <- NULL
+cp_10019agg$Group.1 <- NULL
+cp_10020agg$Group.1 <- NULL
+cp_10021agg$Group.1 <- NULL
+cp_10022agg$Group.1 <- NULL
+cp_10023agg$Group.1 <- NULL
+cp_10024agg$Group.1 <- NULL
+cp_10025agg$Group.1 <- NULL
+cp_10026agg$Group.1 <- NULL
+cp_10027agg$Group.1 <- NULL
+cp_10028agg$Group.1 <- NULL
+cp_10029agg$Group.1 <- NULL
+cp_10030agg$Group.1 <- NULL
+cp_10031agg$Group.1 <- NULL
+cp_10032agg$Group.1 <- NULL
+cp_10033agg$Group.1 <- NULL
+cp_10034agg$Group.1 <- NULL
+cp_10035agg$Group.1 <- NULL
+cp_10036agg$Group.1 <- NULL
+cp_10037agg$Group.1 <- NULL
+cp_10038agg$Group.1 <- NULL
+cp_10039agg$Group.1 <- NULL
+cp_10040agg$Group.1 <- NULL
+cp_10041agg$Group.1 <- NULL
+cp_10042agg$Group.1 <- NULL
+cp_10043agg$Group.1 <- NULL
+cp_10044agg$Group.1 <- NULL
+cp_10045agg$Group.1 <- NULL
+cp_10046agg$Group.1 <- NULL
+cp_10047agg$Group.1 <- NULL
+cp_10048agg$Group.1 <- NULL
+cp_10049agg$Group.1 <- NULL
+cp_10050agg$Group.1 <- NULL
+cp_10051agg$Group.1 <- NULL
+cp_10052agg$Group.1 <- NULL
+cp_10053agg$Group.1 <- NULL
+cp_10054agg$Group.1 <- NULL
+cp_10055agg$Group.1 <- NULL
+cp_10056agg$Group.1 <- NULL
+cp_10057agg$Group.1 <- NULL
+cp_10058agg$Group.1 <- NULL
+cp_10059agg$Group.1 <- NULL
+cp_10060agg$Group.1 <- NULL
+cp_10061agg$Group.1 <- NULL
+cp_10062agg$Group.1 <- NULL
+cp_10063agg$Group.1 <- NULL
+cp_10064agg$Group.1 <- NULL
+cp_10065agg$Group.1 <- NULL
+cp_10066agg$Group.1 <- NULL
+cp_10067agg$Group.1 <- NULL
+cp_10068agg$Group.1 <- NULL
+cp_10069agg$Group.1 <- NULL
+cp_10070agg$Group.1 <- NULL
+cp_10071agg$Group.1 <- NULL
+cp_10072agg$Group.1 <- NULL
+cp_10073agg$Group.1 <- NULL
+cp_10074agg$Group.1 <- NULL
+cp_10075agg$Group.1 <- NULL
+cp_10076agg$Group.1 <- NULL
+cp_10077agg$Group.1 <- NULL
+cp_10078agg$Group.1 <- NULL
+cp_10079agg$Group.1 <- NULL
+cp_10080agg$Group.1 <- NULL
+cp_10081agg$Group.1 <- NULL
+cp_10082agg$Group.1 <- NULL
+cp_10083agg$Group.1 <- NULL
+cp_10084agg$Group.1 <- NULL
+cp_10085agg$Group.1 <- NULL
+cp_10086agg$Group.1 <- NULL
+cp_10087agg$Group.1 <- NULL
+cp_10088agg$Group.1 <- NULL
+cp_10089agg$Group.1 <- NULL
+cp_10090agg$Group.1 <- NULL
+cp_10091agg$Group.1 <- NULL
+cp_10092agg$Group.1 <- NULL
+cp_10093agg$Group.1 <- NULL
+cp_10094agg$Group.1 <- NULL
+cp_10095agg$Group.1 <- NULL
+cp_10096agg$Group.1 <- NULL
+cp_10097agg$Group.1 <- NULL
+cp_10098agg$Group.1 <- NULL
+cp_10099agg$Group.1 <- NULL
+cp_10100agg$Group.1 <- NULL
+cp_10101agg$Group.1 <- NULL
+cp_10102agg$Group.1 <- NULL
+cp_10103agg$Group.1 <- NULL
+cp_10104agg$Group.1 <- NULL
+cp_10105agg$Group.1 <- NULL
+cp_10106agg$Group.1 <- NULL
+cp_10107agg$Group.1 <- NULL
+cp_10108agg$Group.1 <- NULL
+cp_10109agg$Group.1 <- NULL
+cp_10110agg$Group.1 <- NULL
+cp_10111agg$Group.1 <- NULL
+cp_10112agg$Group.1 <- NULL
+cp_10113agg$Group.1 <- NULL
+cp_10114agg$Group.1 <- NULL
+cp_10115agg$Group.1 <- NULL
+cp_10116agg$Group.1 <- NULL
+cp_10117agg$Group.1 <- NULL
+cp_10118agg$Group.1 <- NULL
+cp_10119agg$Group.1 <- NULL
+cp_10120agg$Group.1 <- NULL
+cp_10121agg$Group.1 <- NULL
+cp_10122agg$Group.1 <- NULL
+cp_10123agg$Group.1 <- NULL
+cp_10124agg$Group.1 <- NULL
+cp_10125agg$Group.1 <- NULL
+cp_10126agg$Group.1 <- NULL
+cp_10127agg$Group.1 <- NULL
+cp_10128agg$Group.1 <- NULL
+cp_10129agg$Group.1 <- NULL
+cp_10130agg$Group.1 <- NULL
+cp_10131agg$Group.1 <- NULL
+cp_10132agg$Group.1 <- NULL
+cp_10133agg$Group.1 <- NULL
+cp_10134agg$Group.1 <- NULL
+cp_10135agg$Group.1 <- NULL
+cp_10136agg$Group.1 <- NULL
+cp_10137agg$Group.1 <- NULL
+cp_10138agg$Group.1 <- NULL
+cp_10139agg$Group.1 <- NULL
+cp_10140agg$Group.1 <- NULL
+cp_10141agg$Group.1 <- NULL
+cp_10142agg$Group.1 <- NULL
+cp_10143agg$Group.1 <- NULL
+cp_10144agg$Group.1 <- NULL
+cp_10145agg$Group.1 <- NULL
+cp_10146agg$Group.1 <- NULL
+cp_10147agg$Group.1 <- NULL
+cp_10148agg$Group.1 <- NULL
+cp_10149agg$Group.1 <- NULL
+cp_10150agg$Group.1 <- NULL
+cp_10151agg$Group.1 <- NULL
+cp_10152agg$Group.1 <- NULL
+cp_10153agg$Group.1 <- NULL
+cp_10154agg$Group.1 <- NULL
+cp_10155agg$Group.1 <- NULL
+cp_10156agg$Group.1 <- NULL
+cp_10157agg$Group.1 <- NULL
+cp_10158agg$Group.1 <- NULL
+cp_10159agg$Group.1 <- NULL
+cp_10160agg$Group.1 <- NULL
+cp_10161agg$Group.1 <- NULL
+cp_10162agg$Group.1 <- NULL
+cp_10163agg$Group.1 <- NULL
+cp_10164agg$Group.1 <- NULL
+cp_10165agg$Group.1 <- NULL
+cp_10166agg$Group.1 <- NULL
+cp_10167agg$Group.1 <- NULL
+cp_10168agg$Group.1 <- NULL
+cp_10169agg$Group.1 <- NULL
+cp_10170agg$Group.1 <- NULL
+cp_10171agg$Group.1 <- NULL
+cp_10172agg$Group.1 <- NULL
+cp_10173agg$Group.1 <- NULL
+cp_10174agg$Group.1 <- NULL
+cp_10175agg$Group.1 <- NULL
+cp_10176agg$Group.1 <- NULL
+cp_10177agg$Group.1 <- NULL
+cp_10178agg$Group.1 <- NULL
+cp_10179agg$Group.1 <- NULL
+cp_10180agg$Group.1 <- NULL
+cp_10181agg$Group.1 <- NULL
+cp_10182agg$Group.1 <- NULL
+cp_10183agg$Group.1 <- NULL
+cp_10184agg$Group.1 <- NULL
+cp_10185agg$Group.1 <- NULL
+cp_10186agg$Group.1 <- NULL
+cp_10187agg$Group.1 <- NULL
+cp_10188agg$Group.1 <- NULL
+cp_10189agg$Group.1 <- NULL
+cp_10190agg$Group.1 <- NULL
+cp_10191agg$Group.1 <- NULL
+cp_10192agg$Group.1 <- NULL
+cp_10193agg$Group.1 <- NULL
+cp_10194agg$Group.1 <- NULL
+cp_10195agg$Group.1 <- NULL
+cp_10196agg$Group.1 <- NULL
+cp_10197agg$Group.1 <- NULL
+cp_10198agg$Group.1 <- NULL
+cp_10199agg$Group.1 <- NULL
+cp_10200agg$Group.1 <- NULL
+cp_10201agg$Group.1 <- NULL
+cp_10202agg$Group.1 <- NULL
+cp_10203agg$Group.1 <- NULL
+cp_10204agg$Group.1 <- NULL
+cp_10205agg$Group.1 <- NULL
+cp_10206agg$Group.1 <- NULL
+cp_10207agg$Group.1 <- NULL
+cp_10208agg$Group.1 <- NULL
+cp_10209agg$Group.1 <- NULL
+cp_10210agg$Group.1 <- NULL
+cp_10211agg$Group.1 <- NULL
+cp_10212agg$Group.1 <- NULL
+cp_10213agg$Group.1 <- NULL
+cp_10214agg$Group.1 <- NULL
+cp_10215agg$Group.1 <- NULL
+cp_10216agg$Group.1 <- NULL
+cp_10217agg$Group.1 <- NULL
+cp_10218agg$Group.1 <- NULL
+cp_10219agg$Group.1 <- NULL
+cp_10220agg$Group.1 <- NULL
+cp_10221agg$Group.1 <- NULL
+cp_10222agg$Group.1 <- NULL
+cp_10223agg$Group.1 <- NULL
+cp_10224agg$Group.1 <- NULL
+cp_10225agg$Group.1 <- NULL
+cp_10226agg$Group.1 <- NULL
+cp_10227agg$Group.1 <- NULL
+cp_10228agg$Group.1 <- NULL
+cp_10229agg$Group.1 <- NULL
+cp_10230agg$Group.1 <- NULL
+cp_10231agg$Group.1 <- NULL
+cp_10232agg$Group.1 <- NULL
+cp_10233agg$Group.1 <- NULL
+cp_10234agg$Group.1 <- NULL
+cp_10235agg$Group.1 <- NULL
+cp_10236agg$Group.1 <- NULL
+```
+
 ## Merging all individual files into cp_merged
 
 ```{r}
