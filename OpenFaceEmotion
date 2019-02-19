@@ -8,21 +8,6 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-#install.packages("mosaic")
-#install.packages("ggplot2")
-#install.packages("tidyr")
-#install.packages("dplyr")
-#install.packages("psych")
-#install.packages("nlme")
-#install.packages("plyr")
-#install.packages("Hmisc")
-#install.packages("rmarkdown")
-#install.packages("shiny")
-#install.packages("yaml")
-#install.packages("rapportools")
-#install.packages("lavaan")
-#install.packages("lme4")
-
 library(mosaic)
 library(ggplot2)
 library(tidyr)
