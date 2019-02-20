@@ -3,7 +3,7 @@
 
 ## Instructions
 
-Before running anything, make sure you put these files where they can be called upon: cortisol_original.csv, ctq.csv, gender.csv, medication.csv, and threatdep.csv. Now run the files in this order:
+Before running anything, make sure you put these files somewhere so they can be called upon: cortisol_original.csv, ctq.csv, gender.csv, medication.csv, and threatdep.csv. Now run the files in this order:
 
 1. OpenFacePrep: This pulls raw Cold Press files straight from OpenFace, removes everyone that needs to be excluded, and smushes them together into a file called "cp_full.csv" and "cp_master.csv". 
 2. OpenFaceFixingCortisol: This pulls the raw cortisol .csv, properly transforms relevant variables, and spits out a corrected file called "cortisol.csv". 
