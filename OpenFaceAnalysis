@@ -76,6 +76,12 @@ cp_long$timebeforepeak <- as.integer(cp_long$timebeforepeak)
 cp_long$timeafterpeak <- as.integer(cp_long$timeafterpeak)
 ```
 
+```{r}
+#cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
+#cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
+#cp_master$X <- NULL
+```
+
 ## Introduction
 
 In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models as consistently as possible.
