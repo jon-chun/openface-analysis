@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceCortisol"
 author: "Julianna Calabrese"
-date: "12/7/2018"
+date: "Last updated 1/14/2019"
 output: html_document
 ---
 
@@ -35,8 +35,6 @@ library(rmarkdown)
 library(shiny)
 library(yaml)
 ```
-
-## Last updated 1/14/2019
 
 ## Read in cortisol.csv
 
