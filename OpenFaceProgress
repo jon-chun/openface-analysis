@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceProgress"
 author: "Julianna Calabrese"
-date: "Last edited 2/19/2019"
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 editor_options: 
   chunk_output_type: console
