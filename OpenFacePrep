@@ -1,7 +1,7 @@
 ---
 title: "OpenFacePrep"
 author: "Julianna Calabrese"
-date: "Updated 2/19/19""
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
   pdf_document: default
   html_document: default
 editor_options: 
