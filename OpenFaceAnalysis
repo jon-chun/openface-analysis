@@ -59,8 +59,8 @@ library(languageR)
 ```
 
 ```{r Load in data, include=FALSE}
-#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
@@ -76,19 +76,10 @@ cp_long$timebeforepeak <- as.integer(cp_long$timebeforepeak)
 cp_long$timeafterpeak <- as.integer(cp_long$timeafterpeak)
 ```
 
-```{r include=FALSE}
+```{r Load in cp_master if needed, include=FALSE}
 #cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
 #cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
 #cp_master$X <- NULL
-```
-
-# REMOVE REMOVE REMOVE!
-
-```{r}
-cp_full_temp <- read.csv(file="/Users/Julianna/Desktop/data/cp_full_temp.csv", header=TRUE, sep=",")
-names(cp_full_temp)[names(cp_full_temp) == "FF_ID"] <- "id"
-cp_long <- merge(cp_long, cp_full_temp, by="id")
-rm(cp_full_temp)
 ```
 
 ## Introduction
@@ -185,7 +176,7 @@ base <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(base) # Is there a reason that all the p-values are zero?
+summary(base) 
 print(summary(base)$tTable[,])
 ```
 
@@ -877,7 +868,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
@@ -903,7 +894,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
@@ -931,7 +922,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
@@ -959,7 +950,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
@@ -987,7 +978,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
@@ -1015,7 +1006,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
@@ -1043,7 +1034,7 @@ mod <- lme(cortvalue ~
             # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
-summary(mod) # Is there a reason that all the p-values are zero?
+summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
