@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceEmotion"
 author: "Julianna Calabrese"
-date: "Updated 2/19/19"
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 editor_options: 
   chunk_output_type: console
