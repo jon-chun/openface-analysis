@@ -1,7 +1,7 @@
 ---
 title: "OpenFaceCortisol"
 author: "Julianna Calabrese"
-date: "Last updated 1/14/2019"
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
