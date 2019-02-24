@@ -132,7 +132,7 @@ corr_data <- stats::cor(corr_vars)
 
 labels <- c("Anger", "Fear", "Happiness", "Sadness", "Pain", "CTQ Total", "CTQ Emo", "ThreatZSum", "DepZSum", "ThreapCompc", "DepCompc", "ThreatDepInt")
 
-set_theme(axis.title.size = 0, geom.label.size = 4.5, axis.textsize.x = 1, axis.textsize.y = 1, axis.angle.x = 0)
+set_theme(axis.title.size = 0, geom.label.size = 4.5, axis.textsize.x = 1, axis.textsize.y = 1, axis.angle.x = 90)
 
 sjp.corr(corr_data, corr.method=c("spearman"),title="Correlation Matrix", na.deletion = "pairwise", sort.corr=FALSE, show.values=TRUE, decimals=2, axis.labels = labels)
 
@@ -143,12 +143,12 @@ rm(labels)
 
 ## Base Model
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 base <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline, # Fixed Effect
+              baseline, # Fixed effect
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
             # but what does that "-1" do specifically?
@@ -178,12 +178,12 @@ But what does that "- 1" really do? If I don't include it, it doesn't work. I'll
 
 ### Anger
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 anger <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                angerC + angerC*timebeforepeak + angerC*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             corr = corAR1(), #specifies AR1 structure
@@ -202,12 +202,12 @@ tab_model(anger, title = "Anger Model Summary Output", pred.labels = labels, dv.
 
 ### Fear
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 fear <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                fearC + fearC*timebeforepeak + fearC*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -227,12 +227,12 @@ tab_model(fear, title = "Fear Model Summary Output", pred.labels = labels, dv.la
 
 ### Happiness
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 happiness <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                happinessC + happinessC*timebeforepeak + happinessC*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -252,12 +252,12 @@ tab_model(happiness, title = "Happy Model Summary Output", pred.labels = labels,
 
 ### Sadness
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 sadness <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                sadnessC + sadnessC*timebeforepeak + sadnessC*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -277,12 +277,12 @@ tab_model(sadness, title = "Sad Model Summary Output", pred.labels = labels, dv.
 
 ### Pain
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 pain <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                painC + painC*timebeforepeak + painC*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -304,12 +304,12 @@ tab_model(pain, title = "Pain Model Summary Output", pred.labels = labels, dv.la
 
 ### CTQ Total Sum
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 ctq <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                ctqsumC + ctqsumC*timebeforepeak + ctqsumC*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
            # timebeforepeak and timeafterpeak within each level of id
@@ -329,12 +329,12 @@ tab_model(ctq, title = "CTQ Model Summary Output", pred.labels = labels, dv.labe
 
 ### ThreatZSum
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 ThreatZSum <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                ThreatZSum + ThreatZSum*timebeforepeak + ThreatZSum*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -354,12 +354,12 @@ tab_model(ThreatZSum, title = "ThreatZSum Model Summary Output", pred.labels = l
 
 ### ThreatComp
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 ThreatComp <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                ThreatComp + ThreatComp*timebeforepeak + ThreatComp*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -379,12 +379,12 @@ tab_model(ThreatComp, title = "ThreatComp Model Summary Output", pred.labels = l
 
 ### DepZSum
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 DepZSum <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                DepZSum + DepZSum*timebeforepeak + DepZSum*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -404,12 +404,12 @@ tab_model(DepZSum, title = "DepZSum Model Summary Output", pred.labels = labels,
 
 ### DepComp
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 DepComp <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                DepComp + DepComp*timebeforepeak + DepComp*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -429,12 +429,12 @@ tab_model(DepComp, title = "DepComp Model Summary Output", pred.labels = labels,
 
 ### ThreatCompc
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 ThreatCompc <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                ThreatCompc + ThreatCompc*timebeforepeak + ThreatCompc*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -454,12 +454,12 @@ tab_model(ThreatCompc, title = "ThreatCompc Model Summary Output", pred.labels =
 
 ### DepCompc
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 DepCompc <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                DepCompc + DepCompc*timebeforepeak + DepCompc*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -479,12 +479,12 @@ tab_model(DepCompc, title = "DepCompc Model Summary Output", pred.labels = label
 
 ### ThreatDepInt
 
-```{r echo=T, results='hide'}
+```{r echo=F, results='hide'}
 ThreatDepInt <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
-              baseline + # Fixed Effect
+              baseline + # Fixed effect
                ThreatDepInt + ThreatDepInt*timebeforepeak + ThreatDepInt*timeafterpeak,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
@@ -500,4 +500,297 @@ labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "ThreatD
 colorder <- c("est", "df", "se", "p")
 
 tab_model(ThreatDepInt, title = "ThreatDepInt Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+## Interaction Models
+
+Please note that not everything below is meaningful. I just didn't want to delete failed attempts. 
+
+### Anger X CTQ Total
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              angerC + ctqsumC + # Fixed effect
+              angerC*timebeforepeak + angerC*timeafterpeak + # Interactions
+              angerC*ctqsumC, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Anger", "CTQ Total",
+            "Anger * TimeBeforePeak", "Anger * TimeAfterPeak",
+            "Anger * CTQ Total")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Anger X CTQ Total Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Anger X ThreatCompc
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              angerC + ThreatCompc + # Fixed effect
+              angerC*timebeforepeak + angerC*timeafterpeak + # Interactions
+              angerC*ThreatCompc, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Anger", "ThreatCompc",
+            "Anger * TimeBeforePeak", "Anger * TimeAfterPeak",
+            "Anger * ThreatCompc")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Anger X ThreatCompc Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Fear X CTQ Total
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              fearC + ctqsumC + # Fixed effect
+              fearC*timebeforepeak + fearC*timeafterpeak + # Interactions
+              fearC*ctqsumC, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Fear", "CTQ Total",
+            "Fear * TimeBeforePeak", "Fear * TimeAfterPeak",
+            "Fear * CTQ Total")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Fear X CTQ Total Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Fear X ThreatCompc
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              fearC + ThreatCompc + # Fixed effect
+              fearC*timebeforepeak + fearC*timeafterpeak + # Interactions
+              fearC*ThreatCompc, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Fear", "ThreatCompc",
+            "Fear * TimeBeforePeak", "Fear * TimeAfterPeak",
+            "Fear * ThreatCompc")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Fear X ThreatCompc Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Happiness X CTQ Total
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              happinessC + ctqsumC + # Fixed effect
+              happinessC*timebeforepeak + happinessC*timeafterpeak + # Interactions
+              happinessC*ctqsumC, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Happiness", "CTQ Total",
+            "Happiness * TimeBeforePeak", "Happiness * TimeAfterPeak",
+            "Happiness * CTQ Total")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Happiness X CTQ Total Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Happiness X ThreatCompc
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              happinessC + ThreatCompc + # Fixed effect
+              happinessC*timebeforepeak + happinessC*timeafterpeak + # Interactions
+              happinessC*ThreatCompc, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Happiness", "ThreatCompc",
+            "Happiness * TimeBeforePeak", "Happiness * TimeAfterPeak",
+            "Happiness * ThreatCompc")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Anger X ThreatCompc Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Sadness X CTQ Total
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              sadnessC + ctqsumC + # Fixed effect
+              sadnessC*timebeforepeak + sadnessC*timeafterpeak + # Interactions
+              sadnessC*ctqsumC, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Sadness", "CTQ Total",
+            "Sadness * TimeBeforePeak", "Sadness * TimeAfterPeak",
+            "Sadness * CTQ Total")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Sadness X CTQ Total Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Sadness X ThreatCompc
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              sadnessC + ThreatCompc + # Fixed effect
+              sadnessC*timebeforepeak + sadnessC*timeafterpeak + # Interactions
+              sadnessC*ThreatCompc, #Interactions
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+summary(mod1)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Sadness", "ThreatCompc",
+            "Sadness * TimeBeforePeak", "Sadness * TimeAfterPeak",
+            "Sadness * ThreatCompc")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod1, title = "Sadness X ThreatCompc Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Pain X CTQ Total
+
+```{r echo=F, results='hide'}
+mod2 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              painC + ctqsumC +
+              painC*timebeforepeak + painC*timeafterpeak + # Interactions
+              painC*ctqsumC,
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod2)
+summary(mod2)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Pain", "ThreatCompc",
+            "Pain * TimeBeforePeak", "Pain * TimeAfterPeak",
+            "Pain * ThreatCompc")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod2, title = "Pain X Trauma Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+### Pain X ThreatCompc
+
+```{r echo=F, results='hide'}
+mod2 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+              painC + painC*timebeforepeak + painC*timeafterpeak + # Interactions
+              painC*ThreatCompc,
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod2)
+summary(mod2)$tTable[,]
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline", "Pain", "ThreatCompc",
+            "Pain * TimeBeforePeak", "Pain * TimeAfterPeak",
+            "Pain * ThreatCompc")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(mod2, title = "Pain X Trauma Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
