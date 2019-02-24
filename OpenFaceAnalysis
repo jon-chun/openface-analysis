@@ -1,7 +1,7 @@
 ---
 title: 'Data Analysis on the Facial Expression/Cortisol Project'
 author: "Julianna Calabrese"
-date: "Last updated 2/18/2019"
+date: "Last updated 2/24/2019"
 output:
   html_document:
     toc: true
@@ -59,8 +59,8 @@ library(languageR)
 ```
 
 ```{r Load in data, include=FALSE}
-cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
@@ -76,7 +76,7 @@ cp_long$timebeforepeak <- as.integer(cp_long$timebeforepeak)
 cp_long$timeafterpeak <- as.integer(cp_long$timeafterpeak)
 ```
 
-```{r}
+```{r include=FALSE}
 #cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
 #cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
 #cp_master$X <- NULL
@@ -155,7 +155,7 @@ base <- lme(cortvalue ~
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(base) # Is there a reason that all the p-values are zero?
-summary(base)$tTable[,]
+print(summary(base)$tTable[,])
 ```
 
 ```{r echo=FALSE, results = 'asis'}
@@ -166,7 +166,9 @@ colorder <- c("est", "df", "se", "p")
 tab_model(base, title = "Base Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 ```
 
-I've been debating which R package to use to conduct mixed modeling, as it needs to be able to have multiple non-nested random effects and specify a correlation strucutre. It looks like I'm able to do this with nlme's lme command by doing 
+[StackOverflow link that taught me how to put two random effects in a nlme model.](https://stackoverflow.com/questions/21651879/how-to-fit-two-random-effects-separately-in-lme)
+
+I've been debating which R package to use to conduct mixed modeling, as it needs to be able to have multiple non-nested random effects and specify a correlation strucutre. It looks like I'm able to do this with nlme's lme command by doing the following:
 
 > random = ~ timebeforepeak + timeafterpeak - 1 | id
 
