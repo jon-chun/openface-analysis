@@ -163,7 +163,7 @@ rm(corr_data)
 rm(labels)
 ```
 
-## Base Model
+## Base Models
 
 ```{r echo=F, results='hide'}
 base <- lme(cortvalue ~ 
@@ -190,11 +190,50 @@ tab_model(base, title = "Base Model Summary Output", pred.labels = labels, dv.la
 
 [StackOverflow link that taught me how to put two random effects in a nlme model.](https://stackoverflow.com/questions/21651879/how-to-fit-two-random-effects-separately-in-lme)
 
-I've been debating which R package to use to conduct mixed modeling, as it needs to be able to have multiple non-nested random effects and specify a correlation strucutre. It looks like I'm able to do this with nlme's lme command by doing the following:
+I've been debating which R package to use to conduct mixed modeling, as it needs to be able to have multiple non-nested random effects and specify a correlation strucutre. It looks like I'm able to do this with nlme's lme command. However, I don't see that many differences between what I do above and a basic lmer model without the autoregressive structure specified.
 
-> random = ~ timebeforepeak + timeafterpeak - 1 | id
+```{r}
+new.lme.base <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline, # Fixed effect
+            random = ~ 1 | id, # Random effect of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(new.lme.base) 
+print(summary(new.lme.base)$tTable[,])
+```
 
-But what does that "- 1" really do? If I don't include it, it doesn't work. I'll come back to this later.
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(new.lme.base, title = "New lme Base Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+```
+
+[StackOverflow link to lme4/lmer cheatsheet.](https://stats.stackexchange.com/questions/13166/rs-lmer-cheat-sheet)
+
+```{r}
+lmer.base <- lmer(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline + # Fixed effect
+            (1|id), # Random effect of id
+            # Default structure is unconstrained
+            data = cp_long)
+summary(lmer.base) 
+```
+
+```{r echo=FALSE, results = 'asis'}
+labels <- c("Intercept", "TimeBeforePeak", "TimeAfterPeak", "Baseline")
+
+colorder <- c("est", "df", "se", "p")
+
+tab_model(lmer.base, title = "lmer Base Model Summary Output", pred.labels = labels, dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.r2=TRUE, col.order=colorder)
+```
 
 ## Emotion Models
 
