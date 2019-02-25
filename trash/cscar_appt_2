@@ -1,0 +1,250 @@
+---
+title: 'Notes from Second CSCAR Appointment'
+author: "Julianna Calabrese"
+date: "2/25/2019`"
+output:
+  html_document:
+    toc: true
+    theme: united
+    highlight: tango
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(psych)
+library(nlme)
+library(plyr)
+library(Hmisc)
+library(rmarkdown)
+library(yaml)
+library(rapportools)
+library(lavaan)
+library(lme4)
+library(corrr)
+library(corrplot)
+library(reshape2)
+library(lmerTest)
+library(multcomp)
+library(optimx)
+library(MuMIn)
+library(Rmisc)
+library(jsonlite)
+library(knitr)
+library(taRifx)
+library(papeR)
+library(stargazer)
+library(kableExtra)
+library(broom)
+library(xtable)
+library(sjPlot)
+library(sjstats)
+library(sjlabelled)
+library(sjmisc)
+library(ggeffects)
+library(glmmTMB)
+library(bindrcpp)
+library(pbkrtest)
+library(devtools)
+library(psycholing)
+library(pander)
+library(coefplot)
+library(ggiraphExtra)
+library(languageR)
+```
+
+```{r Load in data, include=FALSE}
+#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+cp_long$X <- NULL
+cp_long$gender <- as.integer(cp_long$gender)
+cp_long$gendercat <- as.character(cp_long$gendercat)
+cp_long$male <- as.integer(cp_long$male)
+cp_long$female <- as.integer(cp_long$female)
+cp_long$genderold <- NULL
+cp_long$baseline <- as.numeric(cp_long$cort_baseline_Win)
+cp_long$baselineC <- as.numeric(cp_long$cort_baseline_WinC)
+cp_long$cort_baseline_Win <- NULL
+cp_long$cort_baseline_WinC <- NULL
+cp_long$id <- as.factor(cp_long$id)
+cp_long$timebeforepeak <- as.integer(cp_long$timebeforepeak)
+cp_long$timeafterpeak <- as.integer(cp_long$timeafterpeak)
+```
+
+```{r Load in cp_master if needed, include=FALSE}
+#cp_master <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_master.csv", header=TRUE, sep=",")
+#cp_master <- read.csv(file="/Users/Julianna/Desktop/data/cp_master.csv", header=TRUE, sep=",")
+#cp_master$X <- NULL
+```
+
+## Introduction
+
+In this file, I do my best to follow the instructions as laid out in Lopez-Duran, Mayer, & Abelson 2014. I wil try to explain all the code written in this file, why I do it, and why things may look weird at times. I will also try to name objects, variables, and models as consistently as possible.
+
+Since Lopez-Duran, Mayer, & Abelson's 2014 paper utilized the PROC MIXED command in SAS, this RMarkdown file will use the lme() command as part of the lme4 package. More information about nlme() can be found here: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.130.1698&rep=rep1&type=pdf
+
+### Equation from Lopez-Duran 2014
+
+$\begin{aligned}
+Cortisol = \beta_0  
+& + (\beta_1 \cdot Sex) \\
+& + (\beta_2 \cdot TimeBeforePeak) \\
+& + (\beta_3 \cdot TimeAfterPeak) \\
+& + (\beta_4 \cdot Sex \cdot TimeBeforePeak) \\
+& + (\beta_5 \cdot Sex \cdot TimeAfterPeak) \\
+\end{aligned}$
+
+### Base Model Equation
+
+$\begin{aligned}
+Cortisol = \beta_0  
+& + (\beta_1 \cdot TimeBeforePeak) \\
+& + (\beta_2 \cdot TimeAfterPeak) \\
+& + (\beta_3 \cdot Baseline) \\
+\end{aligned}$
+
+### Definitions
+
+* b0 = intercept aka peak
+* b1 = the impact of sex on levels at the group peak time
+* b2 = the activation slope for males
+* b3 = the regulation slope for males
+* b4 = the impact of sex (females) on the activation slope
+* b5 = the impact of sex (females) on the regulation slope
+* timebeforepeak = the reactivity slope / activation
+* timeafterpeak = the recovery slope / regulation
+
+The variable "gender" is a binary variable of 0 = male and 1 = female.
+
+## Correlation Matrix: Emotion
+
+```{r results='asis', warning=FALSE, message=FALSE, echo=FALSE}
+corr_vars <- data.frame(cp_long$angerC, cp_long$fearC, cp_long$happinessC, cp_long$sadnessC, cp_long$painC, cp_long$ctqsumC, cp_long$emosumC, cp_long$ThreatZSum, cp_long$DepZSum, cp_long$ThreatCompc, cp_long$DepCompc, cp_long$ThreatDepInt)
+
+names(corr_vars) <- gsub(pattern = "cp_long._*", replacement = "", x = names(corr_vars))
+
+corr_data <- stats::cor(corr_vars)
+
+labels <- c("Anger", "Fear", "Happiness", "Sadness", "Pain", "CTQ Total", "CTQ Emo", "ThreatZSum", "DepZSum", "ThreapCompc", "DepCompc", "ThreatDepInt")
+
+set_theme(axis.title.size = 0, geom.label.size = 4.5, axis.textsize.x = 1, axis.textsize.y = 1, axis.angle.x = 90)
+
+sjp.corr(corr_data, corr.method=c("spearman"),title="Correlation Matrix", na.deletion = "pairwise", sort.corr=FALSE, show.values=TRUE, decimals=2, axis.labels = labels)
+
+rm(corr_vars)
+rm(corr_data)
+rm(labels)
+```
+
+## Correlation Matrix: AUs
+
+```{r results='asis', warning=FALSE, message=FALSE, echo=FALSE}
+#cp_long <- merge(cp_long, cp_full_temp, by="id")
+
+corr_vars <- data.frame(cp_long$AU01_r, cp_long$AU02_r, cp_long$AU04_r, cp_long$AU05_r, cp_long$AU06_r, cp_long$AU07_r, cp_long$AU09_r, cp_long$AU10_r, cp_long$AU12_r, cp_long$AU14_r, cp_long$AU15_r, cp_long$AU17_r, cp_long$AU20_r, cp_long$AU23_r, cp_long$AU25_r, cp_long$AU26_r, cp_long$ctqsumC,cp_long$ThreatCompc, cp_long$DepCompc)
+
+names(corr_vars) <- gsub(pattern = "cp_long._*", replacement = "", x = names(corr_vars))
+
+corr_data <- stats::cor(corr_vars)
+
+labels <- c("AU01_r", "AU02_r", "AU04_r", "AU05_r", "AU06_r", "AU07_r", "AU09_r", "AU10_r", "AU12_r", "AU14_r", "AU15_r", "AU17_r", "AU20_r", "AU23_r", "AU25_r", "AU26_r", "CTQ Total", "ThreapCompc", "DepCompc")
+
+set_theme(axis.title.size = 0, geom.label.size = 4.5, axis.textsize.x = 1, axis.textsize.y = 1, axis.angle.x = 90)
+
+sjp.corr(corr_data, corr.method=c("spearman"),title="Correlation Matrix", na.deletion = "pairwise", sort.corr=FALSE, show.values=TRUE, decimals=1, axis.labels = labels)
+
+rm(corr_vars)
+rm(corr_data)
+rm(labels)
+```
+
+## Base Model
+
+```{r echo=F, results='hide'}
+mod1 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline, # Fixed effect
+            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            # timebeforepeak and timeafterpeak within each level of id
+            # but what does that "-1" do specifically?
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod1)
+print(summary(mod1)$tTable[,])
+#Why are std devs so small??? suggests that they're not really there
+
+#minus one might be getting rid of the random effects
+#the minus one takes away the random intercept
+```
+
+```{r}
+mod2 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline, # Fixed effect
+          random = ~ (timebeforepeak + timeafterpeak | id),
+            # timebeforepeak and timeafterpeak within each level of id
+            # but what does that "-1" do specifically?
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod2) 
+```
+
+two random slopes
+two random interceps
+
+ask melissa for her sas output
+what were the variances of their slopes???
+
+```{r}
+anova(mod1, mod2)
+```
+
+```{r makes most sense}
+mod3 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline, # Fixed effect
+          random = ~ 1 | id,
+            # timebeforepeak and timeafterpeak within each level of id
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod3) 
+```
+
+What were their variances??? 
+two fixed effects slopes and two random variance slopes
+is the point in the middle fitted?
+
+using five parameter to fits nine points is a lot
+
+are they fitting random slopes that are essentially zero? 
+
+maybe the intercept is nontrivial is random 
+
+maybe theyre just fitting a random intercept model if slopes are just like zero
+
+```{r }
+mod3 <- lme(cortvalue ~ 
+              1 + # The 1 allows us to have a random/varying intercept for each subject
+              timebeforepeak + # Fixed effect
+              timeafterpeak + # Fixed effect
+              baseline, # Fixed effect
+          random = ~ 1 | id, # Random intercept
+            # Allows cort to start in a diff place
+          # Variances are so small it doesn't matter if we include random effects for timebefore and timeafter
+            corr = corAR1(), #specifies AR1 structure
+            data = cp_long)
+summary(mod3) 
+```
+
+we want random intercept model but have residual have the autoregressive structure -- dont bother with random slopes bc they're zero
