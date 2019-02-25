@@ -842,42 +842,41 @@ rm(mod)
 ```{r include=FALSE, echo=F, results='hide'}
 ### Every Single AU X ThreatCompc
 
-mod <- lme(cortvalue ~ 
-              1 + # The 1 allows us to have a random/varying intercept for each subject
-              timebeforepeak + # Fixed effect
-              timeafterpeak + # Fixed effect
-              baseline +
-              AU01_r*timebeforepeak + AU01_r*timeafterpeak + AU01_r*ThreatCompc +   
-              AU02_r*timebeforepeak + AU02_r*timeafterpeak + AU02_r*ThreatCompc + 
-              AU04_r*timebeforepeak + AU04_r*timeafterpeak + AU04_r*ThreatCompc +  
-              AU05_r*timebeforepeak + AU05_r*timeafterpeak + AU05_r*ThreatCompc +
-              AU06_r*timebeforepeak + AU06_r*timeafterpeak + AU06_r*ThreatCompc + 
-              AU07_r*timebeforepeak + AU07_r*timeafterpeak + AU07_r*ThreatCompc +   
-              AU09_r*timebeforepeak + AU09_r*timeafterpeak + AU09_r*ThreatCompc +
-              AU10_r*timebeforepeak + AU10_r*timeafterpeak + AU10_r*ThreatCompc +   
-              AU12_r*timebeforepeak + AU12_r*timeafterpeak + AU12_r*ThreatCompc + 
-              AU14_r*timebeforepeak + AU14_r*timeafterpeak + AU14_r*ThreatCompc +
-              AU15_r*timebeforepeak + AU15_r*timeafterpeak + AU15_r*ThreatCompc +
-              AU17_r*timebeforepeak + AU17_r*timeafterpeak + AU17_r*ThreatCompc +
-              AU20_r*timebeforepeak + AU20_r*timeafterpeak + AU20_r*ThreatCompc +
-              AU23_r*timebeforepeak + AU23_r*timeafterpeak + AU23_r*ThreatCompc +
-              AU25_r*timebeforepeak + AU25_r*timeafterpeak + AU25_r*ThreatCompc +
-              AU26_r*timebeforepeak + AU26_r*timeafterpeak + AU26_r*ThreatCompc,
-            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+#mod <- lme(cortvalue ~ 
+              #1 + # The 1 allows us to have a random/varying intercept for each subject
+              #timebeforepeak + # Fixed effect
+              #timeafterpeak + # Fixed effect
+              #baseline +
+              #AU01_r*timebeforepeak + AU01_r*timeafterpeak + AU01_r*ThreatCompc +   
+              #AU02_r*timebeforepeak + AU02_r*timeafterpeak + AU02_r*ThreatCompc + 
+              #AU04_r*timebeforepeak + AU04_r*timeafterpeak + AU04_r*ThreatCompc +  
+              #AU05_r*timebeforepeak + AU05_r*timeafterpeak + AU05_r*ThreatCompc +
+              #AU06_r*timebeforepeak + AU06_r*timeafterpeak + AU06_r*ThreatCompc + 
+              #AU07_r*timebeforepeak + AU07_r*timeafterpeak + AU07_r*ThreatCompc +   
+              #AU09_r*timebeforepeak + AU09_r*timeafterpeak + AU09_r*ThreatCompc +
+              #AU10_r*timebeforepeak + AU10_r*timeafterpeak + AU10_r*ThreatCompc +   
+              #AU12_r*timebeforepeak + AU12_r*timeafterpeak + AU12_r*ThreatCompc + 
+              #AU14_r*timebeforepeak + AU14_r*timeafterpeak + AU14_r*ThreatCompc +
+              #AU15_r*timebeforepeak + AU15_r*timeafterpeak + AU15_r*ThreatCompc +
+              #AU17_r*timebeforepeak + AU17_r*timeafterpeak + AU17_r*ThreatCompc +
+              #AU20_r*timebeforepeak + AU20_r*timeafterpeak + AU20_r*ThreatCompc +
+              #AU23_r*timebeforepeak + AU23_r*timeafterpeak + AU23_r*ThreatCompc +
+              #AU25_r*timebeforepeak + AU25_r*timeafterpeak + AU25_r*ThreatCompc +
+              #AU26_r*timebeforepeak + AU26_r*timeafterpeak + AU26_r*ThreatCompc,
+            #random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
-            corr = corAR1(), #specifies AR1 structure
-            data = cp_long)
-summary(mod) 
+            #corr = corAR1(), #specifies AR1 structure
+            #data = cp_long)
+#summary(mod) 
 #print(summary(mod)$tTable[,])
 ```
 
 ```{r include=FALSE, echo=FALSE, results = 'asis'}
-colorder <- c("est", "df", "se", "p")
+#colorder <- c("est", "df", "se", "p")
 
-tab_model(mod, title = "Everything but the Kitchen Sink Summary Output", dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
+#tab_model(mod, title = "Everything but the Kitchen Sink Summary Output", dv.labels = "Cortisol", show.icc=FALSE, show.re.var=FALSE, string.p="P-value", show.ci=FALSE, show.se=TRUE, string.se="Std Error", show.df = TRUE, string.df="DF", p.val="kr", show.r2=TRUE, col.order=colorder)
 
-rm(mod)
+#rm(mod)
 ```
 
 ### AU5 Model X ThreatCompc
@@ -891,7 +890,6 @@ mod <- lme(cortvalue ~
               AU05_r*timebeforepeak + AU05_r*timeafterpeak + AU05_r*ThreatCompc,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(mod) 
@@ -919,7 +917,6 @@ mod <- lme(cortvalue ~
               AU05_r*timebeforepeak + AU05_r*timeafterpeak + AU05_r*ctqsumC,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(mod) 
@@ -947,7 +944,6 @@ mod <- lme(cortvalue ~
               AU09_r*timebeforepeak + AU09_r*timeafterpeak + AU09_r*ThreatCompc,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(mod) 
@@ -975,7 +971,6 @@ mod <- lme(cortvalue ~
               AU09_r*timebeforepeak + AU09_r*timeafterpeak + AU09_r*ctqsumC,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(mod) 
@@ -1003,7 +998,6 @@ mod <- lme(cortvalue ~
               AU14_r*timebeforepeak + AU14_r*timeafterpeak + AU14_r*ThreatCompc,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(mod) 
@@ -1031,7 +1025,6 @@ mod <- lme(cortvalue ~
               AU14_r*timebeforepeak + AU14_r*timeafterpeak + AU14_r*ctqsumC,
             random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(mod) 
