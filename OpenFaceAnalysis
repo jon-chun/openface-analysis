@@ -59,8 +59,8 @@ library(languageR)
 ```
 
 ```{r Load in data, include=FALSE}
-cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
-#cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
+#cp_long <- read.csv(file="C:/Users/jrcala/Documents/My Research/RStudio/cp_long.csv", header=TRUE, sep=",")
+cp_long <- read.csv(file="/Users/Julianna/Desktop/data/cp_long.csv", header=TRUE, sep=",")
 cp_long$X <- NULL
 cp_long$gender <- as.integer(cp_long$gender)
 cp_long$gendercat <- as.character(cp_long$gendercat)
@@ -163,7 +163,7 @@ rm(corr_data)
 rm(labels)
 ```
 
-## Base Models
+## Base Model
 
 ```{r echo=F, results='hide'}
 base <- lme(cortvalue ~ 
@@ -171,9 +171,9 @@ base <- lme(cortvalue ~
               timebeforepeak + # Fixed effect
               timeafterpeak + # Fixed effect
               baseline, # Fixed effect
-            random = ~ (timebeforepeak + timeafterpeak) - 1 | id, # Two random effects of
+            random = ~ (timebeforepeak + timeafterpeak) -1 | id, # Two random effects of
             # timebeforepeak and timeafterpeak within each level of id
-            # but what does that "-1" do specifically?
+            # but the "minus 1" essentially negates the random effects' values...
             corr = corAR1(), #specifies AR1 structure
             data = cp_long)
 summary(base) 
@@ -192,7 +192,7 @@ tab_model(base, title = "Base Model Summary Output", pred.labels = labels, dv.la
 
 I've been debating which R package to use to conduct mixed modeling, as it needs to be able to have multiple non-nested random effects and specify a correlation strucutre. It looks like I'm able to do this with nlme's lme command. However, I don't see that many differences between what I do above and a basic lmer model without the autoregressive structure specified.
 
-```{r}
+```{r echo=F, results='hide'}
 new.lme.base <- lme(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
@@ -215,7 +215,7 @@ tab_model(new.lme.base, title = "New lme Base Model Summary Output", pred.labels
 
 [StackOverflow link to lme4/lmer cheatsheet.](https://stats.stackexchange.com/questions/13166/rs-lmer-cheat-sheet)
 
-```{r}
+```{r echo=F, results='hide'}
 lmer.base <- lmer(cortvalue ~ 
               1 + # The 1 allows us to have a random/varying intercept for each subject
               timebeforepeak + # Fixed effect
